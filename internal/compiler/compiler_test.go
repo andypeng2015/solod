@@ -41,10 +41,10 @@ func testPackage(t *testing.T, testDir string) {
 	})
 	be.Err(t, err, nil)
 
-	// Verify runtime files are copied to output
+	// Verify builtin files are copied to output
 	for _, name := range []string{"so.h", "so.c"} {
 		if _, err := os.Stat(filepath.Join(tempOut, name)); err != nil {
-			t.Errorf("missing runtime file: %s", name)
+			t.Errorf("missing builtin file: %s", name)
 		}
 	}
 }

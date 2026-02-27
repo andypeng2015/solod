@@ -35,8 +35,8 @@ func Translate(dir string, outDir string) {
 		})
 	}
 
-	// Write embedded runtime (so.h, so.c) into the output directory
-	writeRuntime(outDir)
+	// Write embedded builtin files (so.h, so.c) into the output directory
+	writeBuiltin(outDir)
 }
 
 // packageOutDir returns the output directory for a package.
