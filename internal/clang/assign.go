@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"go/types"
 	"io"
 	"strings"
 )
@@ -115,54 +116,61 @@ func (g *Generator) emitAssignStmt(stmt *ast.AssignStmt) {
 }
 
 // emitMultiReturnDefine emits a multi-return define assignment (e.g. a, b := vals()).
+// Out-parameters (index 1+) are declared first, then the primary return value
+// is declared and initialized with the call result, e.g.:
+// `so_Error err; int n = work(a, b, &err);`
 func (g *Generator) emitMultiReturnDefine(w io.Writer, stmt *ast.AssignStmt, call *ast.CallExpr) {
-	// Emit declarations for non-blank LHS vars, grouped by type.
+	// Declare out-param variables (index 1+), grouped by type.
 	type varInfo struct {
 		name  string
 		cType string
 	}
-	var vars []varInfo
-	for _, lhs := range stmt.Lhs {
+
+	// Collect out-parameters, skipping blank identifiers and redeclared variables.
+	var outVars []varInfo
+	for _, lhs := range stmt.Lhs[1:] {
 		ident := lhs.(*ast.Ident)
 		if ident.Name == "_" {
 			continue
 		}
 		def := g.types.Defs[ident]
 		if def == nil {
-			// Redeclared variable - already declared, skip.
-			continue
+			continue // redeclared variable
 		}
-		vars = append(vars, varInfo{ident.Name, g.mapType(stmt, def.Type())})
+		outVars = append(outVars, varInfo{ident.Name, g.mapType(stmt, def.Type())})
 	}
+
+	// Group consecutive out-parameters by type and emit declarations.
 	i := 0
-	for i < len(vars) {
-		cType := vars[i].cType
-		names := []string{vars[i].name}
-		for i+1 < len(vars) && vars[i+1].cType == cType {
+	for i < len(outVars) {
+		cType := outVars[i].cType
+		names := []string{outVars[i].name}
+		for i+1 < len(outVars) && outVars[i+1].cType == cType {
 			i++
-			names = append(names, vars[i].name)
+			names = append(names, outVars[i].name)
 		}
 		fmt.Fprintf(w, "%s%s %s;\n", g.indent(), cType, strings.Join(names, ", "))
 		i++
 	}
 
 	// Build out-args from LHS vars at index 1+.
-	var outArgs []string
-	for _, lhs := range stmt.Lhs[1:] {
-		ident := lhs.(*ast.Ident)
-		outArgs = append(outArgs, "&"+ident.Name)
-	}
-
-	// Emit the call.
-	g.state.outArgs = outArgs
+	g.state.outArgs = g.emitOutArgs(w, stmt, call)
 	defer func() { g.state.outArgs = nil }()
+
+	// Emit the call with first var declaration+initialization.
 	firstIdent := stmt.Lhs[0].(*ast.Ident)
 	if firstIdent.Name == "_" {
 		fmt.Fprintf(w, "%s", g.indent())
 		g.emitExpr(call)
 		fmt.Fprintf(w, ";\n")
 	} else {
-		fmt.Fprintf(w, "%s%s = ", g.indent(), firstIdent.Name)
+		def := g.types.Defs[firstIdent]
+		if def != nil {
+			cType := g.mapType(stmt, def.Type())
+			fmt.Fprintf(w, "%s%s %s = ", g.indent(), cType, firstIdent.Name)
+		} else {
+			fmt.Fprintf(w, "%s%s = ", g.indent(), firstIdent.Name)
+		}
 		g.emitExpr(call)
 		fmt.Fprintf(w, ";\n")
 	}
@@ -171,15 +179,10 @@ func (g *Generator) emitMultiReturnDefine(w io.Writer, stmt *ast.AssignStmt, cal
 // emitMultiReturnAssign emits a multi-return assignment (e.g. b, a = swap(a, b)).
 func (g *Generator) emitMultiReturnAssign(w io.Writer, stmt *ast.AssignStmt, call *ast.CallExpr) {
 	// Build out-args from LHS vars at index 1+.
-	var outArgs []string
-	for _, lhs := range stmt.Lhs[1:] {
-		ident := lhs.(*ast.Ident)
-		outArgs = append(outArgs, "&"+ident.Name)
-	}
+	g.state.outArgs = g.emitOutArgs(w, stmt, call)
+	defer func() { g.state.outArgs = nil }()
 
 	// Emit the call.
-	g.state.outArgs = outArgs
-	defer func() { g.state.outArgs = nil }()
 	firstIdent := stmt.Lhs[0].(*ast.Ident)
 	if firstIdent.Name == "_" {
 		fmt.Fprintf(w, "%s", g.indent())
@@ -192,4 +195,22 @@ func (g *Generator) emitMultiReturnAssign(w io.Writer, stmt *ast.AssignStmt, cal
 		g.emitExpr(call)
 		fmt.Fprintf(w, ";\n")
 	}
+}
+
+func (g *Generator) emitOutArgs(w io.Writer, stmt *ast.AssignStmt, call *ast.CallExpr) []string {
+	sig := g.types.Types[call.Fun].Type.(*types.Signature)
+	var outArgs []string
+	for j, lhs := range stmt.Lhs[1:] {
+		ident := lhs.(*ast.Ident)
+		if ident.Name == "_" {
+			g.state.nDiscard++
+			name := fmt.Sprintf("_d%d", g.state.nDiscard)
+			cType := g.mapType(stmt, sig.Results().At(j+1).Type())
+			fmt.Fprintf(w, "%s%s %s;\n", g.indent(), cType, name)
+			outArgs = append(outArgs, "&"+name)
+			continue
+		}
+		outArgs = append(outArgs, "&"+ident.Name)
+	}
+	return outArgs
 }

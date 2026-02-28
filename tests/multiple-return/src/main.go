@@ -24,6 +24,8 @@ func main() {
 	_ = d2
 	_ = m
 
-	_, c := vals()
-	_ = c
+	_, c1 := vals()
+	_ = c1
+	c2, _ := vals()
+	_ = c2
 }

@@ -71,6 +71,10 @@ func (g *Generator) emitHeaderFuncDecl(w io.Writer, decl *ast.FuncDecl) {
 	if !ast.IsExported(decl.Name.Name) {
 		return
 	}
+	// Methods on unexported types are static, not exported in the header.
+	if decl.Recv != nil && !ast.IsExported(recvTypeName(decl.Recv.List[0])) {
+		return
+	}
 	fn := newFuncDecl(g, decl)
 	fmt.Fprintf(w, "%s %s(%s);\n", fn.returnType(), fn.name(), fn.params())
 }

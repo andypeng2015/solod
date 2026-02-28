@@ -21,6 +21,13 @@ func (c *circle) area() int {
 	return 3 * c.radius * c.radius
 }
 
+// Unnamed receiver.
+type discard struct{}
+
+func (discard) Write(p []byte) (int, error) {
+	return len(p), nil
+}
+
 // Methods on primitive types are not supported.
 // type HttpStatus int
 
@@ -54,4 +61,10 @@ func main() {
 	c := circle{radius: 7}
 	cArea := c.area()
 	_ = cArea
+
+	d := discard{}
+	p := []byte{'h', 'i'}
+	n, err := d.Write(p)
+	_ = n
+	_ = err
 }

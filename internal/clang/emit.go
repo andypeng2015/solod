@@ -45,7 +45,18 @@ type State struct {
 	outParams []string
 	// Out-parameter args to append to current call
 	// (used by emitFuncCall/emitMethodCall).
-	outArgs []string
+	outArgs  []string
+	nDiscard int // counter for discard variable names (_d1, _d2, ...)
+}
+
+func (s *State) enterFunc(decl FuncDecl) {
+	s.outParams = decl.outParams()
+	s.nDiscard = 0
+}
+
+func (s *State) exitFunc() {
+	s.outParams = nil
+	s.nDiscard = 0
 }
 
 // Generator is responsible for generating C code from Go ASTs.

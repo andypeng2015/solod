@@ -19,6 +19,15 @@ static so_int circle_area(void* self) {
     return 3 * c->radius * c->radius;
 }
 
+typedef struct discard {
+} discard;
+
+static so_int discard_Write(void* self, so_Slice p, so_Error* err) {
+    (void)self;
+    *err = NULL;
+    return so_len(p);
+}
+
 int main(void) {
     main_Rect r = {.width = 10, .height = 5};
     so_int rArea = main_Rect_Area(&r);
@@ -33,4 +42,10 @@ int main(void) {
     circle c = {.radius = 7};
     so_int cArea = circle_area(&c);
     (void)cArea;
+    discard d = {};
+    so_Slice p = {(uint8_t[2]){'h', 'i'}, 2, 2};
+    so_Error err;
+    so_int n = discard_Write(&d, p, &err);
+    (void)n;
+    (void)err;
 }

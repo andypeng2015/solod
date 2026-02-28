@@ -19,8 +19,15 @@ type FuncDecl struct {
 
 func newFuncDecl(gen *Generator, decl *ast.FuncDecl) FuncDecl {
 	spec := ""
-	if decl.Name.Name != "main" && !ast.IsExported(decl.Name.Name) {
-		spec = "static "
+	if decl.Name.Name != "main" {
+		exported := ast.IsExported(decl.Name.Name)
+		// Methods are only public if both the type and method are exported.
+		if exported && decl.Recv != nil {
+			exported = ast.IsExported(recvTypeName(decl.Recv.List[0]))
+		}
+		if !exported {
+			spec = "static "
+		}
 	}
 	return FuncDecl{
 		gen:  gen,
@@ -97,32 +104,39 @@ func (f *FuncDecl) outParams() []string {
 	if f.typ.Results == nil {
 		return nil
 	}
+
 	// Flatten all result values.
-	type nameInfo struct{ name string }
+	type nameInfo struct {
+		name    string
+		typExpr ast.Expr
+	}
 	var all []nameInfo
 	for _, field := range f.typ.Results.List {
 		if len(field.Names) > 0 {
 			for _, n := range field.Names {
-				all = append(all, nameInfo{n.Name})
+				all = append(all, nameInfo{n.Name, field.Type})
 			}
 		} else {
-			all = append(all, nameInfo{})
+			all = append(all, nameInfo{"", field.Type})
 		}
 	}
-
 	if len(all) <= 1 {
 		return nil
 	}
-	// Assign names for out-parameters, using
-	// the Go name if available or _rN if unnamed.
+
+	// Assign names for out-parameters, using the Go name if available,
+	// "err" for unnamed error returns, or _rN otherwise.
 	var names []string
 	for i, info := range all[1:] {
 		if info.name != "" {
 			names = append(names, info.name)
+		} else if ident, ok := info.typExpr.(*ast.Ident); ok && ident.Name == "error" {
+			names = append(names, "err")
 		} else {
 			names = append(names, fmt.Sprintf("_r%d", i+1))
 		}
 	}
+
 	return names
 }
 
@@ -170,9 +184,9 @@ func (g *Generator) emitFuncDecl(decl *ast.FuncDecl) {
 	w := g.state.writer
 	fn := newFuncDecl(g, decl)
 	fmt.Fprintf(w, "\n%s%s %s(%s) {\n", fn.spec, fn.returnType(), fn.name(), fn.params())
-	g.state.outParams = fn.outParams()
+	g.state.enterFunc(fn)
+	defer g.state.exitFunc()
 	g.emitBlock(decl.Body)
-	g.state.outParams = nil
 	fmt.Fprintf(w, "}\n")
 }
 

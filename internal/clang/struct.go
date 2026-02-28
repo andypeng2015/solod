@@ -55,20 +55,29 @@ func (g *Generator) emitMethodDecl(decl *ast.FuncDecl) {
 
 	recv := decl.Recv.List[0]
 	cStructType := g.symbolName(recvTypeName(recv))
-	recvName := recv.Names[0].Name
+	named := len(recv.Names) > 0 // does the receiver have a name?
 
-	// For value receivers, track the name so emitSelectorExpr uses ->
-	// (all receivers become pointers in C via void* self cast).
-	if _, ok := recv.Type.(*ast.Ident); ok {
-		g.state.recvName = recvName
-		defer func() { g.state.recvName = "" }()
+	if named {
+		// For value receivers, track the name so emitSelectorExpr uses ->
+		// (all receivers become pointers in C via void* self cast).
+		if _, ok := recv.Type.(*ast.Ident); ok {
+			g.state.recvName = recv.Names[0].Name
+			defer func() { g.state.recvName = "" }()
+		}
 	}
 
 	fmt.Fprintf(w, "\n%s%s %s(%s) {\n", fn.spec, fn.returnType(), fn.name(), fn.params())
 	g.state.outParams = fn.outParams()
 	defer func() { g.state.outParams = nil }()
 	g.state.indent++
-	fmt.Fprintf(w, "%s%s* %s = (%s*)self;\n", g.indent(), cStructType, recvName, cStructType)
+
+	if named {
+		recvName := recv.Names[0].Name
+		fmt.Fprintf(w, "%s%s* %s = (%s*)self;\n", g.indent(), cStructType, recvName, cStructType)
+	} else {
+		fmt.Fprintf(w, "%s(void)self;\n", g.indent())
+	}
+
 	for _, stmt := range decl.Body.List {
 		ast.Walk(g, stmt)
 	}
