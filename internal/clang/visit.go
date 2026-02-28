@@ -6,6 +6,7 @@ import (
 	"go/token"
 	"go/types"
 	"io"
+	"os"
 	"strings"
 )
 
@@ -14,6 +15,21 @@ func (g *Generator) Visit(node ast.Node) ast.Visitor {
 	if node == nil {
 		return nil
 	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			// Only log once - the deepest Visit that catches the panic.
+			if !g.panicked {
+				g.panicked = true
+				pos := g.pkg.Fset.Position(node.Pos())
+				fmt.Fprintf(os.Stderr, "%s: %v\n", pos, r)
+				if srcLine, err := readSourceLine(pos.Filename, pos.Line); err == nil {
+					fmt.Fprintf(os.Stderr, "%s\n", srcLine)
+				}
+			}
+			panic(r)
+		}
+	}()
 
 	switch n := node.(type) {
 	case *ast.AssignStmt:

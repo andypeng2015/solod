@@ -55,6 +55,7 @@ type Generator struct {
 	state    State
 	externs  map[string]bool // symbols provided by C headers
 	includes []string        // #include directives from comments
+	panicked bool            // true after first panic caught in Visit
 }
 
 // newGenerator creates a new Generator instance.
