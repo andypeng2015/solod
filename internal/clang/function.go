@@ -140,6 +140,20 @@ func (f *FuncDecl) outParams() []string {
 	return names
 }
 
+// firstNamedReturn returns the name and C type of the first return value,
+// if it is named. Otherwise returns empty strings.
+func (f *FuncDecl) firstNamedReturn() (name, cType string) {
+	if f.typ.Results == nil || len(f.typ.Results.List) == 0 {
+		return "", ""
+	}
+	first := f.typ.Results.List[0]
+	if len(first.Names) == 0 || first.Names[0].Name == "_" {
+		return "", ""
+	}
+	typ := f.gen.types.TypeOf(first.Type)
+	return first.Names[0].Name, f.gen.mapType(f.decl, typ)
+}
+
 // returnType returns the C return type.
 func (f *FuncDecl) returnType() string {
 	if f.decl.Name.Name == "main" {
@@ -186,7 +200,16 @@ func (g *Generator) emitFuncDecl(decl *ast.FuncDecl) {
 	fmt.Fprintf(w, "\n%s%s %s(%s) {\n", fn.spec, fn.returnType(), fn.name(), fn.params())
 	g.state.enterFunc(fn)
 	defer g.state.exitFunc()
-	g.emitBlock(decl.Body)
+	g.state.indent++
+	if name, cType := fn.firstNamedReturn(); name != "" {
+		// The first return value is named, so we must declare it as a local variable.
+		typ := g.types.TypeOf(fn.typ.Results.List[0].Type)
+		fmt.Fprintf(w, "%s%s %s = %s;\n", g.indent(), cType, name, g.zeroValue(decl, typ))
+	}
+	for _, stmt := range decl.Body.List {
+		ast.Walk(g, stmt)
+	}
+	g.state.indent--
 	fmt.Fprintf(w, "}\n")
 }
 

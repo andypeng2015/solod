@@ -9,7 +9,8 @@ func swap(x int, y int) (int, int) {
 }
 
 func divide(x int, y int) (res int, mod int) {
-	return x / y, x % y
+	res = x / y
+	return res, x % y
 }
 
 func main() {

@@ -78,6 +78,12 @@ func (g *Generator) emitMethodDecl(decl *ast.FuncDecl) {
 		fmt.Fprintf(w, "%s(void)self;\n", g.indent())
 	}
 
+	if name, cType := fn.firstNamedReturn(); name != "" {
+		// The first return value is named, so we must declare it as a local variable.
+		typ := g.types.TypeOf(fn.typ.Results.List[0].Type)
+		fmt.Fprintf(w, "%s%s %s = %s;\n", g.indent(), cType, name, g.zeroValue(decl, typ))
+	}
+
 	for _, stmt := range decl.Body.List {
 		ast.Walk(g, stmt)
 	}

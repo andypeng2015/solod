@@ -11,8 +11,10 @@ static so_int swap(so_int x, so_int y, so_int* _r1) {
 }
 
 static so_int divide(so_int x, so_int y, so_int* mod) {
+    so_int res = 0;
+    res = x / y;
     *mod = x % y;
-    return x / y;
+    return res;
 }
 
 int main(void) {
