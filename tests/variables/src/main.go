@@ -177,4 +177,15 @@ func main() {
 		_ = v3
 		_ = v4
 	}
+
+	{
+		// Partial redeclaration with short variable declaration.
+		a, x := 11, 100
+		b, x := 22, 200
+		x, c := 300, 33
+		_ = a
+		_ = b
+		_ = c
+		_ = x
+	}
 }

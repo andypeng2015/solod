@@ -167,4 +167,15 @@ int main(void) {
         (void)v3;
         (void)v4;
     }
+    {
+        so_int a = 11, x = 100;
+        so_int b = 22;
+        x = 200;
+        x = 300;
+        so_int c = 33;
+        (void)a;
+        (void)b;
+        (void)c;
+        (void)x;
+    }
 }

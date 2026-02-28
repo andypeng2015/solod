@@ -35,7 +35,16 @@ func (g *Generator) emitAssignStmt(stmt *ast.AssignStmt) {
 				i++
 				continue
 			}
-			typ := g.types.Defs[ident].Type()
+			def := g.types.Defs[ident]
+			if def == nil {
+				// Redeclared variable - emit plain assignment.
+				fmt.Fprintf(w, "%s%s = ", g.indent(), ident.Name)
+				g.emitExpr(stmt.Rhs[i])
+				fmt.Fprintf(w, ";\n")
+				i++
+				continue
+			}
+			typ := def.Type()
 			cType := g.mapType(stmt, typ)
 			fmt.Fprintf(w, "%s%s %s = ", g.indent(), cType, ident.Name)
 			g.emitExpr(stmt.Rhs[i])
@@ -45,7 +54,11 @@ func (g *Generator) emitAssignStmt(stmt *ast.AssignStmt) {
 				if nextIdent.Name == "_" {
 					break
 				}
-				nextCType := g.mapType(stmt, g.types.Defs[nextIdent].Type())
+				nextDef := g.types.Defs[nextIdent]
+				if nextDef == nil {
+					break
+				}
+				nextCType := g.mapType(stmt, nextDef.Type())
 				if nextCType != cType {
 					break
 				}
@@ -114,8 +127,12 @@ func (g *Generator) emitMultiReturnDefine(w io.Writer, stmt *ast.AssignStmt, cal
 		if ident.Name == "_" {
 			continue
 		}
-		typ := g.types.Defs[ident].Type()
-		vars = append(vars, varInfo{ident.Name, g.mapType(stmt, typ)})
+		def := g.types.Defs[ident]
+		if def == nil {
+			// Redeclared variable - already declared, skip.
+			continue
+		}
+		vars = append(vars, varInfo{ident.Name, g.mapType(stmt, def.Type())})
 	}
 	i := 0
 	for i < len(vars) {

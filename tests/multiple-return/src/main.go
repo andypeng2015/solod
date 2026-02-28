@@ -18,8 +18,10 @@ func main() {
 	_ = a
 	_ = b
 
-	d, m := divide(7, 3)
-	_ = d
+	d1, m := divide(7, 3)
+	d2, m := divide(8, 3)
+	_ = d1
+	_ = d2
 	_ = m
 
 	_, c := vals()

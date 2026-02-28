@@ -21,9 +21,12 @@ int main(void) {
     b = swap(a, b, &a);
     (void)a;
     (void)b;
-    so_int d, m;
-    d = divide(7, 3, &m);
-    (void)d;
+    so_int d1, m;
+    d1 = divide(7, 3, &m);
+    so_int d2;
+    d2 = divide(8, 3, &m);
+    (void)d1;
+    (void)d2;
     (void)m;
     so_int c;
     vals(&c);
