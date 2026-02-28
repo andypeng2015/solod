@@ -62,7 +62,13 @@ func (g *Generator) emitAssignStmt(stmt *ast.AssignStmt) {
 		for i, lhs := range stmt.Lhs {
 			if ident, ok := lhs.(*ast.Ident); ok && ident.Name == "_" {
 				fmt.Fprintf(w, "%s(void)", g.indent())
-				g.emitExpr(stmt.Rhs[i])
+				if g.needsVoidParens(stmt.Rhs[i]) {
+					fmt.Fprintf(w, "(")
+					g.emitExpr(stmt.Rhs[i])
+					fmt.Fprintf(w, ")")
+				} else {
+					g.emitExpr(stmt.Rhs[i])
+				}
 				fmt.Fprintf(w, ";\n")
 				continue
 			}

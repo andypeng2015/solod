@@ -268,6 +268,25 @@ func (g *Generator) emitUnaryExpr(n *ast.UnaryExpr) {
 	g.emitExpr(n.X)
 }
 
+// needsVoidParens reports whether expr needs parentheses in a (void) cast.
+func (g *Generator) needsVoidParens(expr ast.Expr) bool {
+	// Binary expressions need wrapping in case we want to cast them,
+	// because the cast has higher precedence than binary operators.
+	bin, ok := expr.(*ast.BinaryExpr)
+	if !ok {
+		// Not a binary expression — no need for parentheses.
+		return false
+	}
+	if isCompare(bin.Op) {
+		// String comparisons are emitted as function calls and don't need wrapping.
+		if basic, ok := g.types.TypeOf(bin.X).Underlying().(*types.Basic); ok && basic.Kind() == types.String {
+			return false
+		}
+	}
+	// Binary expression - needs parentheses.
+	return true
+}
+
 func isCompare(op token.Token) bool {
 	switch op {
 	case token.EQL, token.NEQ, token.LSS, token.GTR, token.LEQ, token.GEQ:
