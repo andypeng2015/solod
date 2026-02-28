@@ -31,12 +31,24 @@ func (g *Generator) emitInterfaceLit(ifaceType types.Type, expr ast.Expr) {
 	w := g.state.writer
 	named := ifaceType.(*types.Named)
 	iface := named.Underlying().(*types.Interface)
-	concreteNamed := g.types.TypeOf(expr).(*types.Named)
+
+	// Get value type, dereferencing if it's a pointer.
+	concreteType := g.types.TypeOf(expr)
+	isPtr := false
+	if ptr, ok := concreteType.(*types.Pointer); ok {
+		concreteType = ptr.Elem()
+		isPtr = true
+	}
+	concreteNamed := concreteType.(*types.Named)
 
 	cIface := g.symbolName(named.Obj().Name())
 	cConcrete := g.symbolName(concreteNamed.Obj().Name())
 
-	fmt.Fprintf(w, "(%s){.self = &", cIface)
+	if isPtr {
+		fmt.Fprintf(w, "(%s){.self = ", cIface)
+	} else {
+		fmt.Fprintf(w, "(%s){.self = &", cIface)
+	}
 	g.emitExpr(expr)
 	for m := range iface.Methods() {
 		fmt.Fprintf(w, ", .%s = %s_%s", m.Name(), cConcrete, m.Name())
@@ -51,8 +63,13 @@ func (g *Generator) emitTypeAssertion(w io.Writer, stmt *ast.AssignStmt, ta *ast
 	iface := ifaceType.Underlying().(*types.Interface)
 	firstMethod := iface.Method(0).Name()
 
-	concreteType := g.types.TypeOf(ta.Type).(*types.Named)
-	cConcrete := g.symbolName(concreteType.Obj().Name())
+	// Get value type, dereferencing if it's a pointer.
+	assertedType := g.types.TypeOf(ta.Type)
+	if ptr, ok := assertedType.(*types.Pointer); ok {
+		assertedType = ptr.Elem()
+	}
+	concreteNamed := assertedType.(*types.Named)
+	cConcrete := g.symbolName(concreteNamed.Obj().Name())
 
 	okIdent := stmt.Lhs[1].(*ast.Ident)
 	fmt.Fprintf(w, "%sbool %s = (", g.indent(), okIdent.Name)
@@ -71,13 +88,28 @@ func (g *Generator) emitTypeAssertExpr(n *ast.TypeAssertExpr) {
 		return
 	}
 
-	// Non-empty interface, emit a dereference of the concrete type pointer:
-	// ival.(Type) → *((Type*)ival.self)
-	concreteType := g.types.TypeOf(n.Type).(*types.Named)
-	cConcrete := g.symbolName(concreteType.Obj().Name())
-	fmt.Fprintf(g.state.writer, "*((%s*)", cConcrete)
-	g.emitExpr(n.X)
-	fmt.Fprintf(g.state.writer, ".self)")
+	// Non-empty interface type assertion.
+	targetType := g.types.TypeOf(n.Type)
+	isPtr := false
+	if ptr, ok := targetType.(*types.Pointer); ok {
+		targetType = ptr.Elem()
+		isPtr = true
+	}
+
+	// Cast to a pointer or value type, depending on the request.
+	concreteNamed := targetType.(*types.Named)
+	cConcrete := g.symbolName(concreteNamed.Obj().Name())
+	if isPtr {
+		// Pointer assertion: ival.(*Type) → (Type*)ival.self
+		fmt.Fprintf(g.state.writer, "(%s*)", cConcrete)
+		g.emitExpr(n.X)
+		fmt.Fprintf(g.state.writer, ".self")
+	} else {
+		// Value assertion: ival.(Type) → *((Type*)ival.self)
+		fmt.Fprintf(g.state.writer, "*((%s*)", cConcrete)
+		g.emitExpr(n.X)
+		fmt.Fprintf(g.state.writer, ".self)")
+	}
 }
 
 // emitAnyValue emits an expression as a void* for empty interface storage.
