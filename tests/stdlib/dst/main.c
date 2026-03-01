@@ -7,9 +7,9 @@ so_Error main_Err42 = errors_New(so_strlit("42"));
 
 static so_ResInt work(so_int n) {
     if (n == 42) {
-        return {.Err = main_Err42};
+        return (so_ResInt){.Err = main_Err42};
     }
-    return {.Val = 42};
+    return (so_ResInt){.Val = 42};
 }
 
 int main(void) {

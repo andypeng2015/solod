@@ -23,7 +23,7 @@ static so_int circle_area(void* self) {
 }
 
 int main(void) {
-    main_Rect r = {.width = 10, .height = 5};
+    main_Rect r = (main_Rect){.width = 10, .height = 5};
     so_int rArea = main_Rect_Area(&r);
     (void)rArea;
     so_int rPerim = main_Rect_perim(&r, 2);
@@ -33,7 +33,7 @@ int main(void) {
     (void)rpArea;
     so_int rpPerim = main_Rect_perim(rp, 2);
     (void)rpPerim;
-    circle c = {.radius = 7};
+    circle c = (circle){.radius = 7};
     so_int cArea = circle_area(&c);
     (void)cArea;
 }

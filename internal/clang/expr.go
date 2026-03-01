@@ -241,12 +241,10 @@ func (g *Generator) emitIndexExpr(n *ast.IndexExpr) {
 func (g *Generator) emitUnaryExpr(n *ast.UnaryExpr) {
 	w := g.state.writer
 	if n.Op == token.AND {
-		if cl, ok := n.X.(*ast.CompositeLit); ok {
+		if _, ok := n.X.(*ast.CompositeLit); ok {
 			// &Person{...} → &(Person){...}
-			typ := g.types.TypeOf(cl.Type)
-			cType := g.mapType(n, typ)
-			fmt.Fprintf(w, "&(%s)", cType)
-			g.emitCompositeLit(cl)
+			fmt.Fprintf(w, "&")
+			g.emitExpr(n.X)
 			return
 		}
 	}

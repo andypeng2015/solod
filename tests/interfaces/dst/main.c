@@ -53,7 +53,7 @@ static main_Rect* lineAsRect(main_Line l) {
 }
 
 int main(void) {
-    main_Rect r = {.width = 10, .height = 5};
+    main_Rect r = (main_Rect){.width = 10, .height = 5};
     {
         main_Shape s = (main_Shape){.self = &r, .Area = main_Rect_Area, .Perim = main_Rect_Perim};
         calc(s);

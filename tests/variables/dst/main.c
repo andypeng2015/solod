@@ -21,7 +21,7 @@ int main(void) {
         (void)vString;
         so_Slice vSlice = {(so_int[3]){1, 2, 3}, 3, 3};
         (void)vSlice;
-        person vStruct = {.age = 42};
+        person vStruct = (person){.age = 42};
         person* vPtr = &vStruct;
         (void)vPtr;
         void* vAnyVal = &(so_int){42};
@@ -46,7 +46,7 @@ int main(void) {
         (void)vString;
         so_Slice vSlice = {(so_int[3]){1, 2, 3}, 3, 3};
         (void)vSlice;
-        person vStruct = {.age = 42};
+        person vStruct = (person){.age = 42};
         person* vPtr = &vStruct;
         (void)vPtr;
         void* vAnyVal = &(so_int){42};
@@ -71,7 +71,7 @@ int main(void) {
         (void)vString;
         so_Slice vSlice = {(so_int[3]){1, 2, 3}, 3, 3};
         (void)vSlice;
-        person vStruct = {.age = 42};
+        person vStruct = (person){.age = 42};
         person* vPtr = &vStruct;
         (void)vPtr;
         void* vAnyVal = &(so_int){42};
@@ -117,7 +117,7 @@ int main(void) {
         so_Slice a1 = {(so_int[2]){1, 2}, 2, 2}, a2 = {(so_int[2]){3, 4}, 2, 2};
         (void)a1;
         (void)a2;
-        person p1 = {.age = 42}, p2 = {.age = 43};
+        person p1 = (person){.age = 42}, p2 = (person){.age = 43};
         (void)p1;
         (void)p2;
     }
@@ -134,7 +134,7 @@ int main(void) {
         (void)vRune;
         (void)vString;
         so_Slice vSlice = {(so_int[3]){1, 2, 3}, 3, 3};
-        person vStruct = {.age = 42};
+        person vStruct = (person){.age = 42};
         (void)vSlice;
         (void)vStruct;
     }
@@ -151,7 +151,7 @@ int main(void) {
         (void)vRune;
         (void)vString;
         so_Slice vSlice = {(so_int[3]){1, 2, 3}, 3, 3};
-        person vStruct = {.age = 42};
+        person vStruct = (person){.age = 42};
         (void)vSlice;
         (void)vStruct;
     }

@@ -2,7 +2,7 @@
 static main_Person newPerson(so_String name);
 
 static main_Person newPerson(so_String name) {
-    main_Person p = {.name = name};
+    main_Person p = (main_Person){.name = name};
     p.age = 42;
     return p;
 }
@@ -27,11 +27,11 @@ int main(void) {
         (void)slice;
     }
     {
-        main_Person bob = {so_strlit("Bob"), 20};
+        main_Person bob = (main_Person){so_strlit("Bob"), 20};
         (void)bob;
-        main_Person alice = {.name = so_strlit("Alice"), .age = 30};
+        main_Person alice = (main_Person){.name = so_strlit("Alice"), .age = 30};
         (void)alice;
-        main_Person fred = {.name = so_strlit("Fred")};
+        main_Person fred = (main_Person){.name = so_strlit("Fred")};
         (void)fred;
         main_Person* ann = &(main_Person){.name = so_strlit("Ann"), .age = 40};
         *ann = newPerson(so_strlit("Jon"));
