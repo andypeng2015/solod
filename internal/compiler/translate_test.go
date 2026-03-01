@@ -29,7 +29,7 @@ func testPackage(t *testing.T, testDir string) {
 	expectedDir := filepath.Join(testDir, "dst")
 
 	// Create temp output dir
-	tempOut, err := os.MkdirTemp("", "soan_out")
+	tempOut, err := os.MkdirTemp("", "solod_out")
 	be.Err(t, err, nil)
 	defer os.RemoveAll(tempOut)
 

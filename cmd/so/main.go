@@ -44,7 +44,9 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, `Usage: so <command> [arguments]
+	fmt.Fprintf(os.Stderr, `So is a tool for managing Solod source code.
+
+Usage: so <command> [arguments]
 
 Commands:
     build        compile package to executable

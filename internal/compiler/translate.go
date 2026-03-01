@@ -29,13 +29,13 @@ func Translate(srcDir string, outDir string) error {
 		entryModulePath = entry.Module.Path
 	}
 
-	var soanModulePath string
+	var soModulePath string
 	if info, ok := debug.ReadBuildInfo(); ok {
-		soanModulePath = info.Main.Path
+		soModulePath = info.Main.Path
 	}
 
 	// Walk import graph and collect transpilable packages in topological order
-	ordered := topoSort(entry, entryModulePath, soanModulePath)
+	ordered := topoSort(entry, entryModulePath, soModulePath)
 
 	// Translate each package
 	for _, pkg := range ordered {
@@ -73,7 +73,7 @@ func loadPackages(dir string) ([]*packages.Package, error) {
 
 // topoSort walks the import graph from entry and returns transpilable packages
 // (module-internal + So stdlib) in topological order (dependencies before dependents).
-func topoSort(entry *packages.Package, entryModulePath, soanModulePath string) []*packages.Package {
+func topoSort(entry *packages.Package, entryModulePath, soModulePath string) []*packages.Package {
 	var ordered []*packages.Package
 	visited := make(map[string]bool)
 
@@ -86,7 +86,7 @@ func topoSort(entry *packages.Package, entryModulePath, soanModulePath string) [
 
 		// Visit dependencies first (post-order)
 		for _, dep := range pkg.Imports {
-			if shouldTranspile(dep, entryModulePath, soanModulePath) {
+			if shouldTranspile(dep, entryModulePath, soModulePath) {
 				walk(dep)
 			}
 		}
@@ -109,9 +109,9 @@ func packageOutDir(pkg, entry *packages.Package, outDir string) string {
 
 // shouldTranspile returns true if a package should be transpiled to C.
 // This includes packages from the entry module and So stdlib packages.
-func shouldTranspile(pkg *packages.Package, entryModulePath, soanModulePath string) bool {
+func shouldTranspile(pkg *packages.Package, entryModulePath, soModulePath string) bool {
 	if pkg.Module == nil {
 		return false
 	}
-	return pkg.Module.Path == entryModulePath || pkg.Module.Path == soanModulePath
+	return pkg.Module.Path == entryModulePath || pkg.Module.Path == soModulePath
 }
