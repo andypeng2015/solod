@@ -1,3 +1,4 @@
+#pragma once
 #include "solod.h"
 extern const so_int main_SomeConst;
 extern so_int main_SomeVar;

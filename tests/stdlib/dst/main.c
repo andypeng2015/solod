@@ -1,7 +1,4 @@
 #include "main.h"
-#include "so/so.h"
-#include "so/errors/errors.h"
-#include "so/math/math.h"
 static so_ResInt work(so_int n);
 so_Error main_Err42 = errors_New(so_strlit("42"));
 
@@ -23,4 +20,6 @@ int main(void) {
     if (r2.Err != main_Err42) {
         so_panic("expected Err42");
     }
+    io_Reader rdr = {0};
+    (void)rdr;
 }

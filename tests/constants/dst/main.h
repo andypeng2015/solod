@@ -1,3 +1,4 @@
+#pragma once
 #include "solod.h"
 typedef so_int main_HttpStatus;
 typedef so_String main_ServerState;

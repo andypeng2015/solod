@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/nalgeon/solod/so"
 	"github.com/nalgeon/solod/so/errors"
+	"github.com/nalgeon/solod/so/io"
 	"github.com/nalgeon/solod/so/math"
 )
 
@@ -28,4 +29,7 @@ func main() {
 	if r2.Err != Err42 {
 		panic("expected Err42")
 	}
+
+	var rdr io.Reader
+	_ = rdr
 }

@@ -3,7 +3,6 @@ package clang
 import (
 	"fmt"
 	"go/ast"
-	"go/token"
 	"go/types"
 	"io"
 	"os"
@@ -74,7 +73,9 @@ func (g *Generator) emitHeader(dir string) error {
 		return fmt.Errorf("create header file %s: %w", hPath, err)
 	}
 	defer hFile.Close()
+	fmt.Fprintf(hFile, "#pragma once\n")
 	fmt.Fprintf(hFile, "#include \"solod.h\"\n")
+	g.emitImports(hFile)
 	g.emitHeaderDecls(hFile)
 	return nil
 }
@@ -94,27 +95,11 @@ func (g *Generator) emitImpl(dir string) error {
 		fmt.Fprintf(cFile, "%s\n", inc)
 	}
 	g.state.writer = cFile
-	g.emitImports()
 	g.emitForwardDecls(cFile)
 	for _, file := range g.pkg.Syntax {
 		ast.Walk(g, file)
 	}
 	return nil
-}
-
-// emitImports emits #include directives for imports.
-func (g *Generator) emitImports() {
-	for _, file := range g.pkg.Syntax {
-		for _, decl := range file.Decls {
-			gd, ok := decl.(*ast.GenDecl)
-			if !ok || gd.Tok != token.IMPORT {
-				continue
-			}
-			for _, spec := range gd.Specs {
-				g.emitImportSpec(spec.(*ast.ImportSpec))
-			}
-		}
-	}
 }
 
 // indent returns the current indentation string based on the indent level.

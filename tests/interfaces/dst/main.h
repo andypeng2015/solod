@@ -1,3 +1,4 @@
+#pragma once
 #include "solod.h"
 
 typedef struct main_Shape {

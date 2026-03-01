@@ -7,7 +7,6 @@ import (
 	"go/types"
 	"io"
 	"os"
-	"strings"
 )
 
 // Visit implements the ast.Visitor interface to walk the AST and generate code.
@@ -164,21 +163,6 @@ func (g *Generator) emitGenDecl(decl *ast.GenDecl) {
 	default:
 		g.fail(decl, "unsupported GenDecl token: %s", decl.Tok)
 	}
-}
-
-// emitImportSpec emits a #include directive for an import.
-func (g *Generator) emitImportSpec(spec *ast.ImportSpec) {
-	path := strings.Trim(spec.Path.Value, `"`)
-	// Strip the imported package's own module prefix.
-	if imp, ok := g.pkg.Imports[path]; ok && imp.Module != nil {
-		path = strings.TrimPrefix(path, imp.Module.Path+"/")
-	}
-	// Add the package.h file (e.g. package -> package/package.h).
-	parts := strings.Split(path, "/")
-	parts = append(parts, parts[len(parts)-1]+".h")
-	cPath := strings.Join(parts, "/")
-	// Emit the #include directive (e.g. #include "package/package.h").
-	fmt.Fprintf(g.state.writer, "#include \"%s\"\n", cPath)
 }
 
 // emitConstSpec emits a single constant specification.

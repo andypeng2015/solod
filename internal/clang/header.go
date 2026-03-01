@@ -5,7 +5,38 @@ import (
 	"go/ast"
 	"go/token"
 	"io"
+	"strings"
 )
+
+// emitImports emits #include directives for imports.
+func (g *Generator) emitImports(w io.Writer) {
+	for _, file := range g.pkg.Syntax {
+		for _, decl := range file.Decls {
+			gd, ok := decl.(*ast.GenDecl)
+			if !ok || gd.Tok != token.IMPORT {
+				continue
+			}
+			for _, spec := range gd.Specs {
+				g.emitImportSpec(w, spec.(*ast.ImportSpec))
+			}
+		}
+	}
+}
+
+// emitImportSpec emits a #include directive for an import.
+func (g *Generator) emitImportSpec(w io.Writer, spec *ast.ImportSpec) {
+	path := strings.Trim(spec.Path.Value, `"`)
+	// Strip the imported package's own module prefix.
+	if imp, ok := g.pkg.Imports[path]; ok && imp.Module != nil {
+		path = strings.TrimPrefix(path, imp.Module.Path+"/")
+	}
+	// Add the package.h file (e.g. package -> package/package.h).
+	parts := strings.Split(path, "/")
+	parts = append(parts, parts[len(parts)-1]+".h")
+	cPath := strings.Join(parts, "/")
+	// Emit the #include directive (e.g. #include "package/package.h").
+	fmt.Fprintf(w, "#include \"%s\"\n", cPath)
+}
 
 // emitHeaderDecls writes declarations for exported package-level symbols.
 // Types are emitted first so that const/var and function prototypes
