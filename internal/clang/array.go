@@ -65,7 +65,7 @@ func (g *Generator) emitSparseArrayValues(n *ast.CompositeLit) {
 	}
 }
 
-// emitSliceExpr emits a slice expression (e.g. nums[1:4]) as so_slice(nums, int, 1, 4).
+// emitSliceExpr emits a slice expression (e.g. nums[1:4]) as so_slice(T, s, low, high).
 func (g *Generator) emitSliceExpr(n *ast.SliceExpr) {
 	w := g.state.writer
 
@@ -80,10 +80,10 @@ func (g *Generator) emitSliceExpr(n *ast.SliceExpr) {
 		g.fail(n, "unsupported slice expression type: %T", t)
 	}
 
-	// Emit the slice expression as so_slice(x, elemType, low, high).
-	fmt.Fprintf(w, "so_slice(")
+	// Emit the slice expression.
+	fmt.Fprintf(w, "so_slice(%s, ", elemType)
 	g.emitExpr(n.X)
-	fmt.Fprintf(w, ", %s, ", elemType)
+	fmt.Fprintf(w, ", ")
 	if n.Low != nil {
 		g.emitExpr(n.Low)
 	} else {

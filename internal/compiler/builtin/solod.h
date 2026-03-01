@@ -66,7 +66,7 @@ typedef struct {
 
 // so_slice creates a slice from an array or another slice
 // from index 'from' (inclusive) to index 'to' (exclusive).
-#define so_slice(s, T, from, to) ((so_Slice){(T*)(s).ptr + (from), (to) - (from), (s).cap - (from)})
+#define so_slice(T, s, from, to) ((so_Slice){(T*)(s).ptr + (from), (to) - (from), (s).cap - (from)})
 
 // so_string_bytes wraps a string's raw bytes as a byte slice.
 #define so_string_bytes(s) ((so_Slice){(void*)(s).ptr, (s).len, (s).len})
@@ -83,7 +83,7 @@ so_Slice so_string_runes_impl(so_String s, int32_t* buf);
 // so_append appends elements to a slice without resizing.
 // Returns the new slice with updated length.
 // Panics if the new length exceeds the capacity.
-#define so_append(s, T, ...) ({                                    \
+#define so_append(T, s, ...) ({                                    \
     so_Slice _s = (s);                                             \
     T _vals[] = {__VA_ARGS__};                                     \
     size_t _n = sizeof(_vals) / sizeof(T);                         \
@@ -96,7 +96,7 @@ so_Slice so_string_runes_impl(so_String s, int32_t* buf);
 // so_extend appends all elements from a source slice to a destination slice.
 // Returns the new slice with updated length.
 // Panics if the new length exceeds the capacity.
-#define so_extend(dst, src, T) ({                                            \
+#define so_extend(T, dst, src) ({                                            \
     so_Slice _dst = (dst);                                                   \
     so_Slice _src = (src);                                                   \
     if (_dst.len + _src.len > _dst.cap) so_panic("append: out of capacity"); \
@@ -106,7 +106,7 @@ so_Slice so_string_runes_impl(so_String s, int32_t* buf);
 })
 
 // so_index returns a reference to the element at index i in a slice or string.
-#define so_index(s, T, i) (((T*)(s).ptr)[i])
+#define so_index(T, s, i) (((T*)(s).ptr)[i])
 
 // so_len returns the length of a slice or string.
 #define so_len(s) ((so_int)(s).len)
@@ -121,7 +121,7 @@ static inline so_int so_copy_impl(so_Slice dst, so_Slice src, size_t elem_size) 
     memmove(dst.ptr, src.ptr, n * elem_size);
     return (so_int)n;
 }
-#define so_copy(dst, src, T) so_copy_impl(dst, src, sizeof(T))
+#define so_copy(T, dst, src) so_copy_impl(dst, src, sizeof(T))
 
 // so_Error is a pointer to an error message string, or NULL for no error.
 // Errors are immutable and compared by pointer equality.

@@ -41,9 +41,9 @@ func (g *Generator) emitSliceRange(stmt *ast.RangeStmt) {
 	if stmt.Value != nil {
 		if valIdent, ok := stmt.Value.(*ast.Ident); ok && valIdent.Name != "_" {
 			g.state.indent++
-			fmt.Fprintf(w, "%s%s %s = so_index(", g.indent(), elemType, valIdent.Name)
+			fmt.Fprintf(w, "%s%s %s = so_index(%s, ", g.indent(), elemType, valIdent.Name, elemType)
 			g.emitExpr(stmt.X)
-			fmt.Fprintf(w, ", %s, %s);\n", elemType, key.Name)
+			fmt.Fprintf(w, ", %s);\n", key.Name)
 			g.state.indent--
 		}
 	}

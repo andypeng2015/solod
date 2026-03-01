@@ -3,7 +3,7 @@
 int main(void) {
     so_String str = so_strlit("Hi 世界!");
     for (so_int i = 0; i < so_len(str); i++) {
-        uint8_t chr = so_index(str, uint8_t, i);
+        uint8_t chr = so_index(uint8_t, str, i);
         so_println("%s %lld %s %u", "i =", i, "chr =", chr);
     }
     for (so_int i = 0; i < so_len(str);) {
@@ -34,11 +34,11 @@ int main(void) {
     {
         so_String s = so_strlit("1世3");
         so_Slice bs = so_string_bytes(s);
-        if (so_index(bs, uint8_t, 0) != '1') {
+        if (so_index(uint8_t, bs, 0) != '1') {
             so_panic("unexpected byte");
         }
         so_Slice rs = so_string_runes(s, so_len(s));
-        if (so_index(rs, int32_t, 1) != U'世') {
+        if (so_index(int32_t, rs, 1) != U'世') {
             so_panic("unexpected rune");
         }
     }

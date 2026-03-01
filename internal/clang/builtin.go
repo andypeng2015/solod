@@ -31,16 +31,15 @@ func (g *Generator) emitAppendCall(call *ast.CallExpr) {
 	elemType := g.mapType(call, sliceType.Elem())
 	if call.Ellipsis.IsValid() {
 		// Appending a slice (e.g. append(dst, src...)).
-		fmt.Fprintf(w, "so_extend(")
+		fmt.Fprintf(w, "so_extend(%s, ", elemType)
 		g.emitExpr(call.Args[0])
 		fmt.Fprintf(w, ", ")
 		g.emitExpr(call.Args[1])
-		fmt.Fprintf(w, ", %s)", elemType)
+		fmt.Fprintf(w, ")")
 	} else {
 		// Appending individual values (e.g. append(dst, v1, v2, v3)).
-		fmt.Fprintf(w, "so_append(")
+		fmt.Fprintf(w, "so_append(%s, ", elemType)
 		g.emitExpr(call.Args[0])
-		fmt.Fprintf(w, ", %s", elemType)
 		for _, arg := range call.Args[1:] {
 			fmt.Fprintf(w, ", ")
 			g.emitExpr(arg)
@@ -49,16 +48,16 @@ func (g *Generator) emitAppendCall(call *ast.CallExpr) {
 	}
 }
 
-// emitCopyCall emits a copy() builtin call as so_copy(dst, src, T).
+// emitCopyCall emits a copy() builtin call as so_copy(T, dst, src).
 func (g *Generator) emitCopyCall(call *ast.CallExpr) {
 	w := g.state.writer
 	dstType := g.types.TypeOf(call.Args[0]).Underlying().(*types.Slice)
 	elemType := g.mapType(call, dstType.Elem())
-	fmt.Fprintf(w, "so_copy(")
+	fmt.Fprintf(w, "so_copy(%s, ", elemType)
 	g.emitExpr(call.Args[0])
 	fmt.Fprintf(w, ", ")
 	g.emitExpr(call.Args[1])
-	fmt.Fprintf(w, ", %s)", elemType)
+	fmt.Fprintf(w, ")")
 }
 
 // emitPrintCall emits a print/println call with an auto-generated format string.

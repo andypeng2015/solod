@@ -235,7 +235,7 @@ func (g *Generator) emitStarExpr(n *ast.StarExpr) {
 	g.emitExpr(n.X)
 }
 
-// emitIndexExpr emits an index expression (e.g. a[4]) as so_index(a, int, 4).
+// emitIndexExpr emits an index expression (e.g. a[4]) as so_index(T, s, idx).
 func (g *Generator) emitIndexExpr(n *ast.IndexExpr) {
 	w := g.state.writer
 
@@ -256,10 +256,10 @@ func (g *Generator) emitIndexExpr(n *ast.IndexExpr) {
 		g.fail(n, "unsupported index expression type: %T", t)
 	}
 
-	// Emit the index expression as so_index(x, elemType, index).
-	fmt.Fprintf(w, "so_index(")
+	// Emit the index expression.
+	fmt.Fprintf(w, "so_index(%s, ", elemType)
 	g.emitExpr(n.X)
-	fmt.Fprintf(w, ", %s, ", elemType)
+	fmt.Fprintf(w, ", ")
 	g.emitExpr(n.Index)
 	fmt.Fprintf(w, ")")
 }
