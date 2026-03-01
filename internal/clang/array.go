@@ -13,7 +13,7 @@ func (g *Generator) emitArrayLit(n *ast.CompositeLit) {
 	arr := g.types.TypeOf(n).Underlying().(*types.Array)
 	elemType := g.mapType(n, arr.Elem())
 	size := int(arr.Len())
-	fmt.Fprintf(w, "{(%s[%d]){", elemType, size)
+	fmt.Fprintf(w, "(so_Slice){(%s[%d]){", elemType, size)
 
 	if hasKeyedElements(n) {
 		g.emitSparseArrayValues(n)
@@ -36,7 +36,7 @@ func (g *Generator) emitSliceLit(n *ast.CompositeLit) {
 	sl := g.types.TypeOf(n).Underlying().(*types.Slice)
 	elemType := g.mapType(n, sl.Elem())
 	size := len(n.Elts)
-	fmt.Fprintf(w, "{(%s[%d]){", elemType, size)
+	fmt.Fprintf(w, "(so_Slice){(%s[%d]){", elemType, size)
 	for i, elt := range n.Elts {
 		if i > 0 {
 			fmt.Fprintf(w, ", ")

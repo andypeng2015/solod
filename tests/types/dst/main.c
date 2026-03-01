@@ -21,9 +21,9 @@ int main(void) {
     {
         main_Name n = so_strlit("Alice");
         (void)n;
-        main_IntArray arr = {(so_int[3]){1, 2, 3}, 3, 3};
+        main_IntArray arr = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3};
         (void)arr;
-        main_IntSlice slice = {(so_int[3]){4, 5, 6}, 3, 3};
+        main_IntSlice slice = (so_Slice){(so_int[3]){4, 5, 6}, 3, 3};
         (void)slice;
     }
     {

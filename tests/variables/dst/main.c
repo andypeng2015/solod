@@ -19,7 +19,7 @@ int main(void) {
         (void)vRune;
         so_String vString = so_strlit("hello");
         (void)vString;
-        so_Slice vSlice = {(so_int[3]){1, 2, 3}, 3, 3};
+        so_Slice vSlice = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3};
         (void)vSlice;
         person vStruct = (person){.age = 42};
         person* vPtr = &vStruct;
@@ -44,7 +44,7 @@ int main(void) {
         (void)vRune;
         so_String vString = so_strlit("hello");
         (void)vString;
-        so_Slice vSlice = {(so_int[3]){1, 2, 3}, 3, 3};
+        so_Slice vSlice = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3};
         (void)vSlice;
         person vStruct = (person){.age = 42};
         person* vPtr = &vStruct;
@@ -69,7 +69,7 @@ int main(void) {
         (void)vRune;
         so_String vString = so_strlit("hello");
         (void)vString;
-        so_Slice vSlice = {(so_int[3]){1, 2, 3}, 3, 3};
+        so_Slice vSlice = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3};
         (void)vSlice;
         person vStruct = (person){.age = 42};
         person* vPtr = &vStruct;
@@ -114,7 +114,7 @@ int main(void) {
         so_String s1 = so_strlit("foo"), s2 = so_strlit("bar");
         (void)s1;
         (void)s2;
-        so_Slice a1 = {(so_int[2]){1, 2}, 2, 2}, a2 = {(so_int[2]){3, 4}, 2, 2};
+        so_Slice a1 = (so_Slice){(so_int[2]){1, 2}, 2, 2}, a2 = (so_Slice){(so_int[2]){3, 4}, 2, 2};
         (void)a1;
         (void)a2;
         person p1 = (person){.age = 42}, p2 = (person){.age = 43};
@@ -133,7 +133,7 @@ int main(void) {
         (void)vByte;
         (void)vRune;
         (void)vString;
-        so_Slice vSlice = {(so_int[3]){1, 2, 3}, 3, 3};
+        so_Slice vSlice = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3};
         person vStruct = (person){.age = 42};
         (void)vSlice;
         (void)vStruct;
@@ -150,7 +150,7 @@ int main(void) {
         (void)vByte;
         (void)vRune;
         (void)vString;
-        so_Slice vSlice = {(so_int[3]){1, 2, 3}, 3, 3};
+        so_Slice vSlice = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3};
         person vStruct = (person){.age = 42};
         (void)vSlice;
         (void)vStruct;

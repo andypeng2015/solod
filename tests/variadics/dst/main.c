@@ -13,6 +13,6 @@ static so_int sum(so_Slice nums) {
 int main(void) {
     sum((so_Slice){(so_int[2]){1, 2}, 2, 2});
     sum((so_Slice){(so_int[3]){1, 2, 3}, 3, 3});
-    so_Slice nums = {(so_int[4]){1, 2, 3, 4}, 4, 4};
+    so_Slice nums = (so_Slice){(so_int[4]){1, 2, 3, 4}, 4, 4};
     sum(nums);
 }

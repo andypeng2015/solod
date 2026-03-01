@@ -26,7 +26,7 @@ static so_Result returnString(void) {
 }
 
 static so_Result returnSlice(void) {
-    return (so_Result){.val.as_slice = {(so_int[3]){1, 2, 3}, 3, 3}, .err = NULL};
+    return (so_Result){.val.as_slice = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3}, .err = NULL};
 }
 
 static so_Result returnPtr(void) {

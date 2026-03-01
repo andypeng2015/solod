@@ -102,7 +102,7 @@ func (g *Generator) zeroValue(node ast.Node, typ types.Type) string {
 	if arr, ok := typ.Underlying().(*types.Array); ok {
 		elemType := g.mapType(node, arr.Elem())
 		size := arr.Len()
-		return fmt.Sprintf("{(%s[%d]){0}, %d, %d}", elemType, size, size, size)
+		return fmt.Sprintf("(so_Slice){(%s[%d]){0}, %d, %d}", elemType, size, size, size)
 	}
 
 	// Pointers.
