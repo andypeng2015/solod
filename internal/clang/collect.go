@@ -53,7 +53,7 @@ func (g *Generator) collectSymbols() {
 				if d.Body == nil || d.Name.Name == "main" {
 					continue
 				}
-				if g.externs[d.Name.Name] {
+				if g.externs[externFuncKey(d)] {
 					continue
 				}
 				kind := symbolFunc
@@ -108,7 +108,7 @@ func (g *Generator) collectExterns() {
 				}
 			case *ast.FuncDecl:
 				if d.Body == nil || hasExternDirective(d.Doc) {
-					g.externs[d.Name.Name] = true
+					g.externs[externFuncKey(d)] = true
 				}
 			}
 		}
@@ -164,6 +164,16 @@ func (g *Generator) emitForwardTypeDecl(w io.Writer, spec *ast.TypeSpec) {
 		cType := g.mapType(spec, typ.Underlying())
 		fmt.Fprintf(w, "typedef %s %s;\n", cType, cName)
 	}
+}
+
+// externFuncKey returns a map key for a function or method declaration.
+// Functions use their bare name (e.g. "Foo"), while methods use
+// "ReceiverType.Name" (e.g. "T.Foo") to avoid collisions.
+func externFuncKey(decl *ast.FuncDecl) string {
+	if decl.Recv != nil {
+		return recvTypeName(decl.Recv.List[0]) + "." + decl.Name.Name
+	}
+	return decl.Name.Name
 }
 
 // hasExternDirective checks if a comment group contains the //so:extern directive.

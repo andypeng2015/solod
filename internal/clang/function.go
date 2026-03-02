@@ -114,7 +114,7 @@ func (g *Generator) emitFuncTypeSpec(w io.Writer, spec *ast.TypeSpec) {
 
 // emitFuncDecl emits a function declaration.
 func (g *Generator) emitFuncDecl(decl *ast.FuncDecl) {
-	if decl.Body == nil || g.externs[decl.Name.Name] {
+	if decl.Body == nil || g.externs[externFuncKey(decl)] {
 		return
 	}
 	if decl.Recv != nil {
