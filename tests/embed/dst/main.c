@@ -1,5 +1,7 @@
 #include "main.h"
 
+// -- Embeds --
+
 //go:build ignore
 
 // begin include
@@ -11,6 +13,7 @@ int64_t getCSecret() {
 }
 // end include
 
+// -- Implementation --
 int64_t main_GoSecret = 42;
 
 int main(void) {

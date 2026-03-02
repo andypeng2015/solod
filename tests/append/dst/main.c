@@ -1,5 +1,7 @@
 #include "main.h"
 
+// -- Implementation --
+
 int main(void) {
     {
         so_Slice nums = so_make_slice(so_int, 3, 3);

@@ -99,14 +99,19 @@ func (g *Generator) emitImpl(dir string) error {
 		return fmt.Errorf("create C file %s: %w", cPath, err)
 	}
 	defer cFile.Close()
+	g.state.writer = cFile
+
 	fmt.Fprintf(cFile, "#include \"%s.h\"\n", g.pkg.Name)
 	// Emit additional #include directives collected from comments.
 	for _, inc := range g.includes {
 		fmt.Fprintf(cFile, "%s\n", inc)
 	}
+	fmt.Fprintln(cFile)
+
 	g.emitEmbeds(cFile, g.embeds.impl)
-	g.state.writer = cFile
 	g.emitForwardDecls(cFile)
+
+	fmt.Fprintln(cFile, "// -- Implementation --")
 	for _, file := range g.pkg.Syntax {
 		ast.Walk(g, file)
 	}
@@ -115,12 +120,14 @@ func (g *Generator) emitImpl(dir string) error {
 
 // emitEmbeds writes the content of embedded files, separated by blank lines.
 func (g *Generator) emitEmbeds(w io.Writer, files []embedFile) {
+	if len(files) == 0 {
+		return
+	}
+	fmt.Fprintln(w, "// -- Embeds --")
 	for _, ef := range files {
 		fmt.Fprintf(w, "\n%s\n", strings.TrimRight(ef.content, "\n"))
 	}
-	if len(files) > 0 {
-		fmt.Fprintf(w, "\n")
-	}
+	fmt.Fprintln(w)
 }
 
 // indent returns the current indentation string based on the indent level.

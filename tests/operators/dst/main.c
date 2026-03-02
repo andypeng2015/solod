@@ -1,5 +1,7 @@
 #include "main.h"
 
+// -- Implementation --
+
 int main(void) {
     {
         so_int a = 11, b = 22, c = 33;

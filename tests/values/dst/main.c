@@ -1,5 +1,7 @@
 #include "main.h"
 
+// -- Implementation --
+
 int main(void) {
     {
         const so_int d1 = 123;

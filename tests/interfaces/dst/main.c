@@ -1,10 +1,14 @@
 #include "main.h"
+
+// -- Forward declarations (functions and methods) --
 static so_int calcShape(main_Shape s);
 static so_int calcLine(main_Line l);
 static bool shapeIsRect(main_Shape s);
 static main_Rect shapeAsRect(main_Shape s);
 static bool lineIsRect(main_Line l);
 static main_Rect* lineAsRect(main_Line l);
+
+// -- Implementation --
 
 so_int main_Rect_Area(void* self) {
     main_Rect* r = (main_Rect*)self;
@@ -62,7 +66,9 @@ int main(void) {
     {
         main_Shape s = (main_Shape){.self = &r, .Area = main_Rect_Area, .Perim = main_Rect_Perim};
         main_Shape s2 = (main_Shape){.self = &r, .Area = main_Rect_Area, .Perim = main_Rect_Perim};
+        (void)s2;
         main_Shape s3 = (main_Shape){.self = &r, .Area = main_Rect_Area, .Perim = main_Rect_Perim};
+        (void)s3;
         calcShape(s);
         calcShape((main_Shape){.self = &r, .Area = main_Rect_Area, .Perim = main_Rect_Perim});
         calcShape((main_Shape){.self = &r, .Area = main_Rect_Area, .Perim = main_Rect_Perim});

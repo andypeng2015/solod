@@ -1,5 +1,7 @@
 #include "main.h"
 
+// -- Implementation --
+
 int main(void) {
     so_int* v = newObj(so_int);
     *v = 42;

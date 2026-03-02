@@ -1,10 +1,14 @@
 #include "main.h"
+
+// -- Forward declarations (functions and methods) --
 static so_Result divide(so_int a, so_int b);
 static so_Result returnRune(void);
 static so_Result returnString(void);
 static so_Result returnSlice(void);
 static so_Result returnPtr(void);
 static so_Result forwardCall(void);
+
+// -- Implementation --
 static main_File file = {0};
 
 so_Result main_File_Read(void* self, so_int buf) {

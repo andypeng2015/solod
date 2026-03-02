@@ -1,5 +1,9 @@
 #include "main.h"
+
+// -- Forward declarations (functions and methods) --
 static so_Result work(so_int n);
+
+// -- Implementation --
 so_Error main_Err42 = errors_New(so_strlit("42"));
 
 static so_Result work(so_int n) {

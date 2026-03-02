@@ -1,5 +1,7 @@
 #include "main.h"
 
+// -- Implementation --
+
 int main(void) {
     so_int i = 1;
     for (; i <= 3;) {

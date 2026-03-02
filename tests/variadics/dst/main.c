@@ -1,5 +1,9 @@
 #include "main.h"
+
+// -- Forward declarations (functions and methods) --
 static so_int sum(so_Slice nums);
+
+// -- Implementation --
 
 static so_int sum(so_Slice nums) {
     so_int total = 0;

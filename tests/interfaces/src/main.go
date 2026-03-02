@@ -67,9 +67,9 @@ func main() {
 		// Shape interface is implemented by Rect value.
 		s := Shape(r)
 		var s2 Shape = r
-		var _ Shape = s2
+		_ = s2
 		var s3 Shape = &r
-		var _ Shape = s3
+		_ = s3
 
 		calcShape(s)
 		calcShape(Shape(r)) // also works

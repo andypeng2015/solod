@@ -1,6 +1,10 @@
 #include "main.h"
+
+// -- Forward declarations (functions and methods) --
 static void xopen(so_int* x);
 static void xclose(void* a);
+
+// -- Implementation --
 
 static void xopen(so_int* x) {
     so_println("%s %lld", "open", *x);

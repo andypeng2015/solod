@@ -2,7 +2,7 @@ package main
 
 func main() {
 	if 7%2 == 0 {
-		println("7 is even")
+		panic("want 7%2 != 0")
 	} else {
 		println("7 is odd")
 	}
@@ -18,16 +18,16 @@ func main() {
 	if 9%3 == 0 {
 		println("9 is divisible by 3")
 	} else if 9%2 == 0 {
-		println("9 is divisible by 2")
+		panic("want 9%2 != 0")
 	} else {
-		println("9 is not divisible by 3 or 2")
+		panic("want 9%3 == 0")
 	}
 
 	if num := 9; num < 0 {
-		println(num, "is negative")
+		panic("want num >= 0")
 	} else if num < 10 {
 		println(num, "has 1 digit")
 	} else {
-		println(num, "has multiple digits")
+		panic("want 0 <= num < 10")
 	}
 }

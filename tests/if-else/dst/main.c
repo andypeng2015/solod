@@ -1,8 +1,10 @@
 #include "main.h"
 
+// -- Implementation --
+
 int main(void) {
     if (7 % 2 == 0) {
-        so_println("%s", "7 is even");
+        so_panic("want 7%2 != 0");
     } else {
         so_println("%s", "7 is odd");
     }
@@ -15,18 +17,18 @@ int main(void) {
     if (9 % 3 == 0) {
         so_println("%s", "9 is divisible by 3");
     } else if (9 % 2 == 0) {
-        so_println("%s", "9 is divisible by 2");
+        so_panic("want 9%2 != 0");
     } else {
-        so_println("%s", "9 is not divisible by 3 or 2");
+        so_panic("want 9%3 == 0");
     }
     {
         so_int num = 9;
         if (num < 0) {
-            so_println("%lld %s", num, "is negative");
+            so_panic("want num >= 0");
         } else if (num < 10) {
             so_println("%lld %s", num, "has 1 digit");
         } else {
-            so_println("%lld %s", num, "has multiple digits");
+            so_panic("want 0 <= num < 10");
         }
     }
 }

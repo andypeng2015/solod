@@ -1,5 +1,7 @@
 #include "main.h"
 
+// -- Implementation --
+
 int main(void) {
     so_String str = so_strlit("Hi 世界!");
     for (so_int i = 0; i < so_len(str); i++) {

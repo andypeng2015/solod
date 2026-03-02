@@ -1,6 +1,10 @@
 #include "main.h"
+
+// -- Forward declarations (functions and methods) --
 static so_Result copyBuf(so_Slice buf);
 static so_Result copyImpl(so_Slice buf);
+
+// -- Implementation --
 
 static so_Result copyBuf(so_Slice buf) {
     so_Result _res1 = copyImpl(buf);

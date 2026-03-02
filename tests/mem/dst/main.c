@@ -1,5 +1,7 @@
 #include "main.h"
 
+// -- Implementation --
+
 int main(void) {
     {
         so_Result _res1 = mem_Alloc(main_Point, mem_System);

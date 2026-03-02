@@ -1,5 +1,9 @@
 #include "main.h"
+
+// -- Forward declarations (functions and methods) --
 static main_Person newPerson(so_String name);
+
+// -- Implementation --
 
 static main_Person newPerson(so_String name) {
     main_Person p = (main_Person){.name = name};

@@ -1,5 +1,9 @@
 #include "main.h"
+
+// -- Forward declarations (types) --
 typedef struct person person;
+
+// -- Implementation --
 
 typedef struct person {
     so_String name;

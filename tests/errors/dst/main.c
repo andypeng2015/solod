@@ -1,5 +1,9 @@
 #include "main.h"
+
+// -- Forward declarations (functions and methods) --
 static so_Error makeTea(so_int arg);
+
+// -- Implementation --
 so_Error main_ErrOutOfTea = errors_New(so_strlit("no more tea available"));
 
 static so_Error makeTea(so_int arg) {

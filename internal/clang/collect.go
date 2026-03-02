@@ -120,19 +120,36 @@ func (g *Generator) collectExterns() {
 // are known before function prototypes reference them.
 func (g *Generator) emitForwardDecls(w io.Writer) {
 	// First pass: unexported types.
+	var specs []*ast.TypeSpec
 	for _, sym := range g.symbols {
 		if sym.exported || sym.kind != symbolType {
 			continue
 		}
-		g.emitForwardTypeDecl(w, sym.typeSpec)
+		specs = append(specs, sym.typeSpec)
 	}
+	if len(specs) > 0 {
+		fmt.Fprintln(w, "// -- Forward declarations (types) --")
+		for _, spec := range specs {
+			g.emitForwardTypeDecl(w, spec)
+		}
+		fmt.Fprintln(w)
+	}
+
 	// Second pass: unexported functions/methods.
+	var funcDecls []*ast.FuncDecl
 	for _, sym := range g.symbols {
 		if sym.exported || sym.kind == symbolType {
 			continue
 		}
-		fn := newFuncDecl(g, sym.funcDecl)
-		fmt.Fprintf(w, "%s%s %s(%s);\n", fn.spec, fn.returnType(), fn.name(), fn.params())
+		funcDecls = append(funcDecls, sym.funcDecl)
+	}
+	if len(funcDecls) > 0 {
+		fmt.Fprintln(w, "// -- Forward declarations (functions and methods) --")
+		for _, decl := range funcDecls {
+			fn := newFuncDecl(g, decl)
+			fmt.Fprintf(w, "%s%s %s(%s);\n", fn.spec, fn.returnType(), fn.name(), fn.params())
+		}
+		fmt.Fprintln(w)
 	}
 }
 

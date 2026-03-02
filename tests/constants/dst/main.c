@@ -1,4 +1,6 @@
 #include "main.h"
+
+// -- Implementation --
 static const so_int fInt = 42;
 static const so_String fString = so_strlit("file");
 const main_HttpStatus main_StatusOK = 200;

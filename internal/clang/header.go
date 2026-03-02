@@ -21,6 +21,7 @@ func (g *Generator) emitImports(w io.Writer) {
 			}
 		}
 	}
+	fmt.Fprintln(w)
 }
 
 // emitImportSpec emits a #include directive for an import.
@@ -47,29 +48,57 @@ func (g *Generator) emitImportSpec(w io.Writer, spec *ast.ImportSpec) {
 // can reference them.
 func (g *Generator) emitHeaderDecls(w io.Writer) {
 	// Phase 1: exported types from collected symbols.
+	var specs []*ast.TypeSpec
 	for _, sym := range g.symbols {
 		if !sym.exported || sym.kind != symbolType {
 			continue
 		}
-		g.emitTypeSpec(w, sym.typeSpec)
+		specs = append(specs, sym.typeSpec)
 	}
+	if len(specs) > 0 {
+		fmt.Fprintln(w, "// -- Types --")
+		for _, spec := range specs {
+			g.emitTypeSpec(w, spec)
+		}
+		fmt.Fprintln(w)
+	}
+
 	// Phase 2: const/var declarations from the AST.
+	var genDecls []*ast.GenDecl
 	for _, file := range g.pkg.Syntax {
 		for _, decl := range file.Decls {
 			if gd, ok := decl.(*ast.GenDecl); ok {
-				g.emitHeaderGenDecl(w, gd)
+				if gd.Tok != token.TYPE {
+					// Types are already handled above.
+					genDecls = append(genDecls, gd)
+				}
 			}
 		}
 	}
+	if len(genDecls) > 0 {
+		fmt.Fprintln(w, "// -- Variables and constants --")
+		for _, decl := range genDecls {
+			g.emitHeaderGenDecl(w, decl)
+		}
+		fmt.Fprintln(w)
+	}
+
 	// Phase 3: exported function/method prototypes from collected symbols.
+	var funcDecls []ast.FuncDecl
 	for _, sym := range g.symbols {
 		if !sym.exported || sym.kind == symbolType {
 			continue
 		}
-		fn := newFuncDecl(g, sym.funcDecl)
-		fmt.Fprintf(w, "%s %s(%s);\n", fn.returnType(), fn.name(), fn.params())
+		funcDecls = append(funcDecls, *sym.funcDecl)
 	}
-	fmt.Fprintf(w, "\n")
+	if len(funcDecls) > 0 {
+		fmt.Fprintln(w, "// -- Functions and methods --")
+		for _, decl := range funcDecls {
+			fn := newFuncDecl(g, &decl)
+			fmt.Fprintf(w, "%s %s(%s);\n", fn.returnType(), fn.name(), fn.params())
+		}
+		fmt.Fprintln(w)
+	}
 }
 
 // emitHeaderGenDecl emits extern const/var declarations.
