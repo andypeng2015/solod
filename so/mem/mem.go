@@ -57,7 +57,9 @@ func (SystemAllocator) Dealloc(ptr any, size int, align int) {
 // Returns a pointer to the allocated memory or an error if allocation fails.
 //
 //so:extern
-func Alloc[T any](a Allocator) (*T, error) { return nil, nil }
+func Alloc[T any](a Allocator) (*T, error) {
+	return new(T), nil
+}
 
 // Dealloc frees a value previously allocated with Alloc.
 //
@@ -68,7 +70,9 @@ func Dealloc[T any](a Allocator, ptr *T) {}
 // Returns a slice of the allocated memory or an error if allocation fails.
 //
 //so:extern
-func AllocSlice[T any](a Allocator, len int, cap int) ([]T, error) { return nil, nil }
+func AllocSlice[T any](a Allocator, len int, cap int) ([]T, error) {
+	return make([]T, len, cap), nil
+}
 
 // DeallocSlice frees a slice previously allocated with AllocSlice.
 //
@@ -79,7 +83,7 @@ func DeallocSlice[T any](a Allocator, slice []T) {}
 // Returns a pointer to the allocated memory or panics on failure.
 //
 //so:extern
-func New[T any]() *T { return nil }
+func New[T any]() *T { return new(T) }
 
 // Free frees a value previously allocated with New.
 //
@@ -90,7 +94,9 @@ func Free[T any](ptr *T) {}
 // and capacity using the system allocator.
 //
 //so:extern
-func NewSlice[T any](len int, cap int) []T { return nil }
+func NewSlice[T any](len int, cap int) []T {
+	return make([]T, len, cap)
+}
 
 // FreeSlice frees a slice previously allocated with NewSlice.
 //
