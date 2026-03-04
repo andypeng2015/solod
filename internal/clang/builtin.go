@@ -60,6 +60,41 @@ func (g *Generator) emitMakeCall(call *ast.CallExpr) {
 	fmt.Fprintf(w, ")")
 }
 
+// emitMinMaxCall emits a min() or max() builtin call.
+// For numeric types: so_min(a, b) / so_max(a, b)
+// For string types: so_string_min(a, b) / so_string_max(a, b)
+// For 3+ args, nests calls: min(a, b, c) -> so_min(so_min(a, b), c)
+func (g *Generator) emitMinMaxCall(call *ast.CallExpr, name string) {
+	w := g.state.writer
+	typ := g.types.TypeOf(call.Args[0])
+	basic, ok := typ.Underlying().(*types.Basic)
+	if !ok {
+		g.fail(call, "%s() requires a basic type, got %s", name, typ)
+	}
+
+	var fn string
+	switch basic.Kind() {
+	case types.String, types.UntypedString:
+		fn = "so_string_" + name
+	default:
+		if basic.Info()&types.IsNumeric == 0 {
+			g.fail(call, "%s() unsupported type: %s", name, typ)
+		}
+		fn = "so_" + name
+	}
+
+	// Emit nested calls for 2+ args: so_min(so_min(a, b), c)
+	for i := 0; i < len(call.Args)-1; i++ {
+		fmt.Fprintf(w, "%s(", fn)
+	}
+	g.emitExpr(call.Args[0])
+	for _, arg := range call.Args[1:] {
+		fmt.Fprintf(w, ", ")
+		g.emitExpr(arg)
+		fmt.Fprintf(w, ")")
+	}
+}
+
 // emitNewCall emits a new() builtin call as a compound literal address.
 func (g *Generator) emitNewCall(call *ast.CallExpr) {
 	w := g.state.writer

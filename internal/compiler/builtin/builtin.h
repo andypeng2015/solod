@@ -137,6 +137,32 @@ static inline so_int so_copy_impl(so_Slice dst, so_Slice src, size_t elem_size) 
 // cap returns the capacity of a slice.
 #define so_cap(s) ((so_int)(s).cap)
 
+// --- Min/Max ---
+
+// min returns the smaller of two values.
+#define so_min(a, b) ({        \
+    so_typeof(a) _a = (a);     \
+    so_typeof(b) _b = (b);     \
+    _a < _b ? _a : _b;         \
+})
+
+// max returns the larger of two values.
+#define so_max(a, b) ({        \
+    so_typeof(a) _a = (a);     \
+    so_typeof(b) _b = (b);     \
+    _a > _b ? _a : _b;         \
+})
+
+// string_min returns the lexicographically smaller string.
+static inline so_String so_string_min(so_String a, so_String b) {
+    return so_string_lt_impl(a, b) ? a : b;
+}
+
+// string_max returns the lexicographically larger string.
+static inline so_String so_string_max(so_String a, so_String b) {
+    return so_string_gt_impl(a, b) ? a : b;
+}
+
 // --- Error type ---
 
 // Error is a pointer to an error message string, or NULL for no error.

@@ -153,6 +153,9 @@ func (g *Generator) emitFuncCall(call *ast.CallExpr) {
 			case "make":
 				g.emitMakeCall(call)
 				return
+			case "min", "max":
+				g.emitMinMaxCall(call, bi.Name())
+				return
 			case "new":
 				g.emitNewCall(call)
 				return
