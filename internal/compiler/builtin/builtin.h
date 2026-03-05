@@ -140,17 +140,17 @@ static inline so_int so_copy_impl(so_Slice dst, so_Slice src, size_t elem_size) 
 // --- Min/Max ---
 
 // min returns the smaller of two values.
-#define so_min(a, b) ({        \
-    so_typeof(a) _a = (a);     \
-    so_typeof(b) _b = (b);     \
-    _a < _b ? _a : _b;         \
+#define so_min(a, b) ({    \
+    so_typeof(a) _a = (a); \
+    so_typeof(b) _b = (b); \
+    _a < _b ? _a : _b;     \
 })
 
 // max returns the larger of two values.
-#define so_max(a, b) ({        \
-    so_typeof(a) _a = (a);     \
-    so_typeof(b) _b = (b);     \
-    _a > _b ? _a : _b;         \
+#define so_max(a, b) ({    \
+    so_typeof(a) _a = (a); \
+    so_typeof(b) _b = (b); \
+    _a > _b ? _a : _b;     \
 })
 
 // string_min returns the lexicographically smaller string.
@@ -168,13 +168,13 @@ static inline so_String so_string_max(so_String a, so_String b) {
 // Error is a pointer to an error message string, or NULL for no error.
 // Errors are immutable and compared by pointer equality.
 struct so_Error_ {
-    const char* msg;
+    so_String msg;
 };
 typedef struct so_Error_* so_Error;
 
 // errors_New creates a new error with the given message string.
 // so_Error errors_New(so_String s)
-#define errors_New(s) (&(struct so_Error_){s.ptr})
+#define errors_New(s) (&(struct so_Error_){s})
 
 // panic aborts the program with the given message.
 void so_panic(const char* msg);

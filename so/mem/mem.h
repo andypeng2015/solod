@@ -27,7 +27,7 @@
 #define mem_New(T) ({                              \
     so_Result _mem_res = mem_Alloc(T, mem_System); \
     if (_mem_res.err != NULL)                      \
-        so_panic(_mem_res.err->msg);               \
+        so_panic(_mem_res.err->msg.ptr);           \
     _mem_res.val.as_ptr;                           \
 })
 
@@ -40,7 +40,7 @@
 #define mem_NewSlice(T, len, cap) ({                          \
     so_Result _res = mem_AllocSlice(T, mem_System, len, cap); \
     if (_res.err != NULL)                                     \
-        so_panic(_res.err->msg);                              \
+        so_panic(_res.err->msg.ptr);                          \
     _res.val.as_slice;                                        \
 })
 
