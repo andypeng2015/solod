@@ -306,11 +306,23 @@ func (g *Generator) emitTypeSpec(w io.Writer, spec *ast.TypeSpec) {
 	switch spec.Type.(type) {
 	case *ast.FuncType:
 		g.emitFuncTypeSpec(w, spec)
+
 	case *ast.Ident, *ast.ArrayType, *ast.StarExpr:
 		typ := g.types.Defs[spec.Name].Type()
-		cType := g.mapType(spec, typ.Underlying())
+		resolved := typ.Underlying()
+		// When the underlying type is a struct and the spec references
+		// a named type, preserve the name instead of emitting "so_auto".
+		if _, isStruct := resolved.(*types.Struct); isStruct {
+			if ident, ok := spec.Type.(*ast.Ident); ok {
+				if obj := g.types.Uses[ident]; obj != nil {
+					resolved = types.Unalias(obj.Type())
+				}
+			}
+		}
+		cType := g.mapType(spec, resolved)
 		cName := g.symbolName(spec.Name.Name)
 		fmt.Fprintf(w, "typedef %s %s;\n", cType, cName)
+
 	case *ast.InterfaceType:
 		iface := g.types.Defs[spec.Name].Type().Underlying().(*types.Interface)
 		if iface.Empty() {
@@ -320,8 +332,10 @@ func (g *Generator) emitTypeSpec(w io.Writer, spec *ast.TypeSpec) {
 		} else {
 			g.emitInterfaceTypeSpec(w, spec)
 		}
+
 	case *ast.StructType:
 		g.emitStructTypeSpec(w, spec)
+
 	default:
 		g.fail(spec, "unsupported type: %T", spec.Type)
 	}

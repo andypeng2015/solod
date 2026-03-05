@@ -26,6 +26,10 @@ func newPerson(name string) Person {
 	return p
 }
 
+// Alias for a struct type.
+type Human = Person
+type Employee Person
+
 func main() {
 	{
 		// Primitive types.

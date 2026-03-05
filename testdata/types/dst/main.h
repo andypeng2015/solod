@@ -29,3 +29,7 @@ typedef struct main_Person {
     so_String name;
     so_int age;
 } main_Person;
+
+// Alias for a struct type.
+typedef main_Person main_Human;
+typedef main_Person main_Employee;
