@@ -3,7 +3,6 @@ package clang
 import (
 	"fmt"
 	"go/ast"
-	"go/token"
 	"go/types"
 	"strings"
 )
@@ -144,29 +143,9 @@ func (g *Generator) emitPrintCall(call *ast.CallExpr, name string) {
 	fmt.Fprintf(w, "so_%s(\"%s\"", name, format)
 	for _, arg := range call.Args {
 		fmt.Fprintf(w, ", ")
-		g.emitPrintArg(arg)
+		g.emitCArg(arg)
 	}
 	fmt.Fprintf(w, ")")
-}
-
-// emitPrintArg emits a single argument for a print/println call.
-func (g *Generator) emitPrintArg(arg ast.Expr) {
-	w := g.state.writer
-	typ := g.types.TypeOf(arg)
-	if basic, ok := typ.Underlying().(*types.Basic); ok && basic.Kind() == types.String {
-		// Special handling for strings.
-		if lit, ok := arg.(*ast.BasicLit); ok && lit.Kind == token.STRING {
-			// String literals are emitted as raw C strings.
-			fmt.Fprintf(w, "%s", lit.Value)
-		} else {
-			// String variables are emitted as .ptr to get the C string pointer.
-			g.emitExpr(arg)
-			fmt.Fprintf(w, ".ptr")
-		}
-		return
-	}
-	// All other types are emitted normally.
-	g.emitExpr(arg)
 }
 
 // formatSpec returns the C printf format specifier for a Go type.

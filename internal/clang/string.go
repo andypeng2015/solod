@@ -9,7 +9,12 @@ import (
 
 // emitStringLit emits a string literal, handling both interpreted and raw strings.
 func (g *Generator) emitStringLit(n *ast.BasicLit) {
-	w := g.state.writer
+	fmt.Fprintf(g.state.writer, "so_str(%s)", rawStringValue(n))
+}
+
+// rawStringValue returns the C string literal for a Go string literal,
+// handling both interpreted and raw strings. Does not include the so_str() wrapper.
+func rawStringValue(n *ast.BasicLit) string {
 	if strings.HasPrefix(n.Value, "`") {
 		// Raw string: strip backticks, escape for C.
 		raw := n.Value[1 : len(n.Value)-1]
@@ -30,10 +35,9 @@ func (g *Generator) emitStringLit(n *ast.BasicLit) {
 				b.WriteRune(ch)
 			}
 		}
-		fmt.Fprintf(w, "so_str(\"%s\")", b.String())
-		return
+		return `"` + b.String() + `"`
 	}
-	fmt.Fprintf(w, "so_str(%s)", n.Value)
+	return n.Value
 }
 
 func stringCompareFunc(op token.Token) string {

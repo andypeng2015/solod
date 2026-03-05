@@ -3,6 +3,7 @@ package clang
 import (
 	"fmt"
 	"go/ast"
+	"go/token"
 	"go/types"
 	"io"
 	"strings"
@@ -193,7 +194,13 @@ func (g *Generator) emitFuncCall(call *ast.CallExpr) {
 	}
 	fmt.Fprintf(w, "(")
 
-	if sig != nil && sig.Variadic() && !call.Ellipsis.IsValid() {
+	if g.isExternCall(call) && sig != nil && sig.Variadic() {
+		// Extern C variadic call: decay all args to C-compatible types.
+		// C's variadic mechanism (...) passes raw values on the stack without
+		// type metadata, so So wrapper types (so_String, so_Slice) must be
+		// unwrapped to their underlying C representations.
+		g.emitCVariadicArgs(call)
+	} else if sig != nil && sig.Variadic() && !call.Ellipsis.IsValid() {
 		// Variadic call with individual args: pack trailing args into a slice literal.
 		g.emitFixedArgs(call, sig)
 		g.emitVariadicArgs(call, sig)
@@ -260,6 +267,43 @@ func (g *Generator) emitVariadicArgs(call *ast.CallExpr, sig *types.Signature) {
 		g.emitExpr(arg)
 	}
 	fmt.Fprintf(w, "}, %d, %d}", count, count)
+}
+
+// emitCVariadicArgs emits arguments for an extern C variadic function call.
+func (g *Generator) emitCVariadicArgs(call *ast.CallExpr) {
+	w := g.state.writer
+	for i, arg := range call.Args {
+		if i > 0 {
+			fmt.Fprintf(w, ", ")
+		}
+		g.emitCArg(arg)
+	}
+}
+
+// emitCArg emits an expression decayed to its C-compatible type:
+// string literals to raw C strings, strings to char*, slices to void*.
+func (g *Generator) emitCArg(arg ast.Expr) {
+	w := g.state.writer
+	if lit, ok := arg.(*ast.BasicLit); ok && lit.Kind == token.STRING {
+		fmt.Fprintf(w, "%s", rawStringValue(lit))
+	} else if basic, ok := g.types.TypeOf(arg).Underlying().(*types.Basic); ok && basic.Kind() == types.String {
+		g.emitExpr(arg)
+		fmt.Fprintf(w, ".ptr")
+	} else if _, ok := g.types.TypeOf(arg).Underlying().(*types.Slice); ok {
+		g.emitExpr(arg)
+		fmt.Fprintf(w, ".ptr")
+	} else {
+		g.emitExpr(arg)
+	}
+}
+
+// isExternCall reports whether a call expression targets an extern C function.
+func (g *Generator) isExternCall(call *ast.CallExpr) bool {
+	ident, ok := call.Fun.(*ast.Ident)
+	if !ok {
+		return false
+	}
+	return g.externs[ident.Name]
 }
 
 // recvTypeName returns the Go type name from a method receiver field.
