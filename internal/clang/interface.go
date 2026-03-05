@@ -87,7 +87,7 @@ func (g *Generator) emitTypeAssertion(w io.Writer, stmt *ast.AssignStmt, ta *ast
 func (g *Generator) emitTypeAssertExpr(n *ast.TypeAssertExpr) {
 	sourceType := g.types.TypeOf(n.X)
 	if iface, ok := sourceType.Underlying().(*types.Interface); ok && iface.Empty() {
-		// Empty interface, emit a simple cast: (void*)expr
+		// Empty interface, emit a simple cast: (Type)expr
 		cType := g.mapType(n, g.types.TypeOf(n.Type))
 		fmt.Fprintf(g.state.writer, "(%s)", cType)
 		g.emitExpr(n.X)
@@ -119,20 +119,31 @@ func (g *Generator) emitTypeAssertExpr(n *ast.TypeAssertExpr) {
 }
 
 // emitAnyValue emits an expression as a void* for empty interface storage.
-// Pointers and interface values pass through as-is.
-// Value types are wrapped in a compound literal: &(type){val}.
 func (g *Generator) emitAnyValue(node ast.Node, expr ast.Expr) {
 	valType := g.types.TypeOf(expr)
 	if basic, ok := valType.(*types.Basic); ok && basic.Kind() == types.UntypedNil {
+		// Nil values pass as NULL.
 		fmt.Fprintf(g.state.writer, "NULL")
 		return
 	}
+
 	_, isPtr := valType.Underlying().(*types.Pointer)
 	_, isIface := valType.Underlying().(*types.Interface)
 	if isPtr || isIface {
+		// Interface values pass through as-is (already void*).
+		// Pointer values pass through as-is (implicitly convertible to void*).
 		g.emitExpr(expr)
 		return
 	}
+
+	if _, isIdent := expr.(*ast.Ident); isIdent {
+		// Addressable value types (identifiers) use &ident.
+		fmt.Fprintf(g.state.writer, "&")
+		g.emitExpr(expr)
+		return
+	}
+
+	// Non-addressable value types use a compound literal: &(Type){val}.
 	cType := g.mapType(node, valType)
 	fmt.Fprintf(g.state.writer, "&(%s){", cType)
 	g.emitExpr(expr)
