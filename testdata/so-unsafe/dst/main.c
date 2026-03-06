@@ -52,7 +52,7 @@ int main(void) {
     {
         // String.
         so_Slice b = so_string_bytes(so_str("hello"));
-        so_String s = unsafe_String(&so_index(uint8_t, b, 0), so_len(b));
+        so_String s = unsafe_String(&so_at(uint8_t, b, 0), so_len(b));
         if (so_string_ne(s, so_str("hello"))) {
             so_panic("want s == 'hello'");
         }
@@ -68,11 +68,11 @@ int main(void) {
     {
         // Slice.
         so_Slice a = (so_Slice){(so_int[5]){1, 2, 3, 4, 5}, 5, 5};
-        so_Slice slice = unsafe_Slice(&so_index(so_int, a, 0), so_len(a));
+        so_Slice slice = unsafe_Slice(&so_at(so_int, a, 0), so_len(a));
         if (so_len(slice) != 5) {
             so_panic("want len(slice) == 5");
         }
-        if (so_index(so_int, slice, 0) != 1 || so_index(so_int, slice, 4) != 5) {
+        if (so_at(so_int, slice, 0) != 1 || so_at(so_int, slice, 4) != 5) {
             so_panic("want slice[0] == 1 and slice[4] == 5");
         }
     }

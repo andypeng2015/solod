@@ -21,7 +21,7 @@ int main(void) {
         // Slicing an array.
         so_Slice nums = (so_Slice){(so_int[5]){1, 2, 3, 4, 5}, 5, 5};
         so_Slice s1 = so_slice(so_int, nums, 0, nums.len);
-        so_index(so_int, s1, 1) = 200;
+        so_at(so_int, s1, 1) = 200;
         (void)s1;
         so_Slice s2 = so_slice(so_int, nums, 2, nums.len);
         (void)s2;
@@ -41,16 +41,16 @@ int main(void) {
         (void)sLen;
         so_Slice twoD = (so_Slice){(so_Slice[2]){(so_Slice){(so_int[3]){1, 2, 3}, 3, 3}, (so_Slice){(so_int[3]){4, 5, 6}, 3, 3}}, 2, 2};
         // x == 2
-        so_int x = so_index(so_int, so_index(so_Slice, twoD, 0), 1);
+        so_int x = so_at(so_int, so_at(so_Slice, twoD, 0), 1);
         (void)x;
     }
     {
         // Make a slice.
         so_Slice s = so_make_slice(so_int, 4, 4);
-        so_index(so_int, s, 0) = 1;
-        so_index(so_int, s, 1) = 2;
-        so_index(so_int, s, 2) = 3;
-        so_index(so_int, s, 3) = 4;
+        so_at(so_int, s, 0) = 1;
+        so_at(so_int, s, 1) = 2;
+        so_at(so_int, s, 2) = 3;
+        so_at(so_int, s, 3) = 4;
         (void)s;
     }
     {
@@ -70,27 +70,27 @@ int main(void) {
     {
         // Number operations on slice elements.
         so_Slice s = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3};
-        so_index(so_int, s, 1) += 10;
-        so_index(so_int, s, 1) -= 10;
-        so_index(so_int, s, 1) *= 10;
-        so_index(so_int, s, 1) /= 2;
-        so_index(so_int, s, 1) %= 6;
-        so_index(so_int, s, 1)++;
-        so_index(so_int, s, 1)--;
-        if (so_index(so_int, s, 1) != 4) {
+        so_at(so_int, s, 1) += 10;
+        so_at(so_int, s, 1) -= 10;
+        so_at(so_int, s, 1) *= 10;
+        so_at(so_int, s, 1) /= 2;
+        so_at(so_int, s, 1) %= 6;
+        so_at(so_int, s, 1)++;
+        so_at(so_int, s, 1)--;
+        if (so_at(so_int, s, 1) != 4) {
             so_panic("want 4");
         }
     }
     {
         // Bitwise operations on slice elements.
         so_Slice s = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3};
-        so_index(so_int, s, 1) <<= 2;
-        so_index(so_int, s, 1) >>= 1;
-        so_index(so_int, s, 1) |= 0b1100;
-        so_index(so_int, s, 1) &= 0b1111;
-        so_index(so_int, s, 1) ^= 0b0101;
+        so_at(so_int, s, 1) <<= 2;
+        so_at(so_int, s, 1) >>= 1;
+        so_at(so_int, s, 1) |= 0b1100;
+        so_at(so_int, s, 1) &= 0b1111;
+        so_at(so_int, s, 1) ^= 0b0101;
         // s[1] &^= 0b1010  // not supported
-        if (so_index(so_int, s, 1) != 9) {
+        if (so_at(so_int, s, 1) != 9) {
             so_panic("want 9");
         }
     }

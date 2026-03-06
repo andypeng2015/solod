@@ -6,7 +6,7 @@ int main(void) {
     so_String str = so_str("Hi 世界!");
     // Loop over bytes.
     for (so_int i = 0; i < so_len(str); i++) {
-        uint8_t chr = so_index(uint8_t, str, i);
+        uint8_t chr = so_at(uint8_t, str, i);
         so_println("%s %lld %s %u", "i =", i, "chr =", chr);
     }
     // Loop over runes.
@@ -40,11 +40,11 @@ int main(void) {
         // String conversion.
         so_String s = so_str("1世3");
         so_Slice bs = so_string_bytes(s);
-        if (so_index(uint8_t, bs, 0) != '1') {
+        if (so_at(uint8_t, bs, 0) != '1') {
             so_panic("unexpected byte");
         }
         so_Slice rs = so_string_runes(s, so_len(s));
-        if (so_index(int32_t, rs, 1) != U'世') {
+        if (so_at(int32_t, rs, 1) != U'世') {
             so_panic("unexpected rune");
         }
     }

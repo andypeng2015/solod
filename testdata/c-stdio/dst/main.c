@@ -13,7 +13,7 @@ int main(void) {
         stdio_Fputc(10, f);
         stdio_Fflush(f);
         so_Slice buf = (so_Slice){(uint8_t[64]){0}, 64, 64};
-        stdio_Fwrite(&so_index(uint8_t, buf, 0), 1, 64, f);
+        stdio_Fwrite(&so_at(uint8_t, buf, 0), 1, 64, f);
         stdio_Fclose(f);
     }
     {
@@ -28,8 +28,8 @@ int main(void) {
         }
         so_Slice buf = (so_Slice){(uint8_t[64]){0}, 64, 64};
         stdio_Fseek(f, 0, 0);
-        stdio_Fgets(&so_index(uint8_t, buf, 0), 64, f);
-        stdio_Fread(&so_index(uint8_t, buf, 0), 1, 64, f);
+        stdio_Fgets(&so_at(uint8_t, buf, 0), 64, f);
+        stdio_Fread(&so_at(uint8_t, buf, 0), 1, 64, f);
         so_int pos = stdio_Ftell(f);
         if (pos < 0) {
             so_panic("ftell error");
@@ -47,7 +47,7 @@ int main(void) {
         stdio_Printf("hello %d\n", 42);
         stdio_Fprintf(stdio_Stdout, "value: %d\n", 100);
         so_Slice buf = (so_Slice){(uint8_t[64]){0}, 64, 64};
-        stdio_Snprintf(&so_index(uint8_t, buf, 0), 64, "count: %d", 10);
+        stdio_Snprintf(&so_at(uint8_t, buf, 0), 64, "count: %d", 10);
     }
     {
         // Formatted input.

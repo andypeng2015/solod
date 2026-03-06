@@ -26,10 +26,10 @@ int main(void) {
         if (err != NULL) {
             so_panic("AllocSlice: allocation failed");
         }
-        so_index(so_int, slice, 0) = 11;
-        so_index(so_int, slice, 1) = 22;
-        so_index(so_int, slice, 2) = 33;
-        if (so_index(so_int, slice, 0) != 11 || so_index(so_int, slice, 1) != 22 || so_index(so_int, slice, 2) != 33) {
+        so_at(so_int, slice, 0) = 11;
+        so_at(so_int, slice, 1) = 22;
+        so_at(so_int, slice, 2) = 33;
+        if (so_at(so_int, slice, 0) != 11 || so_at(so_int, slice, 1) != 22 || so_at(so_int, slice, 2) != 33) {
             so_panic("AllocSlice: unexpected value");
         }
         mem_DeallocSlice(so_int, mem_System, slice);
@@ -47,10 +47,10 @@ int main(void) {
     {
         // mem.NewSlice and mem.FreeSlice
         so_Slice slice = mem_NewSlice(so_int, 3, 3);
-        so_index(so_int, slice, 0) = 11;
-        so_index(so_int, slice, 1) = 22;
-        so_index(so_int, slice, 2) = 33;
-        if (so_index(so_int, slice, 0) != 11 || so_index(so_int, slice, 1) != 22 || so_index(so_int, slice, 2) != 33) {
+        so_at(so_int, slice, 0) = 11;
+        so_at(so_int, slice, 1) = 22;
+        so_at(so_int, slice, 2) = 33;
+        if (so_at(so_int, slice, 0) != 11 || so_at(so_int, slice, 1) != 22 || so_at(so_int, slice, 2) != 33) {
             so_panic("NewSlice: unexpected value");
         }
         mem_FreeSlice(so_int, slice);

@@ -130,7 +130,7 @@ static inline so_int so_copy_impl(so_Slice dst, so_Slice src, size_t elem_size) 
 #define so_copy(T, dst, src) so_copy_impl(dst, src, sizeof(T))
 
 // index returns a reference to the element at index i in a slice or string.
-#define so_index(T, s, i) (((T*)(s).ptr)[i])
+#define so_at(T, s, i) (((T*)(s).ptr)[i])
 
 // len returns the length of a slice or string.
 #define so_len(s) ((so_int)(s).len)

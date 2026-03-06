@@ -5,8 +5,8 @@
 int main(void) {
     so_Slice a = (so_Slice){(so_int[5]){0}, 5, 5};
     (void)a;
-    so_index(so_int, a, 4) = 100;
-    so_int x = so_index(so_int, a, 4);
+    so_at(so_int, a, 4) = 100;
+    so_int x = so_at(so_int, a, 4);
     (void)x;
     so_int l = so_len(a);
     (void)l;

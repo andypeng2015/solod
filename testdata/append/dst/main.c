@@ -7,8 +7,8 @@ int main(void) {
         // make, len, cap.
         so_Slice nums = so_make_slice(so_int, 3, 3);
         // 0
-        so_int n = so_index(so_int, nums, 1);
-        so_index(so_int, nums, 1) = 42;
+        so_int n = so_at(so_int, nums, 1);
+        so_at(so_int, nums, 1) = 42;
         // 3
         so_int l = so_len(nums);
         so_int c = so_cap(nums);
@@ -41,7 +41,7 @@ int main(void) {
         if (l != 4) {
             so_panic("want l = 4");
         }
-        if (so_index(so_int, nums, 3) != 4) {
+        if (so_at(so_int, nums, 3) != 4) {
             so_panic("want nums[3] = 4");
         }
     }
