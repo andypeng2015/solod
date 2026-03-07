@@ -122,4 +122,23 @@ func main() {
 			panic("want a[0] == 42")
 		}
 	}
+	{
+		// Multi-dimensional arrays.
+		var twoD [2][3]int32
+		for i := range 2 {
+			for j := range 3 {
+				twoD[i][j] = int32(i*10 + j + 1)
+			}
+		}
+		if twoD[0][0] != 1 || twoD[1][2] != 13 {
+			panic("want twoD == {{1, 2, 3}, {11, 12, 13}}")
+		}
+		twoD = [2][3]int32{
+			{1, 2, 3},
+			{11, 12, 13},
+		}
+		if twoD[0][0] != 1 || twoD[1][2] != 13 {
+			panic("want twoD == {{1, 2, 3}, {11, 12, 13}}")
+		}
+	}
 }

@@ -152,7 +152,7 @@ func (g *Generator) emitAssign(stmt *ast.AssignStmt) {
 			if _, isLit := stmt.Rhs[i].(*ast.CompositeLit); isLit {
 				// Compound literal: (int[3]){1, 2, 3}
 				elemType := g.mapType(stmt, arr.Elem())
-				fmt.Fprintf(w, "(%s[%d])", elemType, arr.Len())
+				fmt.Fprintf(w, "(%s%s)", elemType, arrayDims(arr))
 			}
 			g.emitExpr(stmt.Rhs[i])
 			fmt.Fprintf(w, ", sizeof(")

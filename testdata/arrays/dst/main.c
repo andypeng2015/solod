@@ -123,4 +123,20 @@ int main(void) {
             so_panic("want a[0] == 42");
         }
     }
+    {
+        // Multi-dimensional arrays.
+        int32_t twoD[2][3] = {0};
+        for (so_int i = 0; i < 2; i++) {
+            for (so_int j = 0; j < 3; j++) {
+                twoD[i][j] = (int32_t)i * 10 + j + 1;
+            }
+        }
+        if (twoD[0][0] != 1 || twoD[1][2] != 13) {
+            so_panic("want twoD == {{1, 2, 3}, {11, 12, 13}}");
+        }
+        memcpy(twoD, (int32_t[2][3]){{1, 2, 3}, {11, 12, 13}}, sizeof(twoD));
+        if (twoD[0][0] != 1 || twoD[1][2] != 13) {
+            so_panic("want twoD == {{1, 2, 3}, {11, 12, 13}}");
+        }
+    }
 }

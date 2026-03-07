@@ -33,7 +33,7 @@ func (g *Generator) emitArrayCmpOperand(expr ast.Expr, arr *types.Array) {
 	w := g.state.writer
 	if _, isLit := expr.(*ast.CompositeLit); isLit {
 		elemType := g.mapType(expr, arr.Elem())
-		fmt.Fprintf(w, "((%s[%d])", elemType, arr.Len())
+		fmt.Fprintf(w, "((%s%s)", elemType, arrayDims(arr))
 		g.emitExpr(expr)
 		fmt.Fprintf(w, ")")
 		return
