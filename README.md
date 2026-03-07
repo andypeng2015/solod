@@ -208,13 +208,15 @@ Not for production at the moment.
 
 _Where's the standard library?_
 
-It's in progress. See the roadmap below for details.
+Currently, there are mostly low-level packages that wrap the libc API, like `so/c/stdlib`, `so/c/stdio`, and `so/c/cstring`. Check out the [stdlib](stdlib.md) document for a quick overview, or see the full [package documentation](https://pkg.go.dev/github.com/nalgeon/solod/so) for more details.
+
+A high-level standard library similar to Go's stdlib is also planned.
 
 ## Roadmap
 
 ✅ Transpiler with basic Go features.
 
-⏳ Low-level stdlib (libc headers).
+⏳ Low-level stdlib (libc wrappers).
 
 ⬜ Core stdlib packages: errors, fmt, io, time, ...
 
