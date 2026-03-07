@@ -229,6 +229,9 @@ func (g *Generator) formatSpec(node ast.Node, typ types.Type) (spec, macro strin
 	if _, ok := typ.(*types.Pointer); ok {
 		return "%p", ""
 	}
+	if iface, ok := typ.Underlying().(*types.Interface); ok && iface.Empty() {
+		return "%p", ""
+	}
 	if isErrorType(typ) {
 		return "%p", ""
 	}
