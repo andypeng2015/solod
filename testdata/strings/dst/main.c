@@ -39,6 +39,12 @@ int main(void) {
             so_println("%s %d", "r =", r);
             _ += __w;
         }
+        for (so_int i = 0; i < so_len(so_str("go"));) {
+            int _iw = 0;
+            so_rune r = so_utf8_decode(so_str("go"), i, &_iw);
+            so_println("%s %" PRId64 " %s %d", "i =", i, "r =", r);
+            i += _iw;
+        }
     }
     {
         // Compare strings.

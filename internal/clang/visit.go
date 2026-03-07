@@ -399,7 +399,7 @@ func (g *Generator) emitRangeStmt(stmt *ast.RangeStmt) {
 	case *types.Slice:
 		g.emitSliceRange(stmt)
 	case *types.Basic:
-		if t.Kind() == types.String {
+		if t.Kind() == types.String || t.Kind() == types.UntypedString {
 			g.emitStringRange(stmt)
 		} else {
 			g.emitIntRange(stmt)

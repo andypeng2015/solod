@@ -341,7 +341,7 @@ func (g *Generator) emitIndexExpr(n *ast.IndexExpr) {
 	case *types.Slice:
 		elemType = g.mapType(n, t.Elem())
 	case *types.Basic:
-		if t.Kind() == types.String {
+		if t.Kind() == types.String || t.Kind() == types.UntypedString {
 			elemType = "uint8_t"
 		} else {
 			g.fail(n, "unsupported index expression type: %T", t)

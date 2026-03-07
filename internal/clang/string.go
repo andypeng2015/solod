@@ -17,7 +17,7 @@ func (g *Generator) emitStringLit(n *ast.BasicLit) {
 func (g *Generator) hasStringType(expr ast.Expr) bool {
 	typ := g.types.TypeOf(expr)
 	basic, ok := typ.Underlying().(*types.Basic)
-	return ok && basic.Kind() == types.String
+	return ok && (basic.Kind() == types.String || basic.Kind() == types.UntypedString)
 }
 
 // rawStringValue returns the C string literal for a Go string literal,

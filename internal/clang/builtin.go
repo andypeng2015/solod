@@ -252,7 +252,7 @@ func (g *Generator) formatSpec(node ast.Node, typ types.Type) (spec, macro strin
 		return "%u", ""
 	case types.Uint, types.Uint64, types.Uintptr:
 		return "%", "PRIu64"
-	case types.String:
+	case types.String, types.UntypedString:
 		return "%s", ""
 	default:
 		g.fail(node, "unsupported type for print: %s", typ)

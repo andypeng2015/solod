@@ -31,7 +31,9 @@ func main() {
 		for _, r := range str {
 			println("r =", r)
 		}
-
+		for i, r := range "go" {
+			println("i =", i, "r =", r)
+		}
 	}
 
 	{
