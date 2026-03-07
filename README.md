@@ -86,7 +86,7 @@ int main(void) {
 }
 ```
 
-Learn more about the supported language features in [spec.md](spec.md) and check out more examples in [examples].
+Learn more about the supported language features in [spec.md](doc/spec.md) and check out more examples in [examples].
 
 ## Installation and usage
 
@@ -196,7 +196,7 @@ Everything is stack-allocated by default. There's no garbage collector or refere
 
 _Can I use So code from C (and vice versa)?_
 
-Yes. So compiles to plain C, therefore calling So from C is just calling C from C. Calling C from So is equally straightforward — see the [spec](spec.md#c-interop) for details.
+Yes. So compiles to plain C, therefore calling So from C is just calling C from C. Calling C from So is equally straightforward — see the [spec](doc/spec.md#c-interop) for details.
 
 _Can I compile existing Go packages with So?_
 
@@ -208,7 +208,7 @@ Not for production at the moment.
 
 _Where's the standard library?_
 
-Currently, there are mostly low-level packages that wrap the libc API, like `so/c/stdlib`, `so/c/stdio`, and `so/c/cstring`. Check out the [stdlib](stdlib.md) document for a quick overview, or see the full [package documentation](https://pkg.go.dev/github.com/nalgeon/solod/so) for more details.
+Currently, there are mostly low-level packages that wrap the libc API, like `so/c/stdlib`, `so/c/stdio`, and `so/c/cstring`. Check out the [stdlib](doc/stdlib.md) document for a quick overview, or see the full [package documentation](https://pkg.go.dev/github.com/nalgeon/solod/so) for more details.
 
 A high-level standard library similar to Go's stdlib is also planned.
 
