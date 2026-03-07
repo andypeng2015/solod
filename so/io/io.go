@@ -11,7 +11,8 @@
 // various implementations, unless otherwise informed clients should not
 // assume they are safe for parallel execution.
 //
-// Source: go1.26.0
+// CAUTION: This package is under development. DO NOT use yet.
+// Source: https://github.com/golang/go/blob/go1.26.0/src/io/io.go
 package io
 
 import (
@@ -315,7 +316,6 @@ type RuneReader interface {
 // last-unread rune), or (in implementations that support the [Seeker] interface)
 // seek to the start of the rune before the current offset.
 type RuneScanner interface {
-	// nolint:stdmethods
 	ReadRune() RuneSizeResult
 	UnreadRune() error
 }
