@@ -88,10 +88,6 @@ typedef struct {
     size_t cap;
 } so_Slice;
 
-// make_slice creates a zeroed slice of the given type, length, and capacity.
-// cap must be a compile-time constant.
-#define so_make_slice(T, len, cap) ((so_Slice){(T[cap]){}, (len), (cap)})
-
 // slice creates a slice from another slice
 // from index 'from' (inclusive) to index 'to' (exclusive).
 #define so_slice(T, s, from, to) ((so_Slice){(T*)(s).ptr + (from), (to) - (from), (s).cap - (from)})
@@ -99,9 +95,13 @@ typedef struct {
 // string_bytes wraps a string's raw bytes as a byte slice.
 #define so_string_bytes(s) ((so_Slice){(void*)(s).ptr, (s).len, (s).len})
 
+// make_slice creates a zero-initialized slice on the stack.
+// Allocates memory on the stack until the calling function returns.
+#define so_make_slice(T, len, cap) \
+    ((so_Slice){memset(alloca(sizeof(T) * (cap)), 0, sizeof(T) * (cap)), (len), (cap)})
+
 // string_runes decodes a string's UTF-8 bytes into a rune slice.
 // Allocates memory on the stack until the calling function returns.
-// FIXME: This can exhaust the stack if called in a loop or with a large string.
 #define so_string_runes(s, maxlen) ({                   \
     int32_t* _buf = alloca((maxlen) * sizeof(int32_t)); \
     so_string_runes_impl((s), _buf);                    \
@@ -109,6 +109,7 @@ typedef struct {
 so_Slice so_string_runes_impl(so_String s, int32_t* buf);
 
 // bytes_string copies a byte slice into a null-terminated string.
+// Allocates memory on the stack until the calling function returns.
 #define so_bytes_string(bs) ({                \
     char* _buf = alloca((bs).len + 1);        \
     memcpy(_buf, (bs).ptr, (bs).len);         \

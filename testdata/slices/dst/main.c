@@ -114,4 +114,16 @@ int main(void) {
             so_panic("want 9");
         }
     }
+    {
+        // Copying a slice.
+        so_Slice s = so_make_slice(so_String, 3, 6);
+        so_at(so_String, s, 0) = so_str("a");
+        so_at(so_String, s, 1) = so_str("b");
+        so_at(so_String, s, 2) = so_str("c");
+        so_Slice c = so_make_slice(so_String, so_len(s), so_len(s));
+        so_copy(so_String, c, s);
+        if (so_string_ne(so_at(so_String, c, 0), so_str("a")) || so_string_ne(so_at(so_String, c, 2), so_str("c"))) {
+            so_panic("want c[0] == 'a' && c[2] == 'c'");
+        }
+    }
 }

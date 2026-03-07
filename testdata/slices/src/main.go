@@ -121,4 +121,17 @@ func main() {
 			panic("want 9")
 		}
 	}
+
+	{
+		// Copying a slice.
+		s := make([]string, 3, 6)
+		s[0] = "a"
+		s[1] = "b"
+		s[2] = "c"
+		c := make([]string, len(s))
+		copy(c, s)
+		if c[0] != "a" || c[2] != "c" {
+			panic("want c[0] == 'a' && c[2] == 'c'")
+		}
+	}
 }

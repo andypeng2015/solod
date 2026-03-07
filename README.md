@@ -157,7 +157,7 @@ So generates C11 code that relies on several GCC/Clang extensions:
 - `__auto_type` for local type inference in generated code.
 - `__COUNTER__` for generating unique variable names.
 - `__typeof__` for type inference in generic macros.
-- `alloca` for string-to-runes conversion (might be removed in the future).
+- `alloca` for `make()` and other dynamic stack allocations.
 
 You can use GCC, Clang, or `zig cc` to compile the transpiled C code. MSVC is not supported.
 
