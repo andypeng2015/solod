@@ -1,4 +1,4 @@
-CFLAGS = -g -std=gnu11 -Wall -Wextra -Werror -Wno-shadow -fsanitize=address -fsanitize=undefined -fstack-protector-all -lm
+CFLAGS ?= -g -std=gnu11 -Wall -Wextra -Werror -Wno-shadow -fsanitize=address -fsanitize=undefined -fstack-protector-all -lm
 
 CLANG       = clang
 GCC_NATIVE  = gcc-15
