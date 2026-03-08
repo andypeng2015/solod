@@ -119,7 +119,7 @@ func main() {
 Transpile to C:
 
 ```
-so transpile -o generated .
+so translate -o generated .
 ```
 
 The translated C code will be saved in the `generated` directory.
