@@ -1,6 +1,6 @@
 module github.com/nalgeon/solod
 
-go 1.25.0
+go 1.26
 
 require (
 	github.com/nalgeon/be v0.3.0
