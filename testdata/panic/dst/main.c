@@ -23,5 +23,13 @@ static void panicError(void) {
 }
 
 int main(void) {
-    panicLiteral();
+    if (false) {
+        panicLiteral();
+    }
+    if (false) {
+        panicString();
+    }
+    if (false) {
+        panicError();
+    }
 }

@@ -21,5 +21,13 @@ func panicError() {
 }
 
 func main() {
-	panicLiteral()
+	if false {
+		panicLiteral()
+	}
+	if false {
+		panicString()
+	}
+	if false {
+		panicError()
+	}
 }
