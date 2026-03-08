@@ -134,4 +134,31 @@ func main() {
 			panic("want c[0] == 'a' && c[2] == 'c'")
 		}
 	}
+
+	{
+		// For-range over slices.
+		s := []int{1, 2, 3}
+		sum := 0
+		for i := range s {
+			sum += s[i]
+		}
+		if sum != 6 {
+			panic("want sum == 6")
+		}
+		sum = 0
+		for _, num := range s {
+			sum += num
+		}
+		if sum != 6 {
+			panic("want sum == 6")
+		}
+		sum = 0
+		for i, num := range s {
+			_ = i
+			sum += num
+		}
+		if sum != 6 {
+			panic("want sum == 6")
+		}
+	}
 }

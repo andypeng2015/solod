@@ -126,4 +126,32 @@ int main(void) {
             so_panic("want c[0] == 'a' && c[2] == 'c'");
         }
     }
+    {
+        // For-range over slices.
+        so_Slice s = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3};
+        so_int sum = 0;
+        for (so_int i = 0; i < so_len(s); i++) {
+            sum += so_at(so_int, s, i);
+        }
+        if (sum != 6) {
+            so_panic("want sum == 6");
+        }
+        sum = 0;
+        for (so_int _ = 0; _ < so_len(s); _++) {
+            so_int num = so_at(so_int, s, _);
+            sum += num;
+        }
+        if (sum != 6) {
+            so_panic("want sum == 6");
+        }
+        sum = 0;
+        for (so_int i = 0; i < so_len(s); i++) {
+            so_int num = so_at(so_int, s, i);
+            (void)i;
+            sum += num;
+        }
+        if (sum != 6) {
+            so_panic("want sum == 6");
+        }
+    }
 }

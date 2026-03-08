@@ -141,4 +141,30 @@ func main() {
 			panic("want twoD == {{1, 2, 3}, {11, 12, 13}}")
 		}
 	}
+	{
+		// For-range over arrays.
+		a := [3]int{1, 2, 3}
+		sum := 0
+		for i := range a {
+			sum += a[i]
+		}
+		if sum != 6 {
+			panic("want sum == 6")
+		}
+		sum = 0
+		for _, num := range a {
+			sum += num
+		}
+		if sum != 6 {
+			panic("want sum == 6")
+		}
+		sum = 0
+		for i, num := range a {
+			_ = i
+			sum += num
+		}
+		if sum != 6 {
+			panic("want sum == 6")
+		}
+	}
 }

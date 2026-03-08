@@ -139,4 +139,32 @@ int main(void) {
             so_panic("want twoD == {{1, 2, 3}, {11, 12, 13}}");
         }
     }
+    {
+        // For-range over arrays.
+        so_int a[3] = {1, 2, 3};
+        so_int sum = 0;
+        for (so_int i = 0; i < 3; i++) {
+            sum += a[i];
+        }
+        if (sum != 6) {
+            so_panic("want sum == 6");
+        }
+        sum = 0;
+        for (so_int _ = 0; _ < 3; _++) {
+            so_int num = a[_];
+            sum += num;
+        }
+        if (sum != 6) {
+            so_panic("want sum == 6");
+        }
+        sum = 0;
+        for (so_int i = 0; i < 3; i++) {
+            so_int num = a[i];
+            (void)i;
+            sum += num;
+        }
+        if (sum != 6) {
+            so_panic("want sum == 6");
+        }
+    }
 }

@@ -20,6 +20,9 @@ func (g *Generator) emitIntRange(stmt *ast.RangeStmt) {
 
 // emitArrayRange emits a range loop over a fixed-size array.
 func (g *Generator) emitArrayRange(stmt *ast.RangeStmt) {
+	if _, ok := stmt.X.(*ast.CompositeLit); ok {
+		g.fail(stmt.X, "for-range over literal not supported")
+	}
 	w := g.state.writer
 	key := stmt.Key.(*ast.Ident)
 	arrType := g.types.TypeOf(stmt.X).Underlying().(*types.Array)
@@ -46,6 +49,9 @@ func (g *Generator) emitArrayRange(stmt *ast.RangeStmt) {
 
 // emitSliceRange emits a range loop over a slice.
 func (g *Generator) emitSliceRange(stmt *ast.RangeStmt) {
+	if _, ok := stmt.X.(*ast.CompositeLit); ok {
+		g.fail(stmt.X, "for-range over literal not supported")
+	}
 	w := g.state.writer
 	key := stmt.Key.(*ast.Ident)
 	sliceType := g.types.TypeOf(stmt.X).Underlying().(*types.Slice)
