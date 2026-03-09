@@ -13,7 +13,7 @@ static so_Result lenInt64(so_Slice buf) {
 }
 
 static so_Result lenInt64Impl(so_Slice buf) {
-    return (so_Result){.val.as_int = (int64_t)so_len(buf), .err = NULL};
+    return (so_Result){.val.as_int = (int64_t)(so_len(buf)), .err = NULL};
 }
 
 int main(void) {

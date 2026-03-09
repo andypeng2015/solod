@@ -3,7 +3,7 @@
 // -- Implementation --
 
 int main(void) {
-    uintptr_t size = 4 * unsafe_Sizeof((uint8_t)0);
+    uintptr_t size = 4 * unsafe_Sizeof((uint8_t)(0));
     // Memset: fill memory with a value.
     void* buf = stdlib_Malloc(size);
     if (buf == NULL) {

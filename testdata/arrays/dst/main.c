@@ -135,7 +135,7 @@ int main(void) {
         int32_t twoD[2][3] = {0};
         for (so_int i = 0; i < 2; i++) {
             for (so_int j = 0; j < 3; j++) {
-                twoD[i][j] = (int32_t)i * 10 + j + 1;
+                twoD[i][j] = (int32_t)(i * 10 + j + 1);
             }
         }
         if (twoD[0][0] != 1 || twoD[1][2] != 13) {

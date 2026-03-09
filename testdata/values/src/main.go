@@ -72,4 +72,18 @@ func main() {
 		const s5 = "\xff\u00FF"
 		_ = s5
 	}
+
+	{
+		// Conversions.
+		const x uint = 123
+		const n1 = int(x)
+		_ = n1
+		const n2 = int(x & 7)
+		_ = n2
+
+		const mask2 = 0b00011111
+		var p0 byte = 'x'
+		r := rune(p0 & mask2)
+		_ = r
+	}
 }

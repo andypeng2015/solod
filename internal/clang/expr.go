@@ -170,8 +170,9 @@ func (g *Generator) emitCallExpr(n *ast.CallExpr) {
 		}
 		// Regular type conversion (e.g. int(3.14)).
 		cType := g.mapType(n, tv.Type)
-		fmt.Fprintf(w, "(%s)", cType)
+		fmt.Fprintf(w, "(%s)(", cType)
 		g.emitExpr(n.Args[0])
+		fmt.Fprintf(w, ")")
 		return
 	}
 

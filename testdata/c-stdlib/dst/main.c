@@ -23,16 +23,16 @@ int main(void) {
     }
     {
         // Memory management.
-        void* ptr = stdlib_Malloc(unsafe_Sizeof((so_int)0));
+        void* ptr = stdlib_Malloc(unsafe_Sizeof((so_int)(0)));
         if (ptr == NULL) {
             so_panic("malloc failed");
         }
         stdlib_Free(ptr);
-        ptr = stdlib_Calloc(10, unsafe_Sizeof((so_int)0));
+        ptr = stdlib_Calloc(10, unsafe_Sizeof((so_int)(0)));
         if (ptr == NULL) {
             so_panic("calloc failed");
         }
-        ptr = stdlib_Realloc(ptr, 20 * unsafe_Sizeof((so_int)0));
+        ptr = stdlib_Realloc(ptr, 20 * unsafe_Sizeof((so_int)(0)));
         if (ptr == NULL) {
             so_panic("realloc failed");
         }

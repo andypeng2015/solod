@@ -69,4 +69,16 @@ int main(void) {
         const so_String s5 = so_str("\xff\u00FF");
         (void)s5;
     }
+    {
+        // Conversions.
+        const uint64_t x = 123;
+        const so_int n1 = (so_int)(x);
+        (void)n1;
+        const so_int n2 = (so_int)(x & 7);
+        (void)n2;
+        const so_int mask2 = 0b00011111;
+        uint8_t p0 = 'x';
+        int32_t r = (int32_t)(p0 & mask2);
+        (void)r;
+    }
 }
