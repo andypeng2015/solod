@@ -485,10 +485,14 @@ func (g *Generator) emitReturnStmt(stmt *ast.ReturnStmt) {
 	}
 	if len(stmt.Results) > 1 {
 		// Multiple return values are wrapped in a so_Result struct.
-		field := g.resultField(stmt, g.state.funcSig)
-		fmt.Fprintf(w, "%sreturn (so_Result){.val.%s = ", g.indent(), field)
+		info := g.multiReturnFields(stmt, g.state.funcSig)
+		fmt.Fprintf(w, "%sreturn (so_Result){.val.%s = ", g.indent(), info.field1)
 		g.emitExpr(stmt.Results[0])
-		fmt.Fprintf(w, ", .err = ")
+		if info.hasError {
+			fmt.Fprintf(w, ", .err = ")
+		} else {
+			fmt.Fprintf(w, ", .val2.%s = ", info.field2)
+		}
 		g.emitExpr(stmt.Results[1])
 		fmt.Fprintf(w, "};\n")
 		return

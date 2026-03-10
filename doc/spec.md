@@ -364,13 +364,21 @@ Exported functions (capitalized) become public C symbols prefixed with the packa
 
 ## Multiple return values
 
-So has limited support for multiple returns (this might improve in the future).
+So supports two-value multiple returns in two patterns: `(T, error)` and `(T1, T2)`.
 
-Multiple return values follow the `(T, error)` pattern — the second value must be `error`:
+The `(T, error)` pattern - the second value is `error`:
 
 ```go
 func divide(a, b int) (int, error) {
     return a / b, nil
+}
+```
+
+The `(T1, T2)` pattern - two values of any supported type:
+
+```go
+func divmod(a, b int) (int, int) {
+    return a / b, a % b
 }
 ```
 
@@ -380,7 +388,10 @@ Destructuring:
 q, err := divide(10, 3)     // new variables
 q, err = divide(20, 7)      // reassign existing
 _, err2 := divide(10, 3)    // blank identifier
-r, _ := divide(10, 3)       // ignore error
+r, _ := divide(10, 3)       // ignore second value
+
+d, m := divmod(10, 3)       // two values
+_, m2 := divmod(10, 3)      // blank identifier
 ```
 
 If-init with multi-return:
@@ -397,9 +408,13 @@ Forwarding a multi-return call:
 func forwardCall() (int, error) {
     return divide(10, 3)
 }
+
+func forwardDivmod() (int, int) {
+    return divmod(10, 3)
+}
 ```
 
-Supported first return types:
+Supported return types:
 
 ```go
 bool

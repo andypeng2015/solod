@@ -283,18 +283,23 @@ typedef struct so_Error_* so_Error;
 
 // --- Result type ---
 
-// so_Result is the return type for functions that return (T, error).
+// Value is a union of all possible return value types
+// in case of multiple return values.
+typedef union {
+    bool as_bool;
+    uint8_t as_byte;
+    int32_t as_rune;
+    so_int as_int;
+    double as_double;
+    so_String as_string;
+    so_Slice as_slice;
+    void* as_ptr;
+} so_Value;
+
+// so_Result is the return type for functions that return (T, error) or (T, T).
 typedef struct {
-    union {
-        bool as_bool;
-        uint8_t as_byte;
-        int32_t as_rune;
-        so_int as_int;
-        double as_double;
-        so_String as_string;
-        so_Slice as_slice;
-        void* as_ptr;
-    } val;
+    so_Value val;
+    so_Value val2;
     so_Error err;
 } so_Result;
 
