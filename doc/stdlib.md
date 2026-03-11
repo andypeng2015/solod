@@ -4,6 +4,7 @@ So provides low-level packages that wrap the libc API (`so/c/*`) and a growing s
 
 [so/errors](#soerrors) •
 [so/mem](#somem) •
+[so/unicode/utf8](#sounicodeutf8) •
 [so/c](#soc) •
 [so/c/assert](#socassert) •
 [so/c/ctype](#socctype) •
@@ -13,7 +14,7 @@ So provides low-level packages that wrap the libc API (`so/c/*`) and a growing s
 [so/c/stdlib](#socstdlib) •
 [so/c/time](#soctime)
 
-## so/errors
+## [so/errors](https://pkg.go.dev/github.com/nalgeon/solod/so/errors)
 
 Error creation from text messages.
 
@@ -21,18 +22,20 @@ Error creation from text messages.
 
 To avoid heap allocations, `New` can only be used at the package level.
 
-## so/mem
+## [so/mem](https://pkg.go.dev/github.com/nalgeon/solod/so/mem)
 
 Memory allocation with a pluggable allocator interface.
 
-- `New` / `Free` - allocate/free a single value (system allocator).
-- `NewSlice` / `FreeSlice` - allocate/free a slice (system allocator).
-- `Alloc` / `Dealloc` - allocate/free with a custom allocator.
-- `AllocSlice` / `DeallocSlice` - same for slices.
-- `Allocator` interface - custom allocator support (`Alloc`, `Realloc`, `Dealloc`).
+- `Alloc` / `Free` - allocate/free a single value.
+- `AllocSlice` / `FreeSlice` - allocate/free a slice.
+- `Allocator` interface - custom allocator support (`Alloc`, `Realloc`, `Free`).
 - `SystemAllocator` - default allocator backed by C `calloc`/`realloc`/`free`.
 
-## so/c
+## [so/unicode/utf8](https://pkg.go.dev/github.com/nalgeon/solod/so/unicode/utf8)
+
+Functions to convert between runes and UTF-8 byte sequences. Offers the same API as Go's `unicode/utf8` package.
+
+## [so/c](https://pkg.go.dev/github.com/nalgeon/solod/so/c)
 
 C-to-So type bridge for pointers and strings.
 
@@ -40,21 +43,21 @@ C-to-So type bridge for pointers and strings.
 - `String` - convert a null-terminated C string to a So string.
 - `CharPtr` - cast a `*byte` (`uint8_t*`) to `char*` for C interop.
 
-## so/c/assert
+## [so/c/assert](https://pkg.go.dev/github.com/nalgeon/solod/so/c/assert)
 
 Runtime assertions (wraps C `<assert.h>`).
 
 - `Assert` / `Assertf` - abort if a condition is false.
 - `Enabled` - whether assertions are active.
 
-## so/c/ctype
+## [so/c/ctype](https://pkg.go.dev/github.com/nalgeon/solod/so/c/ctype)
 
 Character classification and conversion (wraps C `<ctype.h>`).
 
 - `IsAlpha`, `IsDigit`, `IsAlnum`, `IsSpace`, `IsUpper`, `IsLower`, `IsPrint`, `IsPunct`, `IsGraph`, `IsCntrl`, `IsBlank`, `IsXDigit` - classify a character.
 - `ToUpper` / `ToLower` - convert case.
 
-## so/c/cstring
+## [so/c/cstring](https://pkg.go.dev/github.com/nalgeon/solod/so/c/cstring)
 
 Raw memory block operations (wraps C `<string.h>`).
 
@@ -63,7 +66,7 @@ Raw memory block operations (wraps C `<string.h>`).
 - `Memset` - fill n bytes with value.
 - `Memcmp` - compare n bytes.
 
-## so/c/math
+## [so/c/math](https://pkg.go.dev/github.com/nalgeon/solod/so/c/math)
 
 Math constants and functions (wraps C `<math.h>`).
 
@@ -76,7 +79,7 @@ Functions:
 - `Sin`, `Cos`, `Atan2` - trigonometry.
 - `Fmin`, `Fmax`, `Fmod` - min, max, remainder.
 
-## so/c/stdio
+## [so/c/stdio](https://pkg.go.dev/github.com/nalgeon/solod/so/c/stdio)
 
 File I/O and formatted I/O (wraps C `<stdio.h>`).
 
@@ -98,7 +101,7 @@ Formatted I/O:
 - `Snprintf` - print to buffer.
 - `Scanf`, `Fscanf`, `Sscanf` - scan formatted input.
 
-## so/c/stdlib
+## [so/c/stdlib](https://pkg.go.dev/github.com/nalgeon/solod/so/c/stdlib)
 
 Process control, memory, and string conversion (wraps C `<stdlib.h>`).
 
@@ -108,7 +111,7 @@ Process control, memory, and string conversion (wraps C `<stdlib.h>`).
 - `Getenv` - read an environment variable.
 - `ExitSuccess`, `ExitFailure` - standard exit codes.
 
-## so/c/time
+## [so/c/time](https://pkg.go.dev/github.com/nalgeon/solod/so/c/time)
 
 Calendar time, broken-down time, and formatting (wraps C `<time.h>`).
 
