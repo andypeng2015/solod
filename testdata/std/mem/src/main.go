@@ -9,8 +9,8 @@ type Point struct {
 }
 
 func withDefer() {
-	p := mem.New[Point]()
-	defer mem.Free(p)
+	p := mem.Alloc[Point](nil)
+	defer mem.Free(nil, p)
 
 	p.x = 11
 	p.y = 22
@@ -21,8 +21,8 @@ func withDefer() {
 
 func main() {
 	{
-		// mem.Alloc and mem.Dealloc
-		p, err := mem.Alloc[Point](mem.System)
+		// TryAlloc and Free.
+		p, err := mem.TryAlloc[Point](mem.System)
 		if err != nil {
 			panic("Alloc: allocation failed")
 		}
@@ -31,11 +31,11 @@ func main() {
 		if p.x != 11 || p.y != 22 {
 			panic("Alloc: unexpected value")
 		}
-		mem.Dealloc[Point](mem.System, p)
+		mem.Free(mem.System, p)
 	}
 	{
-		// mem.AllocSlice and mem.DeallocSlice
-		slice, err := mem.AllocSlice[int](mem.System, 3, 3)
+		// TryAllocSlice and FreeSlice.
+		slice, err := mem.TryAllocSlice[int](mem.System, 3, 3)
 		if err != nil {
 			panic("AllocSlice: allocation failed")
 		}
@@ -45,28 +45,28 @@ func main() {
 		if slice[0] != 11 || slice[1] != 22 || slice[2] != 33 {
 			panic("AllocSlice: unexpected value")
 		}
-		mem.DeallocSlice[int](mem.System, slice)
+		mem.FreeSlice(mem.System, slice)
 	}
 	{
-		// mem.New and mem.Free
-		p := mem.New[Point]()
+		// Alloc/Free with default allocator.
+		p := mem.Alloc[Point](nil)
 		p.x = 11
 		p.y = 22
 		if p.x != 11 || p.y != 22 {
 			panic("New: unexpected value")
 		}
-		mem.Free[Point](p)
+		mem.Free(nil, p)
 	}
 	{
-		// mem.NewSlice and mem.FreeSlice
-		slice := mem.NewSlice[int](3, 3)
+		// AllocSlice/FreeSlice with default allocator.
+		slice := mem.AllocSlice[int](nil, 3, 3)
 		slice[0] = 11
 		slice[1] = 22
 		slice[2] = 33
 		if slice[0] != 11 || slice[1] != 22 || slice[2] != 33 {
 			panic("NewSlice: unexpected value")
 		}
-		mem.FreeSlice[int](slice)
+		mem.FreeSlice(nil, slice)
 	}
 	withDefer()
 }

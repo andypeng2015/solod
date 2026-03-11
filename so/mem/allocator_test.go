@@ -15,7 +15,7 @@ func TestSystemAllocator(t *testing.T) {
 
 			p, err := a.Alloc(size, align)
 			be.Err(t, err, nil)
-			defer a.Dealloc(p, size, align)
+			defer a.Free(p, size, align)
 
 			b := p.([]byte)
 			be.Equal(t, len(b), size)
@@ -56,7 +56,7 @@ func TestSystemAllocator(t *testing.T) {
 			b := p2.([]byte)
 			be.Equal(t, len(b), newSize)
 
-			a.Dealloc(p2, newSize, align)
+			a.Free(p2, newSize, align)
 		})
 		t.Run("invalid size", func(t *testing.T) {
 			defer func() {

@@ -12,55 +12,52 @@ var mem_h string
 
 var ErrOutOfMemory = errors.New("out of memory")
 
-// Alloc allocates memory for a single value of type T using allocator a.
-// Returns a pointer to the allocated memory or an error if allocation fails.
+// Alloc allocates a single value of type T using allocator a.
+// Returns a pointer to the allocated memory or panics on failure.
+// If the allocator is nil, uses the system allocator.
 //
 //so:extern
-func Alloc[T any](a Allocator) (*T, error) {
+func Alloc[T any](a Allocator) *T { return new(T) }
+
+// TryAlloc allocates memory for a single value of type T using allocator a.
+// Returns a pointer to the allocated memory or an error if allocation fails.
+// If the allocator is nil, uses the system allocator.
+//
+//so:extern
+func TryAlloc[T any](a Allocator) (*T, error) {
 	return new(T), nil
 }
 
-// Dealloc frees a value previously allocated with Alloc.
+// Free frees a value previously allocated with [Alloc] or [TryAlloc].
+// If the allocator is nil, uses the system allocator.
 //
 //so:extern
-func Dealloc[T any](a Allocator, ptr *T) {}
+func Free[T any](a Allocator, ptr *T) {}
 
-// AllocSlice allocates a slice of type T with given length and capacity using allocator a.
-// Returns a slice of the allocated memory or an error if allocation fails.
+// AllocSlice allocates a slice of type T with given length
+// and capacity using allocator a.
+// Returns a slice of the allocated memory or panics on failure.
+// If the allocator is nil, uses the system allocator.
 //
 //so:extern
-func AllocSlice[T any](a Allocator, len int, cap int) ([]T, error) {
-	return make([]T, len, cap), nil
-}
-
-// DeallocSlice frees a slice previously allocated with AllocSlice.
-//
-//so:extern
-func DeallocSlice[T any](a Allocator, slice []T) {}
-
-// New allocates a single value of type T using the system allocator.
-// Returns a pointer to the allocated memory or panics on failure.
-//
-//so:extern
-func New[T any]() *T { return new(T) }
-
-// Free frees a value previously allocated with New.
-//
-//so:extern
-func Free[T any](ptr *T) {}
-
-// NewSlice allocates a slice of type T with given length
-// and capacity using the system allocator.
-//
-//so:extern
-func NewSlice[T any](len int, cap int) []T {
+func AllocSlice[T any](a Allocator, len int, cap int) []T {
 	return make([]T, len, cap)
 }
 
-// FreeSlice frees a slice previously allocated with NewSlice.
+// TryAllocSlice allocates a slice of type T with given length and capacity using allocator a.
+// Returns a slice of the allocated memory or an error if allocation fails.
+// If the allocator is nil, uses the system allocator.
 //
 //so:extern
-func FreeSlice[T any](slice []T) {}
+func TryAllocSlice[T any](a Allocator, len int, cap int) ([]T, error) {
+	return make([]T, len, cap), nil
+}
+
+// FreeSlice frees a slice previously allocated with [AllocSlice] or [TryAllocSlice].
+// If the allocator is nil, uses the system allocator.
+//
+//so:extern
+func FreeSlice[T any](a Allocator, slice []T) {}
 
 // MaxAllocaSize is the maximum size that can be allocated with Alloca.
 // Defined as the so_MaxAllocaSize constant in the C code.

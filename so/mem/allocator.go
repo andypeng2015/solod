@@ -8,8 +8,8 @@ type Allocator interface {
 	Alloc(size int, align int) (any, error)
 	// Realloc resizes a previously allocated block of memory.
 	Realloc(ptr any, oldSize int, newSize int, align int) (any, error)
-	// Dealloc frees a previously allocated block of memory.
-	Dealloc(ptr any, size int, align int)
+	// Free frees a previously allocated block of memory.
+	Free(ptr any, size int, align int)
 }
 
 // SystemAllocator uses the system's malloc, realloc, and free functions.
@@ -43,7 +43,7 @@ func (SystemAllocator) Realloc(ptr any, oldSize int, newSize int, align int) (an
 	return newPtr, nil
 }
 
-func (SystemAllocator) Dealloc(ptr any, size int, align int) {
+func (SystemAllocator) Free(ptr any, size int, align int) {
 	_ = size
 	_ = align
 	free(ptr)

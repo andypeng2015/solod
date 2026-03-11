@@ -18,8 +18,8 @@ func main() {
 	// we defer the deallocation of that object. This will be executed
 	// at the end of the enclosing function (`main`), after we're done
 	// using the object.
-	p := mem.New[Point]() // p is allocated on the heap, not on the stack
-	defer mem.Free(p)
+	p := mem.Alloc[Point](nil) // p is allocated on the heap, not on the stack
+	defer mem.Free(nil, p)
 
 	p.x = 11
 	p.y = 22

@@ -15,8 +15,13 @@
 //   - Copy and CopyBuffer don't use WriterTo and ReaderFrom.
 //   - CopyN doesn't use ReaderFrom.
 //   - Discard doesn't use sync.Pool.
+//   - DiscardWriter is an exported type, and Discard is an instance of it.
+//   - MultiReader and MultiWriter are not implemented.
 //   - NopCloser doesn't use WriterTo.
+//   - NopCloser is an exported type, and NewNopCloser is its constructor.
+//   - PipeReader, PipeWriter and Pipe are not implemented.
 //   - RuneReader.ReadRune returns a struct instead of multi-return.
+//   - TeeReader is an exported type, and NewTeeReader is its constructor.
 //   - WriteString doesn't use WriterTo.
 //
 // CAUTION: This package is under development, do not use yet.
@@ -695,11 +700,11 @@ func (NopCloser) Close() error { return nil }
 // defined to read from src until EOF, it does not treat an EOF from Read
 // as an error to be reported.
 //
-// The returned slice is heap-allocated and owned by the caller.
-func ReadAll(r Reader) ([]byte, error) {
+// The returned slice is allocated; the caller owns it.
+func ReadAll(a mem.Allocator, r Reader) ([]byte, error) {
 	// Build slices of exponentially growing size,
 	// then copy into a perfectly-sized slice at the end.
-	b := mem.NewSlice[byte](0, 512)
+	b := mem.AllocSlice[byte](a, 0, 512)
 	// Starting with next equal to 256 (instead of say 512 or 1024)
 	// allows less memory usage for small inputs that finish in the
 	// early growth stages, but we grow the read sizes quickly such that
@@ -721,7 +726,7 @@ func ReadAll(r Reader) ([]byte, error) {
 
 			// Build our final right-sized slice.
 			finalSize += len(b)
-			final := mem.NewSlice[byte](0, finalSize)
+			final := mem.AllocSlice[byte](a, 0, finalSize)
 			for _, chunk := range chunks {
 				final = append(final, chunk...)
 			}
@@ -729,9 +734,9 @@ func ReadAll(r Reader) ([]byte, error) {
 
 			// Free the intermediate slices.
 			for _, chunk := range chunks {
-				mem.FreeSlice(chunk)
+				mem.FreeSlice(a, chunk)
 			}
-			mem.FreeSlice(b)
+			mem.FreeSlice(a, b)
 
 			return final, err
 		}
@@ -740,7 +745,7 @@ func ReadAll(r Reader) ([]byte, error) {
 			// Move to the next intermediate slice.
 			chunks = append(chunks, b)
 			finalSize += len(b)
-			b = mem.NewSlice[byte](0, next)
+			b = mem.AllocSlice[byte](a, 0, next)
 			next += next / 2
 		}
 	}
