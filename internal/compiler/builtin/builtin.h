@@ -19,6 +19,7 @@
 typedef uint8_t so_byte;
 typedef int32_t so_rune;
 typedef int64_t so_int;
+typedef uint64_t so_uint;
 
 // --- Alloca safety ---
 
@@ -290,6 +291,10 @@ typedef union {
     so_byte as_byte;
     so_rune as_rune;
     so_int as_int;
+    int64_t as_i64;
+    so_uint as_uint;
+    uint32_t as_u32;
+    uint64_t as_u64;
     double as_double;
     so_String as_string;
     so_Slice as_slice;

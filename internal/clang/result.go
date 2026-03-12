@@ -140,8 +140,16 @@ func resultFieldName(g *Generator, node ast.Node, typ types.Type) string {
 		return "as_bool"
 	case types.Float32, types.Float64, types.UntypedFloat:
 		return "as_double"
-	case types.Int, types.Int64, types.UntypedInt:
+	case types.Int, types.UntypedInt:
 		return "as_int"
+	case types.Int64:
+		return "as_i64"
+	case types.Uint:
+		return "as_uint"
+	case types.Uint32:
+		return "as_u32"
+	case types.Uint64:
+		return "as_u64"
 	case types.Int32, types.UntypedRune:
 		return "as_rune"
 	case types.String, types.UntypedString:
