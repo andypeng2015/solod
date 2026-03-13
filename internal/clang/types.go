@@ -225,7 +225,7 @@ func (g *Generator) declSymbolName(name string) string {
 // Exported names are prefixed with the package name (e.g. RectArea → geom_RectArea).
 // Extern symbols keep their original name (they come from C headers).
 func (g *Generator) symbolName(name string) string {
-	if g.externs[name] {
+	if g.hasExtern("", name) {
 		return name
 	}
 	if ast.IsExported(name) {

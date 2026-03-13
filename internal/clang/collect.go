@@ -42,7 +42,7 @@ func (g *Generator) collectSymbols() {
 				}
 				for _, spec := range d.Specs {
 					ts := spec.(*ast.TypeSpec)
-					if g.externs[ts.Name.Name] {
+					if g.hasExtern("", ts.Name.Name) {
 						continue
 					}
 					g.symbols = append(g.symbols, symbol{
@@ -56,7 +56,7 @@ func (g *Generator) collectSymbols() {
 				if d.Body == nil || d.Name.Name == "main" {
 					continue
 				}
-				if g.externs[externFuncKey(d)] {
+				if g.hasExtern("", externFuncKey(d)) {
 					continue
 				}
 				kind := symbolFunc
@@ -103,40 +103,14 @@ func (g *Generator) collectExterns() {
 		}
 
 		// Collect extern symbols from declarations.
-		g.collectFileExterns(file)
+		g.collectFileExterns("", file)
 	}
 
 	// Collect externs from imported packages so that isExternCall
 	// can identify cross-package extern calls (e.g. stdio.Printf).
 	for _, imp := range g.pkg.Imports {
 		for _, file := range imp.Syntax {
-			g.collectFileExterns(file)
-		}
-	}
-}
-
-// collectFileExterns collects extern symbols from a single file's declarations.
-func (g *Generator) collectFileExterns(file *ast.File) {
-	for _, decl := range file.Decls {
-		switch d := decl.(type) {
-		case *ast.GenDecl:
-			if !hasExternDirective(d.Doc) {
-				continue
-			}
-			for _, spec := range d.Specs {
-				switch s := spec.(type) {
-				case *ast.TypeSpec:
-					g.externs[s.Name.Name] = true
-				case *ast.ValueSpec:
-					for _, name := range s.Names {
-						g.externs[name.Name] = true
-					}
-				}
-			}
-		case *ast.FuncDecl:
-			if d.Body == nil || hasExternDirective(d.Doc) {
-				g.externs[externFuncKey(d)] = true
-			}
+			g.collectFileExterns(imp.Name, file)
 		}
 	}
 }
@@ -207,27 +181,4 @@ func (g *Generator) emitForwardTypeDecl(w io.Writer, spec *ast.TypeSpec) {
 		ct := g.mapCType(spec, typ.Underlying())
 		fmt.Fprintf(w, "typedef %s;\n", ct.Decl(cName))
 	}
-}
-
-// externFuncKey returns a map key for a function or method declaration.
-// Functions use their bare name (e.g. "Foo"), while methods use
-// "ReceiverType.Name" (e.g. "T.Foo") to avoid collisions.
-func externFuncKey(decl *ast.FuncDecl) string {
-	if decl.Recv != nil {
-		return recvTypeName(decl.Recv.List[0]) + "." + decl.Name.Name
-	}
-	return decl.Name.Name
-}
-
-// hasExternDirective checks if a comment group contains the //so:extern directive.
-func hasExternDirective(doc *ast.CommentGroup) bool {
-	if doc == nil {
-		return false
-	}
-	for _, c := range doc.List {
-		if strings.TrimSpace(c.Text) == "//so:extern" {
-			return true
-		}
-	}
-	return false
 }

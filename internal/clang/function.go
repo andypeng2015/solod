@@ -81,7 +81,7 @@ func (g *Generator) emitFuncTypeSpec(w io.Writer, spec *ast.TypeSpec) {
 
 // emitFuncDecl emits a function declaration.
 func (g *Generator) emitFuncDecl(decl *ast.FuncDecl) {
-	if decl.Body == nil || g.externs[externFuncKey(decl)] {
+	if decl.Body == nil || g.hasExtern("", externFuncKey(decl)) {
 		return
 	}
 	if decl.Recv != nil {
@@ -260,22 +260,6 @@ func (g *Generator) funcSig(decl *ast.FuncDecl) *types.Signature {
 		return g.types.ObjectOf(decl.Name).Type().(*types.Signature)
 	}
 	return g.types.Defs[decl.Name].Type().(*types.Signature)
-}
-
-// isExternCall reports whether a call expression targets an extern C function.
-func (g *Generator) isExternCall(call *ast.CallExpr) bool {
-	switch fun := call.Fun.(type) {
-	case *ast.Ident:
-		return g.externs[fun.Name]
-	case *ast.SelectorExpr:
-		// Package-qualified call (e.g. stdio.Printf).
-		if ident, ok := fun.X.(*ast.Ident); ok {
-			if _, ok := g.types.Uses[ident].(*types.PkgName); ok {
-				return g.externs[fun.Sel.Name]
-			}
-		}
-	}
-	return false
 }
 
 // endsWithReturn reports whether a statement list ends with a return statement.
