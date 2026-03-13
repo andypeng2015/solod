@@ -4,6 +4,7 @@ So provides low-level packages that wrap the libc API (`so/c/*`) and a growing s
 
 [so/errors](#soerrors) •
 [so/mem](#somem) •
+[so/slices](#soslices) •
 [so/unicode/utf8](#sounicodeutf8) •
 [so/c](#soc) •
 [so/c/assert](#socassert) •
@@ -32,10 +33,15 @@ Memory allocation with a pluggable allocator interface.
 
 - `Alloc` / `Free` - allocate/free a single value.
 - `AllocSlice` / `FreeSlice` - allocate/free a slice.
-- `Append` / `TryAppend` - append elements to a heap slice, growing if needed.
-- `Extend` / `TryExtend` - append another slice to a heap slice, growing if needed.
 - `Allocator` interface - custom allocator support (`Alloc`, `Realloc`, `Free`).
 - `SystemAllocator` - default allocator backed by C `calloc`/`realloc`/`free`.
+
+## [so/slices](https://pkg.go.dev/github.com/nalgeon/solod/so/slices)
+
+Operations on slices.
+
+- `Append` - append elements to a heap slice, growing if needed.
+- `Extend` - append another slice to a heap slice, growing if needed.
 
 ## [so/unicode](https://pkg.go.dev/github.com/nalgeon/solod/so/unicode)
 
