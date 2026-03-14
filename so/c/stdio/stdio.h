@@ -22,11 +22,13 @@
 #define stdio_Fgetc(stream) fgetc(stream)
 #define stdio_Fputc(ch, stream) fputc(ch, stream)
 
-#define stdio_Fgets(s, n, stream) fgets((char*)s, n, stream)
+#define stdio_Fgets(s, n, stream) (so_byte*)fgets((char*)s, n, stream)
 #define stdio_Fputs(s, stream) fputs(s, stream)
 
-#define stdio_Fread(ptr, size, count, stream) fread(ptr, size, count, stream)
-#define stdio_Fwrite(ptr, size, count, stream) fwrite(ptr, size, count, stream)
+#define stdio_Fread(ptr, size, count, stream) \
+    ((so_int)fread(ptr, (size_t)size, (size_t)count, stream))
+#define stdio_Fwrite(ptr, size, count, stream) \
+    ((so_int)fwrite(ptr, (size_t)size, (size_t)count, stream))
 
 #define stdio_Feof(stream) feof(stream)
 #define stdio_Ferror(stream) ferror(stream)

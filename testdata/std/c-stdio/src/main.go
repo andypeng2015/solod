@@ -33,8 +33,12 @@ func main() {
 
 		var buf [64]byte
 		stdio.Fseek(f, 0, 0)
-		stdio.Fgets(&buf[0], 64, f)
-		stdio.Fread(&buf[0], 1, 64, f)
+		if stdio.Fgets(&buf[0], 64, f) == nil {
+			panic("fgets error")
+		}
+		if stdio.Fread(&buf[0], 1, 64, f) == 0 {
+			panic("fread error")
+		}
 
 		pos := stdio.Ftell(f)
 		if pos < 0 {

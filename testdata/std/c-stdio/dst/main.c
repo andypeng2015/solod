@@ -28,8 +28,12 @@ int main(void) {
         }
         so_byte buf[64] = {0};
         stdio_Fseek(f, 0, 0);
-        stdio_Fgets(&buf[0], 64, f);
-        stdio_Fread(&buf[0], 1, 64, f);
+        if (stdio_Fgets(&buf[0], 64, f) == NULL) {
+            so_panic("fgets error");
+        }
+        if (stdio_Fread(&buf[0], 1, 64, f) == 0) {
+            so_panic("fread error");
+        }
         so_int pos = stdio_Ftell(f);
         if (pos < 0) {
             so_panic("ftell error");
