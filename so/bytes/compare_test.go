@@ -148,3 +148,40 @@ func TestEndianBaseCompare(t *testing.T) {
 		}
 	}
 }
+
+func TestEqual(t *testing.T) {
+	// Run the tests and check for allocation at the same time.
+	allocs := testing.AllocsPerRun(10, func() {
+		for _, tt := range compareTests {
+			eql := Equal(tt.a, tt.b)
+			if eql != (tt.i == 0) {
+				t.Errorf(`Equal(%q, %q) = %v`, tt.a, tt.b, eql)
+			}
+		}
+	})
+	if allocs > 0 {
+		t.Errorf("Equal allocated %v times", allocs)
+	}
+}
+
+// make sure Equal returns false for minimally different strings. The data
+// is all zeros except for a single one in one location.
+func TestNotEqual(t *testing.T) {
+	var size = 32
+	a := make([]byte, size)
+	b := make([]byte, size)
+
+	for len := 0; len <= size; len++ {
+		for x := 0; x <= size-len; x++ {
+			for y := 0; y <= size-len; y++ {
+				for diffpos := x; diffpos < x+len; diffpos++ {
+					a[diffpos] = 1
+					if Equal(a[x:x+len], b[y:y+len]) || Equal(b[y:y+len], a[x:x+len]) {
+						t.Errorf("NotEqual(%d, %d, %d, %d) = true", len, x, y, diffpos)
+					}
+					a[diffpos] = 0
+				}
+			}
+		}
+	}
+}

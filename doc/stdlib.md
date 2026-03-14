@@ -29,13 +29,17 @@ Functions:
 - `Compare` and `Equal` compare two slices lexicographically.
 - `Contains` reports whether a subslice is within a slice.
 - `Count` counts the number of non-overlapping instances of a subslice in a slice.
-- `Fields`, `Split` and `SplitN` split a slice into subslices.
-- `HasPrefix` and `HasSuffix` reports whethe a byte slice begins with a prefix.
-- `Index` and `LastIndex` search for a subslice within a slice.
-- `Join` concatenates two slices.
-- `Replace` and `ReplaceAll` replace subslices within a slice.
+- `Cut` slices around the first instance of a separator.
+- `HasPrefix` and `HasSuffix` report whether a slice begins/ends with a prefix/suffix.
+- `Index` and `IndexByte` search for a subslice or byte within a slice.
+- `Join` concatenates slices with a separator.
+- `Replace` replaces occurrences of a subslice within a slice.
 - `Runes` converts a byte slice to a rune slice.
+- `Split` and `SplitN` split a slice into subslices.
 - `String` creates a string from a byte slice.
+- `ToLower` and `ToUpper` return a copy with all letters lowercased/uppercased.
+- `TrimLeft`, `TrimRight` and `TrimSpace` trim characters from a slice.
+- `TrimPrefix` and `TrimSuffix` trim a prefix/suffix from a slice.
 
 Types:
 

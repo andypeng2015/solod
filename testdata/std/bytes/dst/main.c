@@ -1,19 +1,9 @@
 #include "main.h"
 
 // -- Forward declarations (functions and methods) --
-static bool isLatinLower(so_rune r);
-static bool isPunct(so_rune r);
 static so_rune toDot(so_rune r);
 
 // -- Implementation --
-
-static bool isLatinLower(so_rune r) {
-    return U'a' <= (uint32_t)(r) && (uint32_t)(r) <= U'z';
-}
-
-static bool isPunct(so_rune r) {
-    return (uint32_t)(r) == U',' || (uint32_t)(r) == U';';
-}
 
 static so_rune toDot(so_rune r) {
     (void)r;
@@ -62,35 +52,6 @@ int main(void) {
         }
     }
     {
-        // ContainsAny.
-        so_Slice b = so_string_bytes(so_str("I like seafood."));
-        if (!bytes_ContainsAny(b, so_str("aei"))) {
-            so_panic("ContainsAny failed");
-        }
-        if (bytes_ContainsAny(b, so_str("xyz"))) {
-            so_panic("ContainsAny failed");
-        }
-    }
-    {
-        // ContainsRune.
-        so_Slice b = so_string_bytes(so_str("I like seafood."));
-        if (!bytes_ContainsRune(b, U'f')) {
-            so_panic("ContainsRune failed");
-        }
-        if (bytes_ContainsRune(b, U'x')) {
-            so_panic("ContainsRune failed");
-        }
-    }
-    {
-        // ContainsFunc.
-        if (bytes_ContainsFunc(so_string_bytes(so_str("HELLO")), isLatinLower)) {
-            so_panic("ContainsFunc failed");
-        }
-        if (!bytes_ContainsFunc(so_string_bytes(so_str("World")), isLatinLower)) {
-            so_panic("ContainsFunc failed");
-        }
-    }
-    {
         // Count.
         so_Slice b = so_string_bytes(so_str("cheese"));
         if (bytes_Count(b, so_string_bytes(so_str("e"))) != 3) {
@@ -109,26 +70,6 @@ int main(void) {
         }
     }
     {
-        // CutPrefix.
-        so_Slice b = so_string_bytes(so_str("hello"));
-        so_Result _res1 = bytes_CutPrefix(b, so_string_bytes(so_str("hel")));
-        so_Slice after = _res1.val.as_slice;
-        bool found = _res1.val2.as_bool;
-        if (so_string_ne(so_bytes_string(after), so_str("lo")) || !found) {
-            so_panic("CutPrefix failed");
-        }
-    }
-    {
-        // CutSuffix.
-        so_Slice b = so_string_bytes(so_str("hello"));
-        so_Result _res2 = bytes_CutSuffix(b, so_string_bytes(so_str("lo")));
-        so_Slice before = _res2.val.as_slice;
-        bool found = _res2.val2.as_bool;
-        if (so_string_ne(so_bytes_string(before), so_str("hel")) || !found) {
-            so_panic("CutSuffix failed");
-        }
-    }
-    {
         // Equal.
         so_Slice b = so_string_bytes(so_str("hello"));
         if (!bytes_Equal(b, so_string_bytes(so_str("hello")))) {
@@ -137,30 +78,6 @@ int main(void) {
         if (bytes_Equal(b, so_string_bytes(so_str("world")))) {
             so_panic("Equal failed");
         }
-    }
-    {
-        // Fields.
-        so_Slice b = so_string_bytes(so_str("go is fun"));
-        so_Slice fields = bytes_Fields((mem_Allocator){0}, b);
-        if (so_len(fields) != 3) {
-            so_panic("Fields failed");
-        }
-        if (so_string_ne(so_bytes_string(so_at(so_Slice, fields, 0)), so_str("go")) || so_string_ne(so_bytes_string(so_at(so_Slice, fields, 1)), so_str("is")) || so_string_ne(so_bytes_string(so_at(so_Slice, fields, 2)), so_str("fun"))) {
-            so_panic("Fields failed");
-        }
-        mem_FreeSlice(so_Slice, (mem_Allocator){0}, fields);
-    }
-    {
-        // FieldsFunc.
-        so_Slice b = so_string_bytes(so_str("go,is;fun"));
-        so_Slice fields = bytes_FieldsFunc((mem_Allocator){0}, b, isPunct);
-        if (so_len(fields) != 3) {
-            so_panic("FieldsFunc failed");
-        }
-        if (so_string_ne(so_bytes_string(so_at(so_Slice, fields, 0)), so_str("go")) || so_string_ne(so_bytes_string(so_at(so_Slice, fields, 1)), so_str("is")) || so_string_ne(so_bytes_string(so_at(so_Slice, fields, 2)), so_str("fun"))) {
-            so_panic("FieldsFunc failed");
-        }
-        mem_FreeSlice(so_Slice, (mem_Allocator){0}, fields);
     }
     {
         // HasPrefix and HasSuffix.
@@ -179,19 +96,13 @@ int main(void) {
         }
     }
     {
-        // Index, IndexByte, IndexAny, IndexRune.
+        // Index, IndexByte.
         so_Slice b = so_string_bytes(so_str("hello"));
         if (bytes_Index(b, so_string_bytes(so_str("l"))) != 2) {
             so_panic("Index failed");
         }
         if (bytes_IndexByte(b, 'e') != 1) {
             so_panic("Index failed");
-        }
-        if (bytes_IndexAny(b, so_str("aeiou")) != 1) {
-            so_panic("IndexAny failed");
-        }
-        if (bytes_IndexRune(b, U'o') != 4) {
-            so_panic("IndexRune failed");
         }
     }
     {
@@ -206,19 +117,6 @@ int main(void) {
         mem_FreeSlice(so_byte, (mem_Allocator){0}, joined);
     }
     {
-        // LastIndex, LastIndexByte, LastIndexAny.
-        so_Slice b = so_string_bytes(so_str("hello"));
-        if (bytes_LastIndex(b, so_string_bytes(so_str("l"))) != 3) {
-            so_panic("LastIndex failed");
-        }
-        if (bytes_LastIndexByte(b, 'l') != 3) {
-            so_panic("LastIndexByte failed");
-        }
-        if (bytes_LastIndexAny(b, so_str("al")) != 3) {
-            so_panic("LastIndexAny failed");
-        }
-    }
-    {
         // Map.
         so_Slice b = so_string_bytes(so_str("hello"));
         so_Slice mapped = bytes_Map((mem_Allocator){0}, toDot, b);
@@ -228,23 +126,14 @@ int main(void) {
         mem_FreeSlice(so_byte, (mem_Allocator){0}, mapped);
     }
     {
-        // Repeat.
-        so_Slice b = so_string_bytes(so_str("go"));
-        so_Slice repeated = bytes_Repeat((mem_Allocator){0}, b, 3);
-        if (so_string_ne(so_bytes_string(repeated), so_str("gogogo"))) {
-            so_panic("Repeat failed");
-        }
-        mem_FreeSlice(so_byte, (mem_Allocator){0}, repeated);
-    }
-    {
-        // Replace and ReplaceAll.
+        // Replace.
         so_Slice b = so_string_bytes(so_str("hello"));
         so_Slice r1 = bytes_Replace((mem_Allocator){0}, b, so_string_bytes(so_str("l")), so_string_bytes(so_str("x")), 1);
         if (so_string_ne(so_bytes_string(r1), so_str("hexlo"))) {
             so_panic("Replace failed");
         }
         mem_FreeSlice(so_byte, (mem_Allocator){0}, r1);
-        so_Slice r2 = bytes_ReplaceAll((mem_Allocator){0}, b, so_string_bytes(so_str("l")), so_string_bytes(so_str("x")));
+        so_Slice r2 = bytes_Replace((mem_Allocator){0}, b, so_string_bytes(so_str("l")), so_string_bytes(so_str("x")), -1);
         if (so_string_ne(so_bytes_string(r2), so_str("hexxo"))) {
             so_panic("ReplaceAll failed");
         }
@@ -281,15 +170,6 @@ int main(void) {
             so_panic("SplitN failed");
         }
         mem_FreeSlice(so_Slice, (mem_Allocator){0}, s2);
-    }
-    {
-        // ToTitle.
-        so_Slice b = so_string_bytes(so_str("hello"));
-        so_Slice titled = bytes_ToTitle((mem_Allocator){0}, b);
-        if (so_string_ne(so_bytes_string(titled), so_str("HELLO"))) {
-            so_panic("ToTitle failed");
-        }
-        mem_FreeSlice(so_byte, (mem_Allocator){0}, titled);
     }
     {
         // Trim, TrimLeft, TrimRight.
@@ -340,9 +220,9 @@ int main(void) {
             so_panic("Buffer Grow failed");
         }
         so_Slice rdbuf = so_make_slice(so_byte, 5, 5);
-        so_Result _res3 = bytes_Buffer_Read(&buf, rdbuf);
-        so_int n = _res3.val.as_int;
-        so_Error err = _res3.err;
+        so_Result _res1 = bytes_Buffer_Read(&buf, rdbuf);
+        so_int n = _res1.val.as_int;
+        so_Error err = _res1.err;
         if (n != 5 || so_string_ne(so_bytes_string(rdbuf), so_str("hello")) || err != NULL) {
             so_panic("Buffer Read failed");
         }
@@ -358,9 +238,9 @@ int main(void) {
         if (bytes_Reader_Len(&r) != so_len(s)) {
             so_panic("Reader Len failed");
         }
-        so_Result _res4 = io_ReadAll((mem_Allocator){0}, (io_Reader){.self = &r, .Read = bytes_Reader_Read});
-        so_Slice b = _res4.val.as_slice;
-        so_Error err = _res4.err;
+        so_Result _res2 = io_ReadAll((mem_Allocator){0}, (io_Reader){.self = &r, .Read = bytes_Reader_Read});
+        so_Slice b = _res2.val.as_slice;
+        so_Error err = _res2.err;
         if (err != NULL) {
             so_panic(err->msg);
         }

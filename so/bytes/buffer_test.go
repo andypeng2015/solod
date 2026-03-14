@@ -7,7 +7,6 @@ package bytes_test
 import (
 	"fmt"
 	"math/rand"
-	"strconv"
 	"testing"
 
 	. "github.com/nalgeon/solod/so/bytes"
@@ -18,10 +17,20 @@ import (
 const N = 10000       // make this bigger for a larger (and slower) test
 var testString string // test data for write tests
 var testBytes []byte  // test data; same as testString but as a slice.
+var buf Buffer
 
 type negativeReader struct{}
 
 func (r *negativeReader) Read([]byte) (int, error) { return -1, nil }
+
+type panicReader struct{ panic bool }
+
+func (r panicReader) Read(p []byte) (int, error) {
+	if r.panic {
+		panic("oops")
+	}
+	return 0, io.EOF
+}
 
 func init() {
 	testBytes = make([]byte, N)
@@ -31,95 +40,14 @@ func init() {
 	testString = string(testBytes)
 }
 
-// Verify that contents of buf match the string s.
-func check(t *testing.T, testname string, buf *Buffer, s string) {
-	bytes := buf.Bytes()
-	str := buf.String()
-	if buf.Len() != len(bytes) {
-		t.Errorf("%s: buf.Len() == %d, len(buf.Bytes()) == %d", testname, buf.Len(), len(bytes))
-	}
-
-	if buf.Len() != len(str) {
-		t.Errorf("%s: buf.Len() == %d, len(buf.String()) == %d", testname, buf.Len(), len(str))
-	}
-
-	if buf.Len() != len(s) {
-		t.Errorf("%s: buf.Len() == %d, len(s) == %d", testname, buf.Len(), len(s))
-	}
-
-	if string(bytes) != s {
-		t.Errorf("%s: string(buf.Bytes()) == %q, s == %q", testname, string(bytes), s)
-	}
-}
-
-// Fill buf through n writes of string fus.
-// The initial contents of buf corresponds to the string s;
-// the result is the final contents of buf returned as a string.
-func fillString(t *testing.T, testname string, buf *Buffer, s string, n int, fus string) string {
-	check(t, testname+" (fill 1)", buf, s)
-	for ; n > 0; n-- {
-		m, err := buf.WriteString(fus)
-		if m != len(fus) {
-			t.Errorf(testname+" (fill 2): m == %d, expected %d", m, len(fus))
-		}
-		if err != nil {
-			t.Errorf(testname+" (fill 3): err should always be nil, found err == %s", err)
-		}
-		s += fus
-		check(t, testname+" (fill 4)", buf, s)
-	}
-	return s
-}
-
-// Fill buf through n writes of byte slice fub.
-// The initial contents of buf corresponds to the string s;
-// the result is the final contents of buf returned as a string.
-func fillBytes(t *testing.T, testname string, buf *Buffer, s string, n int, fub []byte) string {
-	check(t, testname+" (fill 1)", buf, s)
-	for ; n > 0; n-- {
-		m, err := buf.Write(fub)
-		if m != len(fub) {
-			t.Errorf(testname+" (fill 2): m == %d, expected %d", m, len(fub))
-		}
-		if err != nil {
-			t.Errorf(testname+" (fill 3): err should always be nil, found err == %s", err)
-		}
-		s += string(fub)
-		check(t, testname+" (fill 4)", buf, s)
-	}
-	return s
-}
-
 func TestNewBuffer(t *testing.T) {
 	buf := NewBuffer(nil, testBytes)
 	check(t, "NewBuffer", &buf, testString)
 }
 
-var buf Buffer
-
 func TestNewBufferString(t *testing.T) {
 	buf := NewBufferString(nil, testString)
 	check(t, "NewBufferString", &buf, testString)
-}
-
-// Empty buf through repeated reads into fub.
-// The initial contents of buf corresponds to the string s.
-func empty(t *testing.T, testname string, buf *Buffer, s string, fub []byte) {
-	check(t, testname+" (empty 1)", buf, s)
-
-	for {
-		n, err := buf.Read(fub)
-		if n == 0 {
-			break
-		}
-		if err != nil {
-			t.Errorf(testname+" (empty 2): err should always be nil, found err == %s", err)
-		}
-		s = s[n:]
-		check(t, testname+" (empty 3)", buf, s)
-	}
-
-	check(t, testname+" (empty 4)", buf, "")
 }
 
 func TestBasicOperations(t *testing.T) {
@@ -130,9 +58,6 @@ func TestBasicOperations(t *testing.T) {
 
 		buf.Reset()
 		check(t, "TestBasicOperations (2)", &buf, "")
-
-		buf.Truncate(0)
-		check(t, "TestBasicOperations (3)", &buf, "")
 
 		n, err := buf.Write(testBytes[0:1])
 		if want := 1; err != nil || n != want {
@@ -149,13 +74,9 @@ func TestBasicOperations(t *testing.T) {
 		}
 		check(t, "TestBasicOperations (6)", &buf, testString[0:26])
 
-		buf.Truncate(26)
-		check(t, "TestBasicOperations (7)", &buf, testString[0:26])
+		buf.Reset()
+		check(t, "TestBasicOperations (7)", &buf, "")
 
-		buf.Truncate(20)
-		check(t, "TestBasicOperations (8)", &buf, testString[0:20])
-
-		empty(t, "TestBasicOperations (9)", &buf, testString[0:20], make([]byte, 5))
 		empty(t, "TestBasicOperations (10)", &buf, "", make([]byte, 100))
 
 		buf.WriteByte(testString[1])
@@ -261,15 +182,6 @@ func TestReadFrom(t *testing.T) {
 	}
 }
 
-type panicReader struct{ panic bool }
-
-func (r panicReader) Read(p []byte) (int, error) {
-	if r.panic {
-		panic("oops")
-	}
-	return 0, io.EOF
-}
-
 // Make sure that an empty Buffer remains empty when
 // it is "grown" before a Read that panics
 func TestReadFromPanicReader(t *testing.T) {
@@ -323,33 +235,6 @@ func TestWriteTo(t *testing.T) {
 	}
 }
 
-func TestWriteAppend(t *testing.T) {
-	var got Buffer
-	var want []byte
-	for i := 0; i < 1000; i++ {
-		b := got.AvailableBuffer()
-		b = strconv.AppendInt(b, int64(i), 10)
-		want = strconv.AppendInt(want, int64(i), 10)
-		got.Write(b)
-	}
-	if !Equal(got.Bytes(), want) {
-		t.Fatalf("Bytes() = %q, want %q", &got, want)
-	}
-
-	// With a sufficiently sized buffer, there should be no allocations.
-	n := testing.AllocsPerRun(100, func() {
-		got.Reset()
-		for i := 0; i < 1000; i++ {
-			b := got.AvailableBuffer()
-			b = strconv.AppendInt(b, int64(i), 10)
-			got.Write(b)
-		}
-	})
-	if n > 0 {
-		t.Errorf("allocations occurred while appending")
-	}
-}
-
 func TestRuneIO(t *testing.T) {
 	const NRune = 1000
 	// Built a test slice while we write the data
@@ -381,33 +266,6 @@ func TestRuneIO(t *testing.T) {
 		res := buf.ReadRune()
 		if res.Rune != r || res.Size != size || res.Err != nil {
 			t.Fatalf("ReadRune(%U) got %U,%d not %U,%d (err=%s)", r, res.Rune, res.Size, r, size, res.Err)
-		}
-	}
-
-	// Check that UnreadRune works
-	buf.Reset()
-
-	// check at EOF
-	if err := buf.UnreadRune(); err == nil {
-		t.Fatal("UnreadRune at EOF: got no error")
-	}
-	if res := buf.ReadRune(); res.Err == nil {
-		t.Fatal("ReadRune at EOF: got no error")
-	}
-	if err := buf.UnreadRune(); err == nil {
-		t.Fatal("UnreadRune after ReadRune at EOF: got no error")
-	}
-
-	// check not at EOF
-	buf.Write(b)
-	for r := rune(0); r < NRune; r++ {
-		res1 := buf.ReadRune()
-		if err := buf.UnreadRune(); err != nil {
-			t.Fatalf("UnreadRune(%U) got error %q", r, err)
-		}
-		res2 := buf.ReadRune()
-		if res1.Rune != res2.Rune || res1.Rune != r || res1.Size != res2.Size || res1.Err != res2.Err {
-			t.Fatalf("ReadRune(%U) after UnreadRune got %U,%d not %U,%d (err=%s)", r, res2.Rune, res2.Size, r, res1.Size, res1.Err)
 		}
 	}
 }
@@ -510,25 +368,24 @@ func TestReadString(t *testing.T) {
 	}
 }
 
-var peekTests = []struct {
-	buffer   string
-	skip     int
-	n        int
-	expected string
-	err      error
-}{
-	{"", 0, 0, "", nil},
-	{"aaa", 0, 3, "aaa", nil},
-	{"foobar", 0, 2, "fo", nil},
-	{"a", 0, 2, "a", io.EOF},
-	{"helloworld", 4, 3, "owo", nil},
-	{"helloworld", 5, 5, "world", nil},
-	{"helloworld", 5, 6, "world", io.EOF},
-	{"helloworld", 10, 1, "", io.EOF},
-}
-
 func TestPeek(t *testing.T) {
-	for _, test := range peekTests {
+	var tests = []struct {
+		buffer   string
+		skip     int
+		n        int
+		expected string
+		err      error
+	}{
+		{"", 0, 0, "", nil},
+		{"aaa", 0, 3, "aaa", nil},
+		{"foobar", 0, 2, "fo", nil},
+		{"a", 0, 2, "a", io.EOF},
+		{"helloworld", 4, 3, "owo", nil},
+		{"helloworld", 5, 5, "world", nil},
+		{"helloworld", 5, 6, "world", io.EOF},
+		{"helloworld", 10, 1, "", io.EOF},
+	}
+	for _, test := range tests {
 		buf := NewBufferString(nil, test.buffer)
 		buf.Next(test.skip)
 		bytes, err := buf.Peek(test.n)
@@ -540,37 +397,6 @@ func TestPeek(t *testing.T) {
 		}
 		if buf.Len() != len(test.buffer)-test.skip {
 			t.Errorf("bad length after peek: %d, want %d", buf.Len(), len(test.buffer)-test.skip)
-		}
-	}
-}
-
-func TestGrow(t *testing.T) {
-	x := []byte{'x'}
-	y := []byte{'y'}
-	tmp := make([]byte, 72)
-	for _, growLen := range []int{0, 100, 1000, 10000, 100000} {
-		for _, startLen := range []int{0, 100, 1000, 10000, 100000} {
-			xBytes := Repeat(nil, x, startLen)
-
-			buf := NewBuffer(nil, xBytes)
-			// If we read, this affects buf.off, which is good to test.
-			readBytes, _ := buf.Read(tmp)
-			yBytes := Repeat(nil, y, growLen)
-			allocs := testing.AllocsPerRun(100, func() {
-				buf.Grow(growLen)
-				buf.Write(yBytes)
-			})
-			// Check no allocation occurs in write, as long as we're single-threaded.
-			if allocs != 0 {
-				t.Errorf("allocation occurred during write")
-			}
-			// Check that buffer has correct data.
-			if !Equal(buf.Bytes()[0:startLen-readBytes], xBytes[readBytes:]) {
-				t.Errorf("bad initial data at %d %d", startLen, growLen)
-			}
-			if !Equal(buf.Bytes()[startLen-readBytes:startLen-readBytes+growLen], yBytes) {
-				t.Errorf("bad written data at %d %d", startLen, growLen)
-			}
 		}
 	}
 }
@@ -597,47 +423,6 @@ func TestReadEmptyAtEOF(t *testing.T) {
 	}
 	if n != 0 {
 		t.Errorf("wrong count; got %d want 0", n)
-	}
-}
-
-func TestUnreadByte(t *testing.T) {
-	b := new(Buffer)
-
-	// check at EOF
-	if err := b.UnreadByte(); err == nil {
-		t.Fatal("UnreadByte at EOF: got no error")
-	}
-	if _, err := b.ReadByte(); err == nil {
-		t.Fatal("ReadByte at EOF: got no error")
-	}
-	if err := b.UnreadByte(); err == nil {
-		t.Fatal("UnreadByte after ReadByte at EOF: got no error")
-	}
-
-	// check not at EOF
-	b.WriteString("abcdefghijklmnopqrstuvwxyz")
-
-	// after unsuccessful read
-	if n, err := b.Read(nil); n != 0 || err != nil {
-		t.Fatalf("Read(nil) = %d,%v; want 0,nil", n, err)
-	}
-	if err := b.UnreadByte(); err == nil {
-		t.Fatal("UnreadByte after Read(nil): got no error")
-	}
-
-	// after successful read
-	if _, err := b.ReadBytes('m'); err != nil {
-		t.Fatalf("ReadBytes: %v", err)
-	}
-	if err := b.UnreadByte(); err != nil {
-		t.Fatalf("UnreadByte: %v", err)
-	}
-	c, err := b.ReadByte()
-	if err != nil {
-		t.Fatalf("ReadByte: %v", err)
-	}
-	if c != 'm' {
-		t.Errorf("ReadByte = %q; want %q", c, 'm')
 	}
 }
 
@@ -672,23 +457,81 @@ func TestBufferGrowNegative(t *testing.T) {
 	b.Grow(-1)
 }
 
-func TestBufferTruncateNegative(t *testing.T) {
-	defer func() {
-		if err := recover(); err == nil {
-			t.Fatal("Truncate(-1) should have panicked")
-		}
-	}()
-	var b Buffer
-	b.Truncate(-1)
+// Verify that contents of buf match the string s.
+func check(t *testing.T, testname string, buf *Buffer, s string) {
+	bytes := buf.Bytes()
+	str := buf.String()
+	if buf.Len() != len(bytes) {
+		t.Errorf("%s: buf.Len() == %d, len(buf.Bytes()) == %d", testname, buf.Len(), len(bytes))
+	}
+
+	if buf.Len() != len(str) {
+		t.Errorf("%s: buf.Len() == %d, len(buf.String()) == %d", testname, buf.Len(), len(str))
+	}
+
+	if buf.Len() != len(s) {
+		t.Errorf("%s: buf.Len() == %d, len(s) == %d", testname, buf.Len(), len(s))
+	}
+
+	if string(bytes) != s {
+		t.Errorf("%s: string(buf.Bytes()) == %q, s == %q", testname, string(bytes), s)
+	}
 }
 
-func TestBufferTruncateOutOfRange(t *testing.T) {
-	defer func() {
-		if err := recover(); err == nil {
-			t.Fatal("Truncate(20) should have panicked")
+// Empty buf through repeated reads into fub.
+// The initial contents of buf corresponds to the string s.
+func empty(t *testing.T, testname string, buf *Buffer, s string, fub []byte) {
+	check(t, testname+" (empty 1)", buf, s)
+
+	for {
+		n, err := buf.Read(fub)
+		if n == 0 {
+			break
 		}
-	}()
-	var b Buffer
-	b.Write(make([]byte, 10))
-	b.Truncate(20)
+		if err != nil {
+			t.Errorf(testname+" (empty 2): err should always be nil, found err == %s", err)
+		}
+		s = s[n:]
+		check(t, testname+" (empty 3)", buf, s)
+	}
+
+	check(t, testname+" (empty 4)", buf, "")
+}
+
+// Fill buf through n writes of string fus.
+// The initial contents of buf corresponds to the string s;
+// the result is the final contents of buf returned as a string.
+func fillString(t *testing.T, testname string, buf *Buffer, s string, n int, fus string) string {
+	check(t, testname+" (fill 1)", buf, s)
+	for ; n > 0; n-- {
+		m, err := buf.WriteString(fus)
+		if m != len(fus) {
+			t.Errorf(testname+" (fill 2): m == %d, expected %d", m, len(fus))
+		}
+		if err != nil {
+			t.Errorf(testname+" (fill 3): err should always be nil, found err == %s", err)
+		}
+		s += fus
+		check(t, testname+" (fill 4)", buf, s)
+	}
+	return s
+}
+
+// Fill buf through n writes of byte slice fub.
+// The initial contents of buf corresponds to the string s;
+// the result is the final contents of buf returned as a string.
+func fillBytes(t *testing.T, testname string, buf *Buffer, s string, n int, fub []byte) string {
+	check(t, testname+" (fill 1)", buf, s)
+	for ; n > 0; n-- {
+		m, err := buf.Write(fub)
+		if m != len(fub) {
+			t.Errorf(testname+" (fill 2): m == %d, expected %d", m, len(fub))
+		}
+		if err != nil {
+			t.Errorf(testname+" (fill 3): err should always be nil, found err == %s", err)
+		}
+		s += string(fub)
+		check(t, testname+" (fill 4)", buf, s)
+	}
+	return s
 }

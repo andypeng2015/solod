@@ -54,16 +54,10 @@ type Buffer struct {
 
 // Bytes returns a slice of length b.Len() holding the unread portion of the buffer.
 // The slice is valid for use only until the next buffer modification (that is,
-// only until the next call to a method like [Buffer.Read], [Buffer.Write], [Buffer.Reset], or [Buffer.Truncate]).
+// only until the next call to a method like [Buffer.Read], [Buffer.Write], [Buffer.Reset].
 // The slice aliases the buffer content at least until the next buffer modification,
 // so immediate changes to the slice will affect the result of future reads.
 func (b *Buffer) Bytes() []byte { return b.buf[b.off:] }
-
-// AvailableBuffer returns an empty buffer with b.Available() capacity.
-// This buffer is intended to be appended to and
-// passed to an immediately succeeding [Buffer.Write] call.
-// The buffer is only valid until the next write operation on b.
-func (b *Buffer) AvailableBuffer() []byte { return b.buf[len(b.buf):] }
 
 // String returns the contents of the unread portion of the buffer
 // as a string. If the [Buffer] is a nil pointer, it returns "<nil>".
@@ -104,24 +98,8 @@ func (b *Buffer) Cap() int { return cap(b.buf) }
 // Available returns how many bytes are unused in the buffer.
 func (b *Buffer) Available() int { return cap(b.buf) - len(b.buf) }
 
-// Truncate discards all but the first n unread bytes from the buffer
-// but continues to use the same allocated storage.
-// It panics if n is negative or greater than the length of the buffer.
-func (b *Buffer) Truncate(n int) {
-	if n == 0 {
-		b.Reset()
-		return
-	}
-	b.lastRead = opInvalid
-	if n < 0 || n > b.Len() {
-		panic("bytes.Buffer: truncation out of range")
-	}
-	b.buf = b.buf[:b.off+n]
-}
-
 // Reset resets the buffer to be empty,
 // but it retains the underlying storage for use by future writes.
-// Reset is the same as [Buffer.Truncate](0).
 func (b *Buffer) Reset() {
 	b.buf = b.buf[:0]
 	b.off = 0
@@ -403,37 +381,6 @@ func (b *Buffer) ReadRune() RuneSizeResult {
 	b.off += n
 	b.lastRead = ReadOp(n)
 	return RuneSizeResult{r, n, nil}
-}
-
-// UnreadRune unreads the last rune returned by [Buffer.ReadRune].
-// If the most recent read or write operation on the buffer was
-// not a successful [Buffer.ReadRune], UnreadRune returns an error.  (In this regard
-// it is stricter than [Buffer.UnreadByte], which will unread the last byte
-// from any read operation.)
-func (b *Buffer) UnreadRune() error {
-	if b.lastRead <= opInvalid {
-		return ErrUnread
-	}
-	if b.off >= int(b.lastRead) {
-		b.off -= int(b.lastRead)
-	}
-	b.lastRead = opInvalid
-	return nil
-}
-
-// UnreadByte unreads the last byte returned by the most recent successful
-// read operation that read at least one byte. If a write has happened since
-// the last read, if the last read returned an error, or if the read read zero
-// bytes, UnreadByte returns an error.
-func (b *Buffer) UnreadByte() error {
-	if b.lastRead == opInvalid {
-		return ErrUnread
-	}
-	b.lastRead = opInvalid
-	if b.off > 0 {
-		b.off--
-	}
-	return nil
 }
 
 // ReadBytes reads until the first occurrence of delim in the input,

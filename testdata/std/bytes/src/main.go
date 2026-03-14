@@ -6,14 +6,6 @@ import (
 	"github.com/nalgeon/solod/so/mem"
 )
 
-func isLatinLower(r rune) bool {
-	return 'a' <= uint32(r) && uint32(r) <= 'z'
-}
-
-func isPunct(r rune) bool {
-	return uint32(r) == ',' || uint32(r) == ';'
-}
-
 func toDot(r rune) rune {
 	_ = r
 	return '.'
@@ -61,35 +53,6 @@ func main() {
 		}
 	}
 	{
-		// ContainsAny.
-		b := []byte("I like seafood.")
-		if !bytes.ContainsAny(b, "aei") {
-			panic("ContainsAny failed")
-		}
-		if bytes.ContainsAny(b, "xyz") {
-			panic("ContainsAny failed")
-		}
-	}
-	{
-		// ContainsRune.
-		b := []byte("I like seafood.")
-		if !bytes.ContainsRune(b, 'f') {
-			panic("ContainsRune failed")
-		}
-		if bytes.ContainsRune(b, 'x') {
-			panic("ContainsRune failed")
-		}
-	}
-	{
-		// ContainsFunc.
-		if bytes.ContainsFunc([]byte("HELLO"), isLatinLower) {
-			panic("ContainsFunc failed")
-		}
-		if !bytes.ContainsFunc([]byte("World"), isLatinLower) {
-			panic("ContainsFunc failed")
-		}
-	}
-	{
 		// Count.
 		b := []byte("cheese")
 		if bytes.Count(b, []byte("e")) != 3 {
@@ -108,22 +71,6 @@ func main() {
 		}
 	}
 	{
-		// CutPrefix.
-		b := []byte("hello")
-		after, found := bytes.CutPrefix(b, []byte("hel"))
-		if string(after) != "lo" || !found {
-			panic("CutPrefix failed")
-		}
-	}
-	{
-		// CutSuffix.
-		b := []byte("hello")
-		before, found := bytes.CutSuffix(b, []byte("lo"))
-		if string(before) != "hel" || !found {
-			panic("CutSuffix failed")
-		}
-	}
-	{
 		// Equal.
 		b := []byte("hello")
 		if !bytes.Equal(b, []byte("hello")) {
@@ -132,30 +79,6 @@ func main() {
 		if bytes.Equal(b, []byte("world")) {
 			panic("Equal failed")
 		}
-	}
-	{
-		// Fields.
-		b := []byte("go is fun")
-		fields := bytes.Fields(nil, b)
-		if len(fields) != 3 {
-			panic("Fields failed")
-		}
-		if string(fields[0]) != "go" || string(fields[1]) != "is" || string(fields[2]) != "fun" {
-			panic("Fields failed")
-		}
-		mem.FreeSlice(nil, fields)
-	}
-	{
-		// FieldsFunc.
-		b := []byte("go,is;fun")
-		fields := bytes.FieldsFunc(nil, b, isPunct)
-		if len(fields) != 3 {
-			panic("FieldsFunc failed")
-		}
-		if string(fields[0]) != "go" || string(fields[1]) != "is" || string(fields[2]) != "fun" {
-			panic("FieldsFunc failed")
-		}
-		mem.FreeSlice(nil, fields)
 	}
 	{
 		// HasPrefix and HasSuffix.
@@ -174,19 +97,13 @@ func main() {
 		}
 	}
 	{
-		// Index, IndexByte, IndexAny, IndexRune.
+		// Index, IndexByte.
 		b := []byte("hello")
 		if bytes.Index(b, []byte("l")) != 2 {
 			panic("Index failed")
 		}
 		if bytes.IndexByte(b, 'e') != 1 {
 			panic("Index failed")
-		}
-		if bytes.IndexAny(b, "aeiou") != 1 {
-			panic("IndexAny failed")
-		}
-		if bytes.IndexRune(b, 'o') != 4 {
-			panic("IndexRune failed")
 		}
 	}
 	{
@@ -201,19 +118,6 @@ func main() {
 		mem.FreeSlice(nil, joined)
 	}
 	{
-		// LastIndex, LastIndexByte, LastIndexAny.
-		b := []byte("hello")
-		if bytes.LastIndex(b, []byte("l")) != 3 {
-			panic("LastIndex failed")
-		}
-		if bytes.LastIndexByte(b, 'l') != 3 {
-			panic("LastIndexByte failed")
-		}
-		if bytes.LastIndexAny(b, "al") != 3 {
-			panic("LastIndexAny failed")
-		}
-	}
-	{
 		// Map.
 		b := []byte("hello")
 		mapped := bytes.Map(nil, toDot, b)
@@ -223,23 +127,14 @@ func main() {
 		mem.FreeSlice(nil, mapped)
 	}
 	{
-		// Repeat.
-		b := []byte("go")
-		repeated := bytes.Repeat(nil, b, 3)
-		if string(repeated) != "gogogo" {
-			panic("Repeat failed")
-		}
-		mem.FreeSlice(nil, repeated)
-	}
-	{
-		// Replace and ReplaceAll.
+		// Replace.
 		b := []byte("hello")
 		r1 := bytes.Replace(nil, b, []byte("l"), []byte("x"), 1)
 		if string(r1) != "hexlo" {
 			panic("Replace failed")
 		}
 		mem.FreeSlice(nil, r1)
-		r2 := bytes.ReplaceAll(nil, b, []byte("l"), []byte("x"))
+		r2 := bytes.Replace(nil, b, []byte("l"), []byte("x"), -1)
 		if string(r2) != "hexxo" {
 			panic("ReplaceAll failed")
 		}
@@ -276,15 +171,6 @@ func main() {
 			panic("SplitN failed")
 		}
 		mem.FreeSlice(nil, s2)
-	}
-	{
-		// ToTitle.
-		b := []byte("hello")
-		titled := bytes.ToTitle(nil, b)
-		if string(titled) != "HELLO" {
-			panic("ToTitle failed")
-		}
-		mem.FreeSlice(nil, titled)
 	}
 	{
 		// Trim, TrimLeft, TrimRight.

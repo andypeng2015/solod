@@ -181,19 +181,18 @@ func TestReaderLen(t *testing.T) {
 	}
 }
 
-var UnreadRuneErrorTests = []struct {
-	name string
-	f    func(*Reader)
-}{
-	{"Read", func(r *Reader) { r.Read([]byte{0}) }},
-	{"ReadByte", func(r *Reader) { r.ReadByte() }},
-	{"UnreadRune", func(r *Reader) { r.UnreadRune() }},
-	{"Seek", func(r *Reader) { r.Seek(0, io.SeekCurrent) }},
-	{"WriteTo", func(r *Reader) { r.WriteTo(&Buffer{}) }},
-}
-
 func TestUnreadRuneError(t *testing.T) {
-	for _, tt := range UnreadRuneErrorTests {
+	var tests = []struct {
+		name string
+		f    func(*Reader)
+	}{
+		{"Read", func(r *Reader) { r.Read([]byte{0}) }},
+		{"ReadByte", func(r *Reader) { r.ReadByte() }},
+		{"UnreadRune", func(r *Reader) { r.UnreadRune() }},
+		{"Seek", func(r *Reader) { r.Seek(0, io.SeekCurrent) }},
+		{"WriteTo", func(r *Reader) { r.WriteTo(&Buffer{}) }},
+	}
+	for _, tt := range tests {
 		reader := NewReader([]byte("0123456789"))
 		if res := reader.ReadRune(); res.Err != nil {
 			// should not happen
@@ -204,21 +203,6 @@ func TestUnreadRuneError(t *testing.T) {
 		if err == nil {
 			t.Errorf("Unreading after %s: expected error", tt.name)
 		}
-	}
-}
-
-func TestReaderDoubleUnreadRune(t *testing.T) {
-	buf := NewBuffer(nil, []byte("groucho"))
-	if res := buf.ReadRune(); res.Err != nil {
-		// should not happen
-		t.Fatal(res.Err)
-	}
-	if err := buf.UnreadByte(); err != nil {
-		// should not happen
-		t.Fatal(err)
-	}
-	if err := buf.UnreadByte(); err == nil {
-		t.Fatal("UnreadByte: expected error, got nil")
 	}
 }
 
