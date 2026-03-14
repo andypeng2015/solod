@@ -16,10 +16,11 @@ So is for systems programming in C, but with Go's syntax, type safety, and tooli
 
 [Example](#example) •
 [Installation and usage](#installation-and-usage) •
-[Testing](#testing) •
-[Compatibility](#compatibility) •
 [Spec](doc/spec.md) •
 [Stdlib](doc/stdlib.md) •
+[So by example](example/README.md) •
+[Testing](#testing) •
+[Compatibility](#compatibility) •
 [Design decisions](#design-decisions) •
 [FAQ](#frequently-asked-questions) •
 [Roadmap](#roadmap) •
