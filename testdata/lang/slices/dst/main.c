@@ -169,6 +169,15 @@ int main(void) {
         }
     }
     {
+        // Copying a string to a byte slice.
+        so_String str = so_str("hello");
+        so_Slice b = so_make_slice(so_byte, so_len(str), so_len(str));
+        so_copy_string(b, str);
+        if (so_string_ne(so_bytes_string(b), so_str("hello"))) {
+            so_panic("want string(b) == 'hello'");
+        }
+    }
+    {
         // For-range over slices.
         so_Slice s = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3};
         so_int sum = 0;

@@ -185,6 +185,16 @@ func main() {
 	}
 
 	{
+		// Copying a string to a byte slice.
+		str := "hello"
+		b := make([]byte, len(str))
+		copy(b, str)
+		if string(b) != "hello" {
+			panic("want string(b) == 'hello'")
+		}
+	}
+
+	{
 		// For-range over slices.
 		s := []int{1, 2, 3}
 		sum := 0

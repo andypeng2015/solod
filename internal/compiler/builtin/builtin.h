@@ -256,6 +256,14 @@ static inline so_int so_copy_impl(so_Slice dst, so_Slice src, size_t elem_size) 
     return (so_int)n;
 }
 
+// copy_string copies bytes from a string to a byte slice. Returns the number
+// of bytes copied (which is the minimum of dst.len and src.len).
+static inline so_int so_copy_string(so_Slice dst, so_String src) {
+    size_t n = dst.len < src.len ? dst.len : src.len;
+    memmove(dst.ptr, src.ptr, n);
+    return (so_int)n;
+}
+
 // at returns a reference to the element at index i in a slice or string.
 #define so_at(T, s, i) (*so_at_ptr(T, s, i))
 #define so_at_ptr(T, s, i) ({            \

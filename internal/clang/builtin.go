@@ -81,6 +81,17 @@ func (g *Generator) emitAppendCall(call *ast.CallExpr) {
 // emitCopyCall emits a copy() builtin call as so_copy(T, dst, src).
 func (g *Generator) emitCopyCall(call *ast.CallExpr) {
 	w := g.state.writer
+	srcType := g.types.TypeOf(call.Args[1]).Underlying()
+	if basic, ok := srcType.(*types.Basic); ok && basic.Kind() == types.String {
+		// copy([]byte, string) - copy bytes directly from string.
+		fmt.Fprintf(w, "so_copy_string(")
+		g.emitExpr(call.Args[0])
+		fmt.Fprintf(w, ", ")
+		g.emitExpr(call.Args[1])
+		fmt.Fprintf(w, ")")
+		return
+	}
+	// copy([]T, []T) - copy elements of any slice type.
 	dstType := g.types.TypeOf(call.Args[0]).Underlying().(*types.Slice)
 	elemType := g.mapType(call, dstType.Elem())
 	fmt.Fprintf(w, "so_copy(%s, ", elemType)
