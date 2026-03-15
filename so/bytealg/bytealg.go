@@ -47,7 +47,7 @@ func IndexRabinKarp(s, sep []byte) int {
 // occurrence of sep in s, or -1 if not present.
 func LastIndexRabinKarp(s, sep []byte) int {
 	// Rabin-Karp search from the end of the string
-	hashss, pow := hashStrRev(sep)
+	hashss, pow := HashStrRev(sep)
 	n := len(sep)
 	last := len(s) - n
 	var h uint32
@@ -85,9 +85,9 @@ func hashStr(sep []byte) (uint32, uint32) {
 	return hash, pow
 }
 
-// hashStrRev returns the hash of the reverse of sep and the
+// HashStrRev returns the hash of the reverse of sep and the
 // appropriate multiplicative factor for use in Rabin-Karp algorithm.
-func hashStrRev(sep []byte) (uint32, uint32) {
+func HashStrRev(sep []byte) (uint32, uint32) {
 	hash := uint32(0)
 	for i := len(sep) - 1; i >= 0; i-- {
 		hash = hash*PrimeRK + uint32(sep[i])

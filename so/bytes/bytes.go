@@ -63,6 +63,7 @@ func Count(s, sep []byte) int {
 	}
 }
 
+// CutResult is the result of a Cut operation.
 type CutResult struct {
 	Before []byte
 	After  []byte
