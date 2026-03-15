@@ -2,6 +2,13 @@ package main
 
 func main() {
 	{
+		// Empty string.
+		s1 := ""
+		_ = s1
+		var s2 string
+		_ = s2
+	}
+	{
 		// String literals.
 		s := "Hello, 世界!"
 		if len(s) != 7+3+3+1 {

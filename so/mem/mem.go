@@ -63,6 +63,9 @@ func FreeSlice[T any](a Allocator, slice []T) {}
 // FreeString frees a heap-allocated string.
 // If the allocator is nil, uses the system allocator.
 func FreeString(a Allocator, s string) {
+	if len(s) == 0 {
+		return
+	}
 	Free(a, unsafe.StringData(s))
 }
 

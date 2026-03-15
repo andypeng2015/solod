@@ -82,8 +82,10 @@ int main(void) {
         so_at(so_byte, b, 0) = 'h';
         so_at(so_byte, b, 1) = 'i';
         so_at(so_byte, b, 2) = '!';
-        so_String s = so_bytes_string(b);
-        mem_FreeString((mem_Allocator){0}, s);
+        so_String s1 = so_bytes_string(b);
+        mem_FreeString((mem_Allocator){0}, s1);
+        so_String s2 = so_str("");
+        mem_FreeString((mem_Allocator){0}, s2);
     }
     withDefer();
 }

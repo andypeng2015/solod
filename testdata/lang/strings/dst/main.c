@@ -4,6 +4,13 @@
 
 int main(void) {
     {
+        // Empty string.
+        so_String s1 = so_str("");
+        (void)s1;
+        so_String s2 = so_str("");
+        (void)s2;
+    }
+    {
         // String literals.
         so_String s = so_str("Hello, 世界!");
         if (so_len(s) != 7 + 3 + 3 + 1) {

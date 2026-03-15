@@ -81,8 +81,10 @@ func main() {
 		b[0] = 'h'
 		b[1] = 'i'
 		b[2] = '!'
-		s := string(b)
-		mem.FreeString(nil, s)
+		s1 := string(b)
+		mem.FreeString(nil, s1)
+		s2 := ""
+		mem.FreeString(nil, s2)
 	}
 	withDefer()
 }
