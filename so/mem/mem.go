@@ -3,6 +3,7 @@ package mem
 
 import (
 	_ "embed"
+	"unsafe"
 
 	"github.com/nalgeon/solod/so/errors"
 )
@@ -58,6 +59,12 @@ func TryAllocSlice[T any](a Allocator, len int, cap int) ([]T, error) {
 //
 //so:extern
 func FreeSlice[T any](a Allocator, slice []T) {}
+
+// FreeString frees a heap-allocated string.
+// If the allocator is nil, uses the system allocator.
+func FreeString(a Allocator, s string) {
+	Free(a, unsafe.StringData(s))
+}
 
 // MaxAllocaSize is the maximum size that can be allocated with Alloca.
 // Defined as the so_MaxAllocaSize constant in the C code.

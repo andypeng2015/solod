@@ -75,5 +75,14 @@ func main() {
 		var empty []int
 		mem.FreeSlice(nil, empty)
 	}
+	{
+		// Free string.
+		b := mem.AllocSlice[byte](nil, 3, 3)
+		b[0] = 'h'
+		b[1] = 'i'
+		b[2] = '!'
+		s := string(b)
+		mem.FreeString(nil, s)
+	}
 	withDefer()
 }

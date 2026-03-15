@@ -52,10 +52,11 @@
 
 // FreeSlice frees a slice previously allocated with [AllocSlice] or [TryAllocSlice].
 // If the allocator is nil, uses the system allocator.
-#define mem_FreeSlice(T, a, s) ({                                          \
-    mem_Allocator _a = (a);                                                \
-    if (!_a.self) _a = mem_System;                                         \
-    _a.Free(_a.self, (s).ptr, sizeof(T) * (s).cap, alignof(so_typeof(T))); \
+#define mem_FreeSlice(T, a, s) ({                                        \
+    mem_Allocator _a = (a);                                              \
+    so_Slice _s = (s);                                                   \
+    if (!_a.self) _a = mem_System;                                       \
+    _a.Free(_a.self, _s.ptr, sizeof(T) * _s.cap, alignof(so_typeof(T))); \
 })
 
 // MaxAllocaSize is the maximum size that can be allocated with Alloca.

@@ -4,13 +4,13 @@ package main
 //so:include "person.ext.h"
 
 //so:extern
-type Account struct {
+type account struct {
 	name    string
 	balance int64
 	flags   []uint8
 }
 
-func account_inc_balance(acc *Account, amount int64) int64
+func account_inc_balance(acc *account, amount int64) int64
 
 //so:extern
 func printf(format string, args ...any) int
@@ -18,7 +18,7 @@ func printf(format string, args ...any) int
 func main() {
 	{
 		// Passing values between So and C and vice versa.
-		acc := Account{
+		acc := account{
 			name:    "Alice",
 			balance: 100,
 			flags:   []uint8{42},

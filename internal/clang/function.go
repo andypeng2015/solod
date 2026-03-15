@@ -208,11 +208,21 @@ func (g *Generator) emitVariadicArgs(call *ast.CallExpr, sig *types.Signature) {
 // emitCArgs emits arguments for an extern C function call.
 func (g *Generator) emitCArgs(call *ast.CallExpr) {
 	w := g.state.writer
+	var sig *types.Signature
+	if funType := g.types.TypeOf(call.Fun); funType != nil {
+		sig, _ = funType.Underlying().(*types.Signature)
+	}
 	for i, arg := range call.Args {
 		if i > 0 {
 			fmt.Fprintf(w, ", ")
 		}
-		g.emitCArg(arg)
+		// Interface-typed parameters (e.g. Allocator) need emitExprAsType
+		// to convert nil to a zero-initialized struct instead of NULL.
+		if sig != nil && i < sig.Params().Len() && isNamedNonEmptyInterface(sig.Params().At(i).Type()) {
+			g.emitExprAsType(call, arg, sig.Params().At(i).Type())
+		} else {
+			g.emitCArg(arg)
+		}
 	}
 }
 

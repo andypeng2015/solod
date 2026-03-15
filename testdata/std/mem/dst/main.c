@@ -76,5 +76,14 @@ int main(void) {
         so_Slice empty = {0};
         mem_FreeSlice(so_int, (mem_Allocator){0}, empty);
     }
+    {
+        // Free string.
+        so_Slice b = mem_AllocSlice(so_byte, (mem_Allocator){0}, 3, 3);
+        so_at(so_byte, b, 0) = 'h';
+        so_at(so_byte, b, 1) = 'i';
+        so_at(so_byte, b, 2) = '!';
+        so_String s = so_bytes_string(b);
+        mem_FreeString((mem_Allocator){0}, s);
+    }
     withDefer();
 }
