@@ -24,9 +24,9 @@ Solod (So) is a strict subset of Go that transpiles to regular C. "So by example
 [Errors](./26-errors/main.go) •
 [Panic](./27-panic/main.go) •
 [Defer](./28-defer/main.go) •
-[Memory](./29-memory/main.go) •
-[Files](./30-files/main.go) •
-[C interop](./31-interop/main.go)
+[Memory](./51-memory/main.go) •
+[C interop](./52-interop/main.go)
+[Files](./53-files/main.go) •
 
 To run a specific example locally, use the `so run` command. For example:
 
