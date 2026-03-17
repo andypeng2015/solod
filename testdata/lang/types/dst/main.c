@@ -1,6 +1,6 @@
 #include "main.h"
 
-// -- Forward declarations (functions and methods) --
+// -- Forward declarations --
 static main_Person newPerson(so_String name);
 
 // -- Implementation --

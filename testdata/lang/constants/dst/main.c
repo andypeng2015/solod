@@ -1,6 +1,6 @@
 #include "main.h"
 
-// -- Implementation --
+// -- Variables and constants --
 
 // File-level constants.
 static const so_int fInt = 42;
@@ -15,6 +15,8 @@ const main_ServerState main_StateError = so_str("error");
 const main_Day main_Sunday = 0;
 const main_Day main_Monday = 1;
 const main_Day main_Tuesday = 2;
+
+// -- Implementation --
 
 int main(void) {
     {

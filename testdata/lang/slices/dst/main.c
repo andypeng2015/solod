@@ -1,6 +1,6 @@
 #include "main.h"
 
-// -- Forward declarations (functions and methods) --
+// -- Forward declarations --
 static so_Result lenInt64(so_Slice buf);
 static so_Result lenInt64Impl(so_Slice buf);
 

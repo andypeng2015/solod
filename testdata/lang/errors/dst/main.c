@@ -1,11 +1,13 @@
 #include "main.h"
 
-// -- Forward declarations (functions and methods) --
+// -- Variables and constants --
+so_Error main_ErrOutOfTea = errors_New("no more tea available");
+
+// -- Forward declarations --
 static so_Error makeTea(so_int arg);
 static so_Result work(so_int n);
 
 // -- Implementation --
-so_Error main_ErrOutOfTea = errors_New("no more tea available");
 
 static so_Error makeTea(so_int arg) {
     if (arg == 42) {

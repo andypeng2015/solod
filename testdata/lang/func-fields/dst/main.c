@@ -1,6 +1,6 @@
 #include "main.h"
 
-// -- Forward declarations (functions and methods) --
+// -- Forward declarations --
 static so_int freshness(main_Movie m);
 static main_RatingFn getRatingFn(void);
 static so_int rateMovie(main_Movie m, main_RatingFn f);

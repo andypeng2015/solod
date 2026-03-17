@@ -1,14 +1,13 @@
 #include "main.h"
 
-// -- Forward declarations (types) --
+// -- Types --
+
 typedef so_int (*sum3Fn)(so_int, so_int, so_int);
 
-// -- Forward declarations (functions and methods) --
+// -- Forward declarations --
 static so_int sum3(so_int a, so_int b, so_int c);
 
 // -- Implementation --
-
-typedef so_int (*sum3Fn)(so_int, so_int, so_int);
 
 static so_int sum3(so_int a, so_int b, so_int c) {
     return a + b + c;

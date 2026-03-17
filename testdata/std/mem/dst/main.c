@@ -1,6 +1,6 @@
 #include "main.h"
 
-// -- Forward declarations (functions and methods) --
+// -- Forward declarations --
 static void withDefer(void);
 
 // -- Implementation --

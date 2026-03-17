@@ -1,6 +1,6 @@
 #include "main.h"
 
-// -- Forward declarations (functions and methods) --
+// -- Forward declarations --
 static so_Result divmod(so_int a, so_int b);
 static so_Result check(so_int n);
 static so_Result greet(so_String name);

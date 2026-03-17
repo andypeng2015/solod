@@ -17,7 +17,5 @@ typedef struct main_FileResult {
     so_Error err;
 } main_FileResult;
 
-// -- Variables and constants --
-
 // -- Functions and methods --
 so_Result main_File_Read(void* self, so_int buf);

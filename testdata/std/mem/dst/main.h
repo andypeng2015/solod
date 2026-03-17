@@ -8,5 +8,3 @@ typedef struct main_Point {
     so_int x;
     so_int y;
 } main_Point;
-
-// -- Variables and constants --

@@ -1,18 +1,20 @@
 #include "main.h"
 
-// -- Forward declarations (types) --
-typedef struct reader reader;
-typedef struct writer writer;
-
-// -- Forward declarations (functions and methods) --
-static so_Result reader_Read(void* self, so_Slice p);
-static so_Result writer_Write(void* self, so_Slice p);
-
-// -- Implementation --
+// -- Types --
 
 typedef struct reader {
     so_Slice b;
 } reader;
+
+typedef struct writer {
+    so_Slice b;
+} writer;
+
+// -- Forward declarations --
+static so_Result reader_Read(void* self, so_Slice p);
+static so_Result writer_Write(void* self, so_Slice p);
+
+// -- Implementation --
 
 static so_Result reader_Read(void* self, so_Slice p) {
     reader* r = (reader*)self;
@@ -23,10 +25,6 @@ static so_Result reader_Read(void* self, so_Slice p) {
     r->b = so_slice(so_byte, r->b, n, r->b.len);
     return (so_Result){.val.as_int = n, .err = NULL};
 }
-
-typedef struct writer {
-    so_Slice b;
-} writer;
 
 static so_Result writer_Write(void* self, so_Slice p) {
     writer* w = (writer*)self;

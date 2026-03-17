@@ -13,8 +13,10 @@ int64_t getCSecret() {
 }
 // end include
 
-// -- Implementation --
+// -- Variables and constants --
 int64_t main_GoSecret = 42;
+
+// -- Implementation --
 
 int main(void) {
     int64_t cSecret = getCSecret();

@@ -1,6 +1,9 @@
 #include "main.h"
 
-// -- Forward declarations (functions and methods) --
+// -- Variables and constants --
+static so_int state = 0;
+
+// -- Forward declarations --
 static void xopen(so_int* x);
 static void xclose(void* a);
 static void funcScope(void);
@@ -8,7 +11,6 @@ static so_int funcWithReturn(void);
 static void blockScope(void);
 
 // -- Implementation --
-static so_int state = 0;
 
 static void xopen(so_int* x) {
     (*x)++;

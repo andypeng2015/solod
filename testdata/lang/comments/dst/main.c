@@ -1,6 +1,11 @@
 #include "main.h"
 
-// -- Forward declarations (functions and methods) --
+// -- Variables and constants --
+
+// MaxCoord is the maximum coordinate value.
+const so_int main_MaxCoord = 1000;
+
+// -- Forward declarations --
 static main_Point offset(main_Point p, so_int dx, so_int dy);
 
 // -- Implementation --
@@ -21,9 +26,6 @@ void main_Point_Scale(void* self, so_int factor) {
 static main_Point offset(main_Point p, so_int dx, so_int dy) {
     return (main_Point){.x = p.x + dx, .y = p.y + dy};
 }
-
-// MaxCoord is the maximum coordinate value.
-const so_int main_MaxCoord = 1000;
 
 int main(void) {
     // Create a point.

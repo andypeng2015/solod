@@ -1,19 +1,18 @@
 #include "main.h"
 
-// -- Forward declarations (types) --
-typedef struct point point;
-
-// -- Forward declarations (functions and methods) --
-static void acceptAny(void* v);
-static void acceptByte(so_byte* v);
-static void acceptPoint(point* v);
-
-// -- Implementation --
+// -- Types --
 
 typedef struct point {
     so_int x;
     so_int y;
 } point;
+
+// -- Forward declarations --
+static void acceptAny(void* v);
+static void acceptByte(so_byte* v);
+static void acceptPoint(point* v);
+
+// -- Implementation --
 
 static void acceptAny(void* v) {
     (void)v;

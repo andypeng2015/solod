@@ -1,13 +1,12 @@
 #include "main.h"
 
-// -- Forward declarations (types) --
-typedef struct person person;
-
-// -- Implementation --
+// -- Types --
 
 typedef struct person {
     so_String name;
 } person;
+
+// -- Implementation --
 
 int main(void) {
     so_int vInt = 42;

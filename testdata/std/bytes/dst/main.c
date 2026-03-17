@@ -1,6 +1,6 @@
 #include "main.h"
 
-// -- Forward declarations (functions and methods) --
+// -- Forward declarations --
 static so_rune toDot(so_rune r);
 
 // -- Implementation --

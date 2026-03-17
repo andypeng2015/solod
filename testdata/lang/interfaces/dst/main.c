@@ -1,6 +1,6 @@
 #include "main.h"
 
-// -- Forward declarations (functions and methods) --
+// -- Forward declarations --
 static so_int calcShape(main_Shape s);
 static so_int calcLine(main_Line l);
 static bool shapeIsRect(main_Shape s);

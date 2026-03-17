@@ -115,7 +115,9 @@ func (g *Generator) emitImpl(w io.Writer) {
 	}
 
 	g.emitEmbeds(w, g.embeds.impl)
-	g.emitForwardDecls(w)
+	g.emitUnexportedTypes(w)
+	g.emitPackageVars(w)
+	g.emitForwardFuncDecls(w)
 
 	multiFile := len(g.pkg.Syntax) > 1
 	if !multiFile {

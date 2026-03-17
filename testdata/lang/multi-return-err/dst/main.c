@@ -1,6 +1,9 @@
 #include "main.h"
 
-// -- Forward declarations (functions and methods) --
+// -- Variables and constants --
+static main_File file = {0};
+
+// -- Forward declarations --
 static so_Result divide(so_int a, so_int b);
 static so_Result returnRune(void);
 static so_Result returnString(void);
@@ -10,7 +13,6 @@ static so_Result forwardCall(void);
 static main_FileResult create(so_int size);
 
 // -- Implementation --
-static main_File file = {0};
 
 so_Result main_File_Read(void* self, so_int buf) {
     main_File* f = (main_File*)self;

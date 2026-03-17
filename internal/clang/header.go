@@ -78,22 +78,18 @@ func (g *Generator) emitHeaderDecls(w io.Writer) {
 		}
 	}
 
-	// Phase 2: const/var declarations from the AST.
-	var genDecls []*ast.GenDecl
-	for _, file := range g.pkg.Syntax {
-		for _, decl := range file.Decls {
-			if gd, ok := decl.(*ast.GenDecl); ok {
-				if gd.Tok != token.TYPE {
-					// Types are already handled above.
-					genDecls = append(genDecls, gd)
-				}
-			}
+	// Phase 2: exported const/var declarations from collected symbols.
+	var varDecls []*ast.GenDecl
+	for _, sym := range g.symbols {
+		if !sym.exported || (sym.kind != symbolVar && sym.kind != symbolConst) {
+			continue
 		}
+		varDecls = append(varDecls, sym.genDecl)
 	}
-	if len(genDecls) > 0 {
+	if len(varDecls) > 0 {
 		fmt.Fprintln(w)
 		fmt.Fprintln(w, "// -- Variables and constants --")
-		for _, decl := range genDecls {
+		for _, decl := range varDecls {
 			g.emitHeaderGenDecl(w, decl)
 		}
 	}
@@ -101,7 +97,7 @@ func (g *Generator) emitHeaderDecls(w io.Writer) {
 	// Phase 3: exported function/method prototypes from collected symbols.
 	var funcSyms []symbol
 	for _, sym := range g.symbols {
-		if !sym.exported || sym.kind == symbolType {
+		if !sym.exported || (sym.kind != symbolFunc && sym.kind != symbolMethod) {
 			continue
 		}
 		funcSyms = append(funcSyms, sym)

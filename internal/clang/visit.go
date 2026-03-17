@@ -204,14 +204,16 @@ func (g *Generator) emitGenDecl(decl *ast.GenDecl) {
 		return
 	case token.CONST:
 		if g.state.indent == 0 {
-			g.emitComments(g.state.writer, decl)
+			// Package-level consts are hoisted by emitPackageVars.
+			return
 		}
 		for _, spec := range decl.Specs {
 			g.emitConstSpec(spec.(*ast.ValueSpec))
 		}
 	case token.VAR:
 		if g.state.indent == 0 {
-			g.emitComments(g.state.writer, decl)
+			// Package-level vars are hoisted by emitPackageVars.
+			return
 		}
 		for _, spec := range decl.Specs {
 			vs := spec.(*ast.ValueSpec)
@@ -222,20 +224,15 @@ func (g *Generator) emitGenDecl(decl *ast.GenDecl) {
 			g.emitVarSpec(vs)
 		}
 	case token.TYPE:
-		// Inside a function body, always emit locally.
-		// At top level, only emit unexported types (exported ones go in the header).
+		// Package-level types are emitted by emitUnexportedTypes (unexported)
+		// or emitHeaderDecls (exported). Only emit inside function bodies.
+		if g.state.indent == 0 {
+			return
+		}
 		for _, spec := range decl.Specs {
 			ts := spec.(*ast.TypeSpec)
-			if g.state.indent > 0 || !ast.IsExported(ts.Name.Name) {
-				// The CommentMap might attach the doc comment to either decl
-				// or type spec, depending on whether it's a standalone or
-				// grouped declaration, so check both.
-				hasDocs := g.emitComments(g.state.writer, decl, ts)
-				if !hasDocs && g.state.indent == 0 && isBlockTypeSpec(ts) {
-					fmt.Fprintln(g.state.writer)
-				}
-				g.emitTypeSpec(g.state.writer, ts)
-			}
+			g.emitComments(g.state.writer, decl, ts)
+			g.emitTypeSpec(g.state.writer, ts)
 		}
 	default:
 		g.fail(decl, "unsupported GenDecl token: %s", decl.Tok)

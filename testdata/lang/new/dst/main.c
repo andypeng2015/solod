@@ -1,14 +1,13 @@
 #include "main.h"
 
-// -- Forward declarations (types) --
-typedef struct point point;
-
-// -- Implementation --
+// -- Types --
 
 typedef struct point {
     so_int x;
     so_int y;
 } point;
+
+// -- Implementation --
 
 int main(void) {
     {

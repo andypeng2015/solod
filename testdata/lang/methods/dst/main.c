@@ -1,9 +1,12 @@
 #include "main.h"
 
-// -- Forward declarations (types) --
-typedef struct circle circle;
+// -- Types --
 
-// -- Forward declarations (functions and methods) --
+typedef struct circle {
+    so_int radius;
+} circle;
+
+// -- Forward declarations --
 static so_int main_Rect_perim(void* self, so_int n);
 static so_int circle_area(void* self);
 
@@ -18,10 +21,6 @@ static so_int main_Rect_perim(void* self, so_int n) {
     main_Rect* r = (main_Rect*)self;
     return n * (2 * r->width + 2 * r->height);
 }
-
-typedef struct circle {
-    so_int radius;
-} circle;
 
 static so_int circle_area(void* self) {
     circle* c = (circle*)self;
