@@ -66,6 +66,6 @@
 // The memory is automatically freed when the function that called Alloca returns.
 // Panics if the requested size exceeds [MaxAllocaSize].
 #define mem_Alloca(size) ({               \
-    size_t _size = (size);                \
+    size_t _size = (size_t)(size);        \
     so_make_slice(uint8_t, _size, _size); \
 })
