@@ -82,7 +82,7 @@ func (g *Generator) emitAppendCall(call *ast.CallExpr) {
 func (g *Generator) emitCopyCall(call *ast.CallExpr) {
 	w := g.state.writer
 	srcType := g.types.TypeOf(call.Args[1]).Underlying()
-	if basic, ok := srcType.(*types.Basic); ok && basic.Kind() == types.String {
+	if basic, ok := srcType.(*types.Basic); ok && basic.Info()&types.IsString != 0 {
 		// copy([]byte, string) - copy bytes directly from string.
 		fmt.Fprintf(w, "so_copy_string(")
 		g.emitExpr(call.Args[0])

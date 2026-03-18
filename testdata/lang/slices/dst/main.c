@@ -176,6 +176,12 @@ int main(void) {
         if (so_string_ne(so_bytes_string(b), so_str("hello"))) {
             so_panic("want string(b) == 'hello'");
         }
+        // Copying a string literal to a byte slice.
+        so_Slice b2 = so_make_slice(so_byte, 2, 2);
+        so_copy_string(b2, so_str("ab"));
+        if (so_string_ne(so_bytes_string(b2), so_str("ab"))) {
+            so_panic("want string(b2) == 'ab'");
+        }
     }
     {
         // For-range over slices.

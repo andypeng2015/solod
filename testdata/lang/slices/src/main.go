@@ -192,6 +192,13 @@ func main() {
 		if string(b) != "hello" {
 			panic("want string(b) == 'hello'")
 		}
+
+		// Copying a string literal to a byte slice.
+		b2 := make([]byte, 2)
+		copy(b2, "ab")
+		if string(b2) != "ab" {
+			panic("want string(b2) == 'ab'")
+		}
 	}
 
 	{
