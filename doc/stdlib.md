@@ -1,6 +1,6 @@
 # So standard library
 
-So provides low-level packages that wrap the libc API (`so/c/*`) and a growing set of high-level packages. For full API details, see the [package documentation](https://pkg.go.dev/github.com/nalgeon/solod/so).
+Solod provides a growing set of high-level packages similar to Go's stdlib, as well as low-level packages that wrap the libc API. For full API details, see the [package documentation](https://pkg.go.dev/github.com/nalgeon/solod/so).
 
 High-level:
 [bytes](#sobytes) •
