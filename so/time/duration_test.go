@@ -28,7 +28,7 @@ var durationTests = []struct {
 }
 
 func TestDurationString(t *testing.T) {
-	var buf [32]byte
+	buf := make([]byte, 32)
 	for _, tt := range durationTests {
 		if str := tt.d.String(buf); str != tt.str {
 			t.Errorf("Duration(%d).String() = %s, want %s", int64(tt.d), str, tt.str)

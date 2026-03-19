@@ -41,9 +41,12 @@ const (
 // Leading zero units are omitted. As a special case, durations less than one
 // second format use a smaller unit (milli-, micro-, or nanoseconds) to ensure
 // that the leading digit is non-zero. The zero duration formats as 0s.
-func (d Duration) String(buf [32]byte) string {
-	n := d.format(&buf)
-	return string(buf[n:])
+// buf must have a capacity of at least 25 bytes.
+func (d Duration) String(buf []byte) string {
+	var local [32]byte
+	n := d.format(&local)
+	m := copy(buf, local[n:])
+	return string(buf[:m])
 }
 
 // format formats the representation of d into the end of buf and
