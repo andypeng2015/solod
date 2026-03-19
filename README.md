@@ -155,10 +155,7 @@ So generates C11 code that relies on several GCC/Clang extensions:
 
 - Binary literals (`0b1010`) in generated code.
 - Statement expressions (`({...})`) in macros.
-- Empty struct initializer (`{}`) in slices.
-- `__attribute__((cleanup))` for defer support.
 - `__auto_type` for local type inference in generated code.
-- `__COUNTER__` for generating unique variable names.
 - `__typeof__` for type inference in generic macros.
 - `alloca` for `make()` and other dynamic stack allocations.
 
