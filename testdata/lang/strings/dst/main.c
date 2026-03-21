@@ -6,9 +6,13 @@ int main(void) {
     {
         // Empty string.
         so_String s1 = so_str("");
-        (void)s1;
+        if (so_len(s1) != 0 || so_string_ne(s1, so_str(""))) {
+            so_panic("want empty string");
+        }
         so_String s2 = so_str("");
-        (void)s2;
+        if (so_len(s2) != 0 || so_string_ne(s2, so_str(""))) {
+            so_panic("want empty string");
+        }
     }
     {
         // String literals.
@@ -83,15 +87,15 @@ int main(void) {
             so_println("%s", "ok");
         }
     }
-    // {
-    // 	// String addition is not supported.
-    // 	s1 := "Hello, "
-    // 	s2 := "世界!"
-    // 	s3 := s1 + s2
-    // 	if s3 != "Hello, 世界!" {
-    // 		panic("want s3 == Hello, 世界!")
-    // 	}
-    // }
+    {
+        // String addition.
+        so_String s1 = so_str("Hello, ");
+        so_String s2 = so_str("世界!");
+        so_String s3 = so_string_add(s1, s2);
+        if (so_string_ne(s3, so_str("Hello, 世界!"))) {
+            so_panic("want s3 == Hello, 世界!");
+        }
+    }
     {
         // String conversion to byte and rune slices, and vice versa.
         so_String s1 = so_str("1世3");

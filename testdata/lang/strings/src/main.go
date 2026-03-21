@@ -4,9 +4,13 @@ func main() {
 	{
 		// Empty string.
 		s1 := ""
-		_ = s1
+		if len(s1) != 0 || s1 != "" {
+			panic("want empty string")
+		}
 		var s2 string
-		_ = s2
+		if len(s2) != 0 || s2 != "" {
+			panic("want empty string")
+		}
 	}
 	{
 		// String literals.
@@ -15,17 +19,14 @@ func main() {
 			panic("want len(s) == 14")
 		}
 	}
-
 	{
 		// Loop over string bytes.
 		str := "Hi 世界!"
-
 		for i := 0; i < len(str); i++ {
 			chr := str[i]
 			println("i =", i, "chr =", chr)
 		}
 	}
-
 	{
 		// Loop over string runes.
 		str := "Hi 世界!"
@@ -48,7 +49,6 @@ func main() {
 		for range str {
 		}
 	}
-
 	{
 		// Continue in range-over-string loop.
 		s := "hello"
@@ -63,7 +63,6 @@ func main() {
 			panic("want n == 3")
 		}
 	}
-
 	{
 		// Compare strings.
 		s1 := "hello"
@@ -72,17 +71,15 @@ func main() {
 			println("ok")
 		}
 	}
-
-	// {
-	// 	// String addition is not supported.
-	// 	s1 := "Hello, "
-	// 	s2 := "世界!"
-	// 	s3 := s1 + s2
-	// 	if s3 != "Hello, 世界!" {
-	// 		panic("want s3 == Hello, 世界!")
-	// 	}
-	// }
-
+	{
+		// String addition.
+		s1 := "Hello, "
+		s2 := "世界!"
+		s3 := s1 + s2
+		if s3 != "Hello, 世界!" {
+			panic("want s3 == Hello, 世界!")
+		}
+	}
 	{
 		// String conversion to byte and rune slices, and vice versa.
 		s1 := "1世3"
