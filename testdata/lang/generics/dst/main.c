@@ -5,10 +5,20 @@
 // -- Implementation --
 
 int main(void) {
-    so_int* v = newObj(so_int);
-    *v = 42;
-    if (*v != 42) {
-        so_panic("unexpected value");
+    {
+        // Generic extern function (single type parameter).
+        so_int* v = newObj(so_int);
+        *v = 42;
+        if (*v != 42) {
+            so_panic("unexpected value");
+        }
+        freeObj(so_int, v);
     }
-    freeObj(so_int, v);
+    {
+        // Generic extern function (multiple type parameters).
+        so_int m = newMap(so_String, so_int, 10);
+        if (m != 10) {
+            so_panic("unexpected map size");
+        }
+    }
 }

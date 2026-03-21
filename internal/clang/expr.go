@@ -169,6 +169,16 @@ func (g *Generator) emitCallExpr(n *ast.CallExpr) {
 		}
 	}
 
+	// Generic function call with multiple explicit type arguments (e.g. fn[K, V](a)).
+	if indexListExpr, ok := n.Fun.(*ast.IndexListExpr); ok {
+		if ident := exprIdent(indexListExpr.X); ident != nil {
+			if inst, ok := g.types.Instances[ident]; ok && inst.TypeArgs.Len() > 0 {
+				g.emitGenericCall(n, indexListExpr.X, inst)
+				return
+			}
+		}
+	}
+
 	// Generic function call with inferred type argument (e.g. fn(a) where fn is generic).
 	if ident := exprIdent(n.Fun); ident != nil {
 		if inst, ok := g.types.Instances[ident]; ok && inst.TypeArgs.Len() > 0 {
