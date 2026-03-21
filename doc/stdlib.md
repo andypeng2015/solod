@@ -8,6 +8,7 @@ High-level:
 [fmt](#sofmt) •
 [io](#soio) •
 [math/bits](#somathbits) •
+[maps](#somaps) •
 [mem](#somem) •
 [os](#soos) •
 [slices](#soslices) •
@@ -90,6 +91,18 @@ Types:
 ## [so/math/bits](https://pkg.go.dev/solod.dev/so/math/bits)
 
 Bit counting and manipulation functions. Offers the same API as Go's `math/bits` package.
+
+## [so/maps](https://pkg.go.dev/solod.dev/so/maps)
+
+Generic hashmap similar to Go's built-in `map[K]V`, backed by a Robin Hood hash table with automatic grow/shrink.
+
+Functions:
+
+- `New` creates a new `Map` with a given allocator.
+
+Types:
+
+- `Map[K, V]` is a generic hashmap with `Get`, `Set`, and `Delete` methods.
 
 ## [so/mem](https://pkg.go.dev/solod.dev/so/mem)
 

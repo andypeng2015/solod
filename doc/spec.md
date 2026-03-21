@@ -301,7 +301,7 @@ s[1]++
 
 Maps are fixed-size and stack-allocated, backed by parallel key/value arrays with linear search. They are pointer-based reference types, represented as `so_Map*` in C. No delete, no resize.
 
-Only use maps when you have a small, fixed number of key-value pairs. For anything else, use heap-allocated maps from the `so/maps` package (planned).
+Only use maps when you have a small, fixed number of key-value pairs. For anything else, use heap-allocated maps from the `so/maps` package.
 
 Map literals:
 

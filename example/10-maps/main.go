@@ -4,8 +4,10 @@
 // Built-in maps in So are fixed-size and stack-allocated,
 // so only use them when you have a small, fixed number of
 // key-value pairs. For anything else, use heap-allocated
-// maps from the `so/maps` package (planned).
+// maps from the `so/maps` package.
 package main
+
+import "solod.dev/so/maps"
 
 func main() {
 	// To create a map, use the builtin `make`:
@@ -47,4 +49,14 @@ func main() {
 	// the same line with this syntax.
 	n := map[string]int{"foo": 1, "bar": 2}
 	println("foo:", n["foo"], "bar:", n["bar"])
+
+	// Use so/maps for heap-allocated maps that can grow
+	// and shrink dynamically.
+	am := maps.New[string, int](nil, 0)
+	defer am.Free() // remember to free heap-allocated maps
+	am.Set("abc", 11)
+	am.Set("def", 22)
+	am.Set("xyz", 33)
+	println("len(am) =", am.Len())
+	println("am[abc] =", am.Get("abc"))
 }

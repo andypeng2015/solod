@@ -226,7 +226,7 @@ There is a growing set of high-level packages (`so/bytes`, `so/mem`, `so/slices`
 
 ⏳ Core stdlib packages: fmt, io, strings, time, ...
 
-⬜ Maps.
+⏳ Maps.
 
 ⬜ Hardened transpiler.
 
