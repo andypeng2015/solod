@@ -17,7 +17,10 @@ func (g *Generator) emitBuiltin(call *ast.CallExpr, ident *ast.Ident, bi *types.
 	case "append":
 		g.emitAppendCall(call)
 		return true
-	case "clear", "close", "complex", "delete", "imag", "real", "recover":
+	case "clear":
+		g.emitClearCall(call)
+		return true
+	case "close", "complex", "delete", "imag", "real", "recover":
 		g.fail(call, "%s() is not supported", bi.Name())
 		return true
 	case "copy":
@@ -86,6 +89,20 @@ func (g *Generator) emitAppendCall(call *ast.CallExpr) {
 		}
 		fmt.Fprintf(w, ")")
 	}
+}
+
+// emitClearCall emits a clear() builtin call as so_clear(T, s).
+func (g *Generator) emitClearCall(call *ast.CallExpr) {
+	w := g.state.writer
+	typ := g.types.TypeOf(call.Args[0]).Underlying()
+	if _, ok := typ.(*types.Map); ok {
+		g.fail(call, "clear() is not supported for maps")
+	}
+	sliceType := typ.(*types.Slice)
+	elemType := g.mapType(call, sliceType.Elem())
+	fmt.Fprintf(w, "so_clear(%s, ", elemType)
+	g.emitExpr(call.Args[0])
+	fmt.Fprintf(w, ")")
 }
 
 // emitCopyCall emits a copy() builtin call as so_copy(T, dst, src).

@@ -295,7 +295,7 @@ s[1] <<= 2
 s[1]++
 ```
 
-`clear` is not supported.
+`clear` zeros all elements of a slice to their zero value. Length and capacity are unchanged. `clear` is not supported for maps.
 
 ## Maps
 

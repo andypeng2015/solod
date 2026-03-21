@@ -736,4 +736,15 @@ func main() {
 			panic("want cap==8")
 		}
 	}
+	{
+		// Clear slice.
+		s := []int{1, 2, 3}
+		clear(s)
+		if s[0] != 0 || s[1] != 0 || s[2] != 0 {
+			panic("want zeroed after clear")
+		}
+		if len(s) != 3 {
+			panic("want len preserved after clear")
+		}
+	}
 }

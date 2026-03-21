@@ -272,6 +272,14 @@ static inline so_int so_copy_string(so_Slice dst, so_String src) {
     return (so_int)n;
 }
 
+// clear sets all elements up to the length
+// of the slice to their zero value.
+#define so_clear(T, s) ({                  \
+    so_Slice _s = (s);                     \
+    memset(_s.ptr, 0, _s.len * sizeof(T)); \
+    _s;                                    \
+})
+
 // at returns a reference to the element at index i in a slice or string.
 #define so_at(T, s, i) (*so_at_ptr(T, s, i))
 #define so_at_ptr(T, s, i) ({            \

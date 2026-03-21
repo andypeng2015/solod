@@ -732,4 +732,15 @@ int main(void) {
             so_panic("want cap==8");
         }
     }
+    {
+        // Clear slice.
+        so_Slice s = (so_Slice){(so_int[3]){1, 2, 3}, 3, 3};
+        so_clear(so_int, s);
+        if (so_at(so_int, s, 0) != 0 || so_at(so_int, s, 1) != 0 || so_at(so_int, s, 2) != 0) {
+            so_panic("want zeroed after clear");
+        }
+        if (so_len(s) != 3) {
+            so_panic("want len preserved after clear");
+        }
+    }
 }
