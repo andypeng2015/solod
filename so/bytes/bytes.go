@@ -85,7 +85,6 @@ func Cut(s, sep []byte) CutResult {
 // are the same length and contain the same bytes.
 // A nil argument is equivalent to an empty slice.
 func Equal(a, b []byte) bool {
-	// Neither cmd/compile nor gccgo allocates for these string conversions.
 	return string(a) == string(b)
 }
 
@@ -112,27 +111,6 @@ func Index(s, sep []byte) int {
 		}
 		return -1
 	} else if n > len(s) {
-		return -1
-	} else if n <= bytealg.MaxLen {
-		c0 := sep[0]
-		c1 := sep[1]
-		i := 0
-		t := len(s) - n + 1
-		for i < t {
-			if s[i] != c0 {
-				// IndexByte is faster than bytealg.Index, so use it as long as
-				// we're not getting lots of false positives.
-				o := IndexByte(s[i+1:t], c0)
-				if o < 0 {
-					return -1
-				}
-				i += o + 1
-			}
-			if s[i+1] == c1 && Equal(s[i:i+n], sep) {
-				return i
-			}
-			i++
-		}
 		return -1
 	}
 	c0 := sep[0]

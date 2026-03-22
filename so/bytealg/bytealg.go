@@ -11,10 +11,6 @@
 // [internal/bytealg]: https://github.com/golang/go/blob/go1.26.1/src/internal/bytealg/bytealg.go
 package bytealg
 
-// MaxLen is the maximum length of the string to be searched for (argument b) in Index.
-// If MaxLen is not 0, make sure MaxLen >= 4.
-var MaxLen int
-
 // PrimeRK is the prime base used in Rabin-Karp algorithm.
 const PrimeRK = 16777619
 

@@ -14,7 +14,7 @@ package bytealg
 // It is provided here for convenience,
 // because some packages cannot depend on bytes.
 func Equal(a, b []byte) bool {
-	return len(a) == len(b) && memcmp(&a[0], &b[0], uintptr(len(a))) == 0
+	return string(a) == string(b)
 }
 
 //so:extern
