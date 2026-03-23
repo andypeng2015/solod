@@ -7,13 +7,19 @@
 // The calendrical calculations always assume a Gregorian calendar, with
 // no leap seconds.
 //
+// Based on the [time] package, with fewer features:
+//
+//   - Time is always stored as UTC internally
+//   - Fixed time zones (UTC offsets) instead of Locations.
+//   - Formatting and parsing use C verbs instead of Go verbs.
+//
 // # Monotonic Clocks
 //
 // Operating systems provide both a "wall clock," which is subject to
 // changes for clock synchronization, and a "monotonic clock," which is
 // not. The general rule is that the wall clock is for telling time and
 // the monotonic clock is for measuring time. Rather than split the API,
-// in this package the Time returned by [time.Now] contains both a wall
+// in this package the Time returned by [Now] contains both a wall
 // clock reading and a monotonic clock reading; later time-telling
 // operations use the wall clock reading, but later time-measuring
 // operations, specifically comparisons and subtractions, use the
@@ -28,15 +34,15 @@
 //	t := time.Now()
 //	elapsed := t.Sub(start)
 //
-// Other idioms, such as [time.Since](start), [time.Until](deadline), and
-// time.Now().Before(deadline), are similarly robust against wall clock
+// Other idioms, such as [Since](start), [Until](deadline), and
+// Now().Before(deadline), are similarly robust against wall clock
 // resets.
 //
 // The rest of this section gives the precise details of how operations
 // use monotonic clocks, but understanding those details is not required
 // to use this package.
 //
-// The Time returned by time.Now contains a monotonic clock reading.
+// The Time returned by [Now] contains a monotonic clock reading.
 // If Time t has a monotonic clock reading, t.Add adds the same duration to
 // both the wall clock and monotonic clock readings to compute the result.
 // Because t.AddDate(y, m, d), t.Round(d), and t.Truncate(d) are wall time
@@ -57,8 +63,8 @@
 // the monotonic clock to get accurate results.
 //
 // Because the monotonic clock reading has no meaning outside
-// the current process, the constructors [time.Date], [time.Parse],
-// and [time.Unix], always create times with no monotonic clock reading.
+// the current process, the constructors [Date], [Parse],
+// and [Unix], always create times with no monotonic clock reading.
 //
 // The monotonic clock reading exists only in [Time] values. It is not
 // a part of [Duration] values or the Unix times returned by t.Unix and
@@ -71,6 +77,8 @@
 // For debugging, the result of t.String does include the monotonic
 // clock reading if present. If t != u because of different monotonic clock readings,
 // that difference will be visible when printing t.String() and u.String().
+//
+// [time]: https://github.com/golang/go/blob/go1.26.1/src/time/time.go
 package time
 
 // Date returns the Time in UTC corresponding to
@@ -89,7 +97,6 @@ package time
 // choice of time zone, and therefore the time, is not well-defined.
 // Date returns a time that is correct in one of the two zones involved
 // in the transition, but it does not guarantee which.
-//
 func Date(year int, month Month, day, hour, min, sec, nsec int, offset Offset) Time {
 	// Normalize month, overflowing into year.
 	m := int(month) - 1
@@ -139,7 +146,7 @@ func Now() Time {
 //
 // Programs using times should typically store and pass them as values,
 // not pointers. That is, time variables and struct fields should be of
-// type [time.Time], not *time.Time.
+// type time.Time, not *time.Time.
 //
 // The zero value of type Time is January 1, year 1, 00:00:00.000000000 UTC.
 // As this time is unlikely to come up in practice, the [Time.IsZero] method gives
@@ -187,9 +194,12 @@ const (
 // IsZero reports whether t represents the zero time instant,
 // January 1, year 1, 00:00:00 UTC.
 func (t Time) IsZero() bool {
-	// If hasMonotonic is set in t.wall, then the time can't be before 1885, so it can't be the year 1.
-	// If hasMonotonic is zero, then all the bits in wall other than the nanoseconds field should be 0.
-	// So if there are no nanoseconds then t.wall == 0, and if there are no seconds then t.ext == 0.
+	// If hasMonotonic is set in t.wall, then the time can't be before 1885,
+	// so it can't be the year 1.
+	// If hasMonotonic is zero, then all the bits in wall other than the
+	// nanoseconds field should be 0.
+	// So if there are no nanoseconds then t.wall == 0, and if there are
+	// no seconds then t.ext == 0.
 	// This is equivalent to t.sec() == 0 && t.nsec() == 0, but is more efficient.
 	return t.wall == 0 && t.ext == 0
 }
@@ -235,10 +245,7 @@ func (t Time) Compare(u Time) int {
 }
 
 // Equal reports whether t and u represent the same time instant.
-// Two times can be equal even if they are in different locations.
-// For example, 6:00 +0200 and 4:00 UTC are Equal.
-// See the documentation on the Time type for the pitfalls of using == with
-// Time values; most code should use Equal instead.
+// Unlike the == operator, Equal ignores monotonic clock readings.
 func (t Time) Equal(u Time) bool {
 	if (t.wall & u.wall & hasMonotonic) != 0 {
 		return t.ext == u.ext

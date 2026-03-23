@@ -5,8 +5,8 @@
 package time
 
 // Unix returns t as a Unix time, the number of seconds elapsed
-// since January 1, 1970 UTC. The result does not depend on the
-// location associated with t.
+// since January 1, 1970 UTC.
+//
 // Unix-like operating systems often record time as a 32-bit
 // count of seconds, but since the method here returns a 64-bit
 // value it is valid for billions of years into the past or future.
@@ -17,8 +17,7 @@ func (t Time) Unix() int64 {
 // UnixMilli returns t as a Unix time, the number of milliseconds elapsed since
 // January 1, 1970 UTC. The result is undefined if the Unix time in
 // milliseconds cannot be represented by an int64 (a date more than 292 million
-// years before or after 1970). The result does not depend on the
-// location associated with t.
+// years before or after 1970).
 func (t Time) UnixMilli() int64 {
 	return t.unixSec()*1000 + int64(t.nsec())/1000000
 }
@@ -26,8 +25,7 @@ func (t Time) UnixMilli() int64 {
 // UnixMicro returns t as a Unix time, the number of microseconds elapsed since
 // January 1, 1970 UTC. The result is undefined if the Unix time in
 // microseconds cannot be represented by an int64 (a date before year -290307 or
-// after year 294246). The result does not depend on the location associated
-// with t.
+// after year 294246).
 func (t Time) UnixMicro() int64 {
 	return t.unixSec()*1000000 + int64(t.nsec())/1000
 }
@@ -36,8 +34,7 @@ func (t Time) UnixMicro() int64 {
 // since January 1, 1970 UTC. The result is undefined if the Unix time
 // in nanoseconds cannot be represented by an int64 (a date before the year
 // 1678 or after 2262). Note that this means the result of calling UnixNano
-// on the zero Time is undefined. The result does not depend on the
-// location associated with t.
+// on the zero Time is undefined.
 func (t Time) UnixNano() int64 {
 	return (t.unixSec())*1000000000 + int64(t.nsec())
 }

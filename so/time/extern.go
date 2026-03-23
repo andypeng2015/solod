@@ -21,12 +21,16 @@ type time_tm struct {
 	tm_isdst int
 }
 
+// size_t strftime(char* str, size_t count, const char* format, const struct tm* tp);
+//
 //so:extern
 func strftime(buf *byte, count uintptr, format string, tm *time_tm) uintptr {
 	_, _, _, _ = buf, count, format, tm
 	return 0
 }
 
+// char* strptime(const char* s, const char* format, struct tm* tm);
+//
 //so:extern
 func strptime(value string, format string, tm *time_tm) any {
 	_, _, _ = value, format, tm
