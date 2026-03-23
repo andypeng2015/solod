@@ -188,7 +188,7 @@ So is highly opinionated.
 
 **Readability**. There are several languages that claim they can transpile to readable C code. Unfortunately, the C code they generate is usually unreadable or barely readable at best. So isn't perfect in this area either (though it's arguably better than others), but it aims to produce C code that's as readable as possible.
 
-**Go compatibility**. So code is valid Go code. No exceptions.
+**Go compatibility**. So code is syntactically valid Go code, with no exceptions. Semantics may differ.
 
 Non-goals:
 
