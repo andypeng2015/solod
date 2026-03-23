@@ -220,7 +220,8 @@ func IndexAny(s, chars string) int {
 	return -1
 }
 
-// LastIndexByte returns the index of the last instance of c in s, or -1 if c is not present in s.
+// LastIndexByte returns the index of the last instance
+// of c in s, or -1 if c is not present in s.
 func LastIndexByte(s string, c byte) int {
 	return bytealg.LastIndexByteString(s, c)
 }

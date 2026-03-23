@@ -31,7 +31,7 @@ const smallBufferSize = 64
 const maxInt = int(so.MaxInt64)
 
 // A Buffer is a variable-sized buffer of bytes with [Buffer.Read] and [Buffer.Write] methods.
-// The zero value for Buffer is an empty buffer ready to use.
+// The zero value for Buffer is an empty buffer ready to use (with default allocator).
 type Buffer struct {
 	a   mem.Allocator // memory allocator; nil falls back to default one.
 	buf []byte        // contents are the bytes buf[off : len(buf)]
@@ -91,8 +91,8 @@ func (b *Buffer) Reset() {
 	b.off = 0
 }
 
-// Free frees the internal buffer and resets the Buffer to its zero value.
-// After Free, the Buffer can be reused with new writes.
+// Free frees the internal buffer and resets the buffer.
+// After Free, the buffer can be reused with new writes.
 func (b *Buffer) Free() {
 	mem.FreeSlice(b.a, b.buf)
 	b.buf = nil
@@ -204,7 +204,7 @@ func (b *Buffer) ReadFrom(r io.Reader) (int64, error) {
 		b.buf = b.buf[:i]
 		m, err := r.Read(b.buf[i:cap(b.buf)])
 		if m < 0 {
-			panic(io.ErrNegativeRead)
+			return 0, io.ErrNegativeRead
 		}
 
 		b.buf = b.buf[:i+m]
@@ -227,7 +227,7 @@ func (b *Buffer) WriteTo(w io.Writer) (int64, error) {
 	if nBytes := b.Len(); nBytes > 0 {
 		m, err := w.Write(b.buf[b.off:])
 		if m > nBytes {
-			return n, ErrInvalidWrite
+			return n, io.ErrInvalidWrite
 		}
 		b.off += m
 		n = int64(m)

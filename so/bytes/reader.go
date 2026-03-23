@@ -141,7 +141,7 @@ func (r *Reader) WriteTo(w io.Writer) (int64, error) {
 	b := r.s[r.i:]
 	m, err := w.Write(b)
 	if m > len(b) {
-		return 0, ErrInvalidWrite
+		return 0, io.ErrInvalidWrite
 	}
 	r.i += int64(m)
 	n := int64(m)

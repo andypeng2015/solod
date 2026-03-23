@@ -38,7 +38,7 @@ const (
 var EOF = errors.New("EOF")
 
 // ErrInvalidWrite means that a write returned an impossible count.
-var ErrInvalidWrite = errors.New("io: invalid write result")
+var ErrInvalidWrite = errors.New("io: Write returned impossible count")
 
 // ErrNegativeRead means that a read returned a negative count.
 var ErrNegativeRead = errors.New("io: Read returned negative count")

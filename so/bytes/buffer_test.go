@@ -207,21 +207,13 @@ func TestReadFromPanicReader(t *testing.T) {
 
 func TestReadFromNegativeReader(t *testing.T) {
 	var b Buffer
-	defer func() {
-		switch err := recover().(type) {
-		case nil:
-			t.Fatal("bytes.Buffer.ReadFrom didn't panic")
-		case error:
-			wantError := io.ErrNegativeRead.Error()
-			if err.Error() != wantError {
-				t.Fatalf("recovered panic: got %v, want %v", err.Error(), wantError)
-			}
-		default:
-			t.Fatalf("unexpected panic value: %#v", err)
-		}
-	}()
-
-	b.ReadFrom(new(negativeReader))
+	n, err := b.ReadFrom(new(negativeReader))
+	if err != io.ErrNegativeRead {
+		t.Fatalf("want error %v, got %v", io.ErrNegativeRead, err)
+	}
+	if n != 0 {
+		t.Fatalf("want 0 bytes read, got %d", n)
+	}
 }
 
 func TestWriteTo(t *testing.T) {

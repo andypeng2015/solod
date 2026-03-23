@@ -7,10 +7,15 @@ package strings
 
 import (
 	"solod.dev/so/bytealg"
+	"solod.dev/so/errors"
 	"solod.dev/so/mem"
 	"solod.dev/so/stringslite"
 	"solod.dev/so/unicode/utf8"
 )
+
+// ErrTooLarge means that memory cannot
+// be allocated to store data in a string.
+var ErrTooLarge = errors.New("strings: data too large")
 
 // Clone returns a fresh copy of s.
 //
@@ -84,6 +89,7 @@ func CutSuffix(s, suffix string) (string, bool) {
 
 // Join concatenates the elements of its first argument to create a single string.
 // The separator string sep is placed between elements in the resulting string.
+// Panics if the result is too large to fit in a string.
 //
 // The returned string is allocated; the caller owns it.
 func Join(a mem.Allocator, elems []string, sep string) string {
@@ -96,13 +102,13 @@ func Join(a mem.Allocator, elems []string, sep string) string {
 	var n int
 	if len(sep) > 0 {
 		if len(sep) >= maxInt/(len(elems)-1) {
-			panic("strings: Join output length overflow")
+			panic(ErrTooLarge)
 		}
 		n += len(sep) * (len(elems) - 1)
 	}
 	for _, elem := range elems {
 		if len(elem) > maxInt-n {
-			panic("strings: Join output length overflow")
+			panic(ErrTooLarge)
 		}
 		n += len(elem)
 	}

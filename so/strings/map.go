@@ -99,10 +99,6 @@ func ToLower(a mem.Allocator, s string) string {
 //
 // The returned string is allocated; the caller owns it.
 func Map(a mem.Allocator, mapping RuneFunc, s string) string {
-	// In the worst case, the string can grow when mapped, making
-	// things unpleasant. But it's so rare we barge in assuming it's
-	// fine. It could also shrink but that falls out naturally.
-
 	// The output buffer b is initialized on demand, the first
 	// time a character differs.
 	b := Builder{a: a}

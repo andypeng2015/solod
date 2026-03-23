@@ -18,10 +18,6 @@ import (
 	"solod.dev/so/unicode/utf8"
 )
 
-// ErrInvalidWrite means that an io.Writer.Write call
-// returned an invalid count of bytes written.
-var ErrInvalidWrite = errors.New("bytes: invalid Write count")
-
 // ErrTooLarge means that memory cannot
 // be allocated to store data in a byte slice.
 var ErrTooLarge = errors.New("bytes: data too large")

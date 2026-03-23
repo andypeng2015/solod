@@ -86,7 +86,7 @@ func TestRepeatCatchesOverflow(t *testing.T) {
 		3: {"gopher", 0, ""},
 		4: {"-", -1, "negative"},
 		5: {"--", -102, "negative"},
-		6: {string(make([]byte, 255)), int((^uint(0))/255 + 1), "overflow"},
+		6: {string(make([]byte, 255)), int((^uint(0))/255 + 1), "too large"},
 	})
 
 	const is64Bit = 1<<(^uintptr(0)>>63)/2 != 0
