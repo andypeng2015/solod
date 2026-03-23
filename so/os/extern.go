@@ -21,71 +21,94 @@ const (
 	os_EISDIR
 	os_ENOENT
 	os_ENOTDIR
+	os_EPERM
 )
 
 //so:extern
 type os_file struct{}
 
+// FILE *fopen(const char *restrict filename, const char *restrict mode);
+//
 //so:extern
 func fopen(path string, mode string) *os_file {
 	_, _ = path, mode
 	return nil
 }
 
+// int fclose( FILE *stream );
+//
 //so:extern
 func fclose(stream *os_file) int {
 	_ = stream
 	return 0
 }
 
+// size_t fread(void *restrict buffer, size_t size, size_t count, FILE *restrict stream);
+//
 //so:extern
 func fread(ptr any, size uintptr, count uintptr, stream *os_file) uintptr {
 	_, _, _, _ = ptr, size, count, stream
 	return 0
 }
 
+// size_t fwrite(const void* restrict buffer, size_t size, size_t count, FILE* restrict stream);
+//
 //so:extern
 func fwrite(ptr any, size uintptr, count uintptr, stream *os_file) uintptr {
 	_, _, _, _ = ptr, size, count, stream
 	return 0
 }
 
+// int ferror(FILE *stream);
+//
 //so:extern
 func ferror(stream *os_file) bool {
 	_ = stream
 	return false
 }
 
+// int fseeko(FILE *stream, off_t offset, int whence);
+//
 //so:extern
 func fseeko(stream *os_file, offset int64, whence int) int {
 	_, _, _ = stream, offset, whence
 	return 0
 }
 
+// off_t ftello(FILE *stream);
+//
 //so:extern
 func ftello(stream *os_file) int64 {
 	_ = stream
 	return 0
 }
 
+// int remove(const char* fname);
+//
 //so:extern
 func remove(path string) int {
 	_ = path
 	return 0
 }
 
+// int rename(const char* old_filename, const char* new_filename);
+//
 //so:extern
 func rename(oldpath string, newpath string) int {
 	_, _ = oldpath, newpath
 	return 0
 }
 
+// char *getenv(const char *name);
+//
 //so:extern
 func getenv(name string) any {
 	_ = name
 	return nil
 }
 
+// void exit(int exit_code);
+//
 //so:extern
 func exit(status int) {
 	_ = status

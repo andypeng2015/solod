@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <errno.h>
 
@@ -21,3 +22,4 @@ extern os_File os_Stderr;
 #define os_EISDIR EISDIR
 #define os_ENOENT ENOENT
 #define os_ENOTDIR ENOTDIR
+#define os_EPERM EPERM

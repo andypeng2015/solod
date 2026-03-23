@@ -10,14 +10,17 @@ import (
 	"solod.dev/so/mem"
 )
 
-var ErrClosed = errors.New("file already closed")
-var ErrExist = errors.New("file already exists")
-var ErrIsDir = errors.New("is a directory")
-var ErrNotDir = errors.New("not a directory")
-var ErrNotExist = errors.New("no such file or directory")
-var ErrPermission = errors.New("permission denied")
+// IO-related errors that can be returned by functions in this package.
+var ErrClosed = errors.New("os: file already closed")
+var ErrExist = errors.New("os: file already exists")
+var ErrIsDir = errors.New("os: is a directory")
+var ErrNotDir = errors.New("os: not a directory")
+var ErrNotExist = errors.New("os: no such file or directory")
+var ErrPermission = errors.New("os: permission denied")
 
-var ErrIO = errors.New("i/o error")
+// ErrIO is a generic I/O error that is returned when the error
+// does not match any of the other, more specific errors.
+var ErrIO = errors.New("os: i/o error")
 
 // FileResult is a helper struct for returning
 // a File and an error from a function.
@@ -135,6 +138,9 @@ func mapError() error {
 	}
 	if errno == os_ENOTDIR {
 		return ErrNotDir
+	}
+	if errno == os_EPERM {
+		return ErrPermission
 	}
 	return ErrIO
 }
