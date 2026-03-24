@@ -289,10 +289,11 @@ static inline so_int so_copy_string(so_Slice dst, so_String src) {
 // at returns a reference to the element at index i in a slice or string.
 #define so_at(T, s, i) (*so_at_ptr(T, s, i))
 #define so_at_ptr(T, s, i) ({            \
+    so_auto _s_at = (s);                 \
     size_t _i = (size_t)(i);             \
-    if (_i >= (s).len)                   \
+    if (_i >= _s_at.len)                 \
         so_panic("index out of bounds"); \
-    (T*)(s).ptr + _i;                    \
+    (T*)_s_at.ptr + _i;                  \
 })
 
 // len returns the length of a slice or string.
