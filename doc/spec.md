@@ -858,7 +858,7 @@ Include a C header file:
 //so:include "person.ext.h"
 ```
 
-Declare a struct that is defined in C (excluded from emission):
+Declare an external C type (excluded from emission) with `so:extern`:
 
 ```go
 //so:extern
@@ -869,11 +869,9 @@ type Account struct {
 }
 ```
 
-Declare an external C function (no body or `so:extern`):
+Declare an external C function:
 
 ```go
-func inc_balance(acc *Account, amount int64) int64
-
 //so:extern
 func dec_balance(acc *Account, amount int64) int64 {
     return 42 // for testing
@@ -884,14 +882,14 @@ When calling extern functions, `string` and `[]T` arguments are automatically de
 
 ```go
 //so:extern
-func Fopen(path string, mode string) *File { return nil }
+func fopen(path string, mode string) *File { return nil }
 
 // Go call:
-f := Fopen("/tmp/test.txt", "w")
+f := fopen("/tmp/test.txt", "w")
 
 // Generated C:
-// Fopen("/tmp/test.txt", "w")
-// not Fopen(so_str("/tmp/test.txt"), so_str("w"))
+// fopen("/tmp/test.txt", "w")
+// not fopen(so_str("/tmp/test.txt"), so_str("w"))
 ```
 
 The `so:extern` directive supports two optional parameters: a C name override and the `nodecay` flag.
