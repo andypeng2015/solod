@@ -5,13 +5,9 @@
 package strings
 
 import (
-	"solod.dev/so/errors"
 	"solod.dev/so/mem"
 	"solod.dev/so/unicode/utf8"
 )
-
-// ErrNegativeGrow means that a Builder.Grow call was given a negative count.
-var ErrNegativeGrow = errors.New("strings: negative grow")
 
 // A Builder is used to efficiently build a string using [Builder.Write] methods.
 // It minimizes memory copying. The zero value is ready to use (with default allocator).
@@ -64,7 +60,7 @@ func (b *Builder) grow(n int) {
 // without another allocation. If n is negative, Grow panics.
 func (b *Builder) Grow(n int) {
 	if n < 0 {
-		panic(ErrNegativeGrow)
+		panic("strings: negative grow")
 	}
 	if cap(b.buf)-len(b.buf) < n {
 		b.grow(n)

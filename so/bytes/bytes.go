@@ -12,15 +12,10 @@ package bytes
 
 import (
 	"solod.dev/so/bytealg"
-	"solod.dev/so/errors"
 	"solod.dev/so/mem"
 	"solod.dev/so/slices"
 	"solod.dev/so/unicode/utf8"
 )
-
-// ErrTooLarge means that memory cannot
-// be allocated to store data in a byte slice.
-var ErrTooLarge = errors.New("bytes: data too large")
 
 // Clone returns a copy of b[:len(b)].
 // If the allocator is nil, uses the system allocator.
@@ -163,7 +158,7 @@ func IndexByte(b []byte, c byte) int {
 
 // Join concatenates the elements of s to create a new byte slice. The separator
 // sep is placed between elements in the resulting slice.
-// Panics with [ErrTooLarge] if the result is too large to allocate.
+// Panics if the result is too large to allocate.
 //
 // If the allocator is nil, uses the system allocator.
 // The returned slice is allocated; the caller owns it.
@@ -179,13 +174,13 @@ func Join(a mem.Allocator, s [][]byte, sep []byte) []byte {
 	var n int
 	if len(sep) > 0 {
 		if len(sep) >= maxInt/(len(s)-1) {
-			panic(ErrTooLarge)
+			panic("bytes: join separator too large")
 		}
 		n += len(sep) * (len(s) - 1)
 	}
 	for _, v := range s {
 		if len(v) > maxInt-n {
-			panic(ErrTooLarge)
+			panic("bytes: join overflow")
 		}
 		n += len(v)
 	}

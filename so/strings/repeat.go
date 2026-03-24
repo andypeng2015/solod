@@ -6,7 +6,6 @@ package strings
 
 import (
 	"solod.dev/so"
-	"solod.dev/so/errors"
 	"solod.dev/so/math/bits"
 	"solod.dev/so/mem"
 	"solod.dev/so/stringslite"
@@ -36,9 +35,6 @@ const (
 		"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
 )
 
-// ErrRepeatCount means that the count argument to Repeat was negative.
-var ErrRepeatCount = errors.New("strings: negative Repeat count")
-
 // Repeat returns a new string consisting of count copies of the string s.
 //
 // It panics if count is negative or if the result of (len(s) * count)
@@ -57,11 +53,11 @@ func Repeat(a mem.Allocator, s string, count int) string {
 	// we should panic if the repeat will generate an overflow.
 	// See golang.org/issue/16237.
 	if count < 0 {
-		panic(ErrRepeatCount)
+		panic("strings: negative repeat count")
 	}
 	hi, lo := bits.Mul(uint(len(s)), uint(count))
 	if hi > 0 || lo > uint(maxInt) {
-		panic(ErrTooLarge)
+		panic("strings: repeat overflow")
 	}
 	n := int(lo) // lo = len(s) * count
 

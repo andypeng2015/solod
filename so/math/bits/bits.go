@@ -19,9 +19,6 @@ const uintSize = 32 << ((^uint(0)) >> 63) // 32 or 64
 // UintSize is the size of a uint in bits.
 const UintSize = uintSize
 
-const divideError = "runtime error: integer divide by zero"
-const overflowError = "runtime error: integer overflow"
-
 // --- LeadingZeros ---
 
 // LeadingZeros returns the number of leading zero bits in x; the result is [UintSize] for x == 0.
@@ -516,7 +513,7 @@ func Div(hi, lo, y uint) (uint, uint) {
 // Div32 panics for y == 0 (division by zero) or y <= hi (quotient overflow).
 func Div32(hi, lo, y uint32) (uint32, uint32) {
 	if y != 0 && y <= hi {
-		panic(overflowError)
+		panic("runtime error: integer overflow")
 	}
 	z := uint64(hi)<<32 | uint64(lo)
 	quo, rem := uint32(z/uint64(y)), uint32(z%uint64(y))
@@ -529,10 +526,10 @@ func Div32(hi, lo, y uint32) (uint32, uint32) {
 // Div64 panics for y == 0 (division by zero) or y <= hi (quotient overflow).
 func Div64(hi, lo, y uint64) (uint64, uint64) {
 	if y == 0 {
-		panic(divideError)
+		panic("runtime error: integer divide by zero")
 	}
 	if y <= hi {
-		panic(overflowError)
+		panic("runtime error: integer overflow")
 	}
 
 	// If high part is zero, we can directly return the results.

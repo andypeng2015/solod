@@ -112,7 +112,7 @@ func (b *Buffer) tryGrowByReslice(n int) (int, bool) {
 
 // grow grows the buffer to guarantee space for n more bytes.
 // It returns the index where bytes should be written.
-// If the buffer can't grow it will panic with ErrTooLarge.
+// Panics if the buffer can't grow.
 func (b *Buffer) grow(n int) int {
 	m := b.Len()
 	// If buffer is empty, reset to recover space.
@@ -135,7 +135,7 @@ func (b *Buffer) grow(n int) int {
 		// don't spend all our time copying.
 		copy(b.buf, b.buf[b.off:])
 	} else if c > maxInt-c-n {
-		panic(ErrTooLarge)
+		panic("bytes: buffer overflow")
 	} else {
 		// Allocate a new buffer, copy live data, free the old one.
 		b.growBuf(m, n)
@@ -161,19 +161,18 @@ func (b *Buffer) growBuf(m, n int) {
 // Grow grows the buffer's capacity, if necessary, to guarantee space for
 // another n bytes. After Grow(n), at least n bytes can be written to the
 // buffer without another allocation.
-// If n is negative, Grow will panic with [ErrNegativeGrow].
-// If the buffer can't grow it will panic with [ErrTooLarge].
+// Panics if n is negative or if the buffer cannot grow.
 func (b *Buffer) Grow(n int) {
 	if n < 0 {
-		panic(ErrNegativeGrow)
+		panic("bytes: negative grow")
 	}
 	m := b.grow(n)
 	b.buf = b.buf[:m]
 }
 
 // Write appends the contents of p to the buffer, growing the buffer as
-// needed. The return value n is the length of p; err is always nil. If the
-// buffer becomes too large, Write will panic with [ErrTooLarge].
+// needed. The return value n is the length of p; err is always nil.
+// Panics if the buffer becomes too large.
 func (b *Buffer) Write(p []byte) (int, error) {
 	m, ok := b.tryGrowByReslice(len(p))
 	if !ok {
@@ -183,8 +182,8 @@ func (b *Buffer) Write(p []byte) (int, error) {
 }
 
 // WriteString appends the contents of s to the buffer, growing the buffer as
-// needed. The return value n is the length of s; err is always nil. If the
-// buffer becomes too large, WriteString will panic with [ErrTooLarge].
+// needed. The return value n is the length of s; err is always nil.
+// Panics if the buffer becomes too large.
 func (b *Buffer) WriteString(s string) (int, error) {
 	m, ok := b.tryGrowByReslice(len(s))
 	if !ok {
@@ -195,8 +194,8 @@ func (b *Buffer) WriteString(s string) (int, error) {
 
 // ReadFrom reads data from r until EOF and appends it to the buffer, growing
 // the buffer as needed. The return value n is the number of bytes read. Any
-// error except io.EOF encountered during the read is also returned. If the
-// buffer becomes too large, ReadFrom will panic with [ErrTooLarge].
+// error except io.EOF encountered during the read is also returned.
+// Panics if the buffer becomes too large.
 func (b *Buffer) ReadFrom(r io.Reader) (int64, error) {
 	var n int64
 	for {
@@ -247,8 +246,7 @@ func (b *Buffer) WriteTo(w io.Writer) (int64, error) {
 
 // WriteByte appends the byte c to the buffer, growing the buffer as needed.
 // The returned error is always nil, but is included to match [bufio.Writer]'s
-// WriteByte. If the buffer becomes too large, WriteByte will panic with
-// [ErrTooLarge].
+// WriteByte. Panics if the buffer becomes too large.
 func (b *Buffer) WriteByte(c byte) error {
 	m, ok := b.tryGrowByReslice(1)
 	if !ok {
@@ -261,7 +259,7 @@ func (b *Buffer) WriteByte(c byte) error {
 // WriteRune appends the UTF-8 encoding of Unicode code point r to the
 // buffer, returning its length and an error, which is always nil but is
 // included to match [bufio.Writer]'s WriteRune. The buffer is grown as needed;
-// if it becomes too large, WriteRune will panic with [ErrTooLarge].
+// if it becomes too large, WriteRune will panic.
 func (b *Buffer) WriteRune(r rune) (int, error) {
 	// Compare as uint32 to correctly handle negative runes.
 	if uint32(r) < utf8.RuneSelf {

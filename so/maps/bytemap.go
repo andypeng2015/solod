@@ -17,7 +17,6 @@ package maps
 
 import (
 	"solod.dev/so/bytes"
-	"solod.dev/so/errors"
 	"solod.dev/so/mem"
 )
 
@@ -27,14 +26,6 @@ const (
 	hashBitSize = 64 - dibBitSize           // 0xFFFFFFFFFFFF
 	maxDIB      = ^uint64(0) >> hashBitSize // max 65,535
 )
-
-// ErrKeySize means the key byte slice passed to ByteMap.Get, ByteMap.Set
-// or ByteMap.Delete does not match the map's key size.
-var ErrKeySize = errors.New("maps: wrong key size")
-
-// ErrValueSize means the value byte slice passed to ByteMap.Get
-// does not match the map's value size.
-var ErrValueSize = errors.New("maps: wrong value size")
 
 // KeyHashFn is a function that hashes a key byte slice to an integer.
 type KeyHashFn func(key []byte) int
@@ -106,10 +97,10 @@ func NewByteMap(a mem.Allocator, minCap, ksize, vsize int) ByteMap {
 // When outVal is zero length, Get effectively functions as Has.
 func (m *ByteMap) Get(key, outVal []byte) bool {
 	if len(key) != m.ksize {
-		panic(ErrKeySize)
+		panic("maps: invalid key size")
 	}
 	if len(outVal) != 0 && len(outVal) != m.vsize {
-		panic(ErrValueSize)
+		panic("maps: invalid value size")
 	}
 	if len(m.hdib) == 0 {
 		return false
@@ -136,10 +127,10 @@ func (m *ByteMap) Get(key, outVal []byte) bool {
 // overwriting any existing value.
 func (m *ByteMap) Set(key, value []byte) {
 	if len(key) != m.ksize {
-		panic(ErrKeySize)
+		panic("maps: invalid key size")
 	}
 	if len(value) != m.vsize {
-		panic(ErrValueSize)
+		panic("maps: invalid value size")
 	}
 	if m.len >= m.growAt {
 		m.resize(len(m.hdib) * 2)
@@ -152,7 +143,7 @@ func (m *ByteMap) Set(key, value []byte) {
 // Returns true if the key was found and deleted.
 func (m *ByteMap) Delete(key []byte) bool {
 	if len(key) != m.ksize {
-		panic(ErrKeySize)
+		panic("maps: invalid key size")
 	}
 	if len(m.hdib) == 0 {
 		return false

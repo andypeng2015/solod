@@ -394,8 +394,9 @@ func TestPeek(t *testing.T) {
 
 func TestGrowOverflow(t *testing.T) {
 	defer func() {
-		if err := recover(); err != ErrTooLarge {
-			t.Errorf("after too-large Grow, recover() = %v; want %v", err, ErrTooLarge)
+		want := "bytes: buffer overflow"
+		if reason := recover(); reason != want {
+			t.Errorf("after too-large Grow, recover() = %v; want %v", reason, want)
 		}
 	}()
 
