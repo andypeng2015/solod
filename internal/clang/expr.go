@@ -367,9 +367,10 @@ func (g *Generator) emitIdent(n *ast.Ident) {
 		return
 	}
 	if obj := g.types.Uses[n]; obj != nil {
-		if ast.IsExported(name) && obj.Parent() == g.pkg.Types.Scope() {
-			// Exported package-level declarations are prefixed
-			// with the package name (e.g. RectArea → geom_RectArea).
+		if obj.Parent() == g.pkg.Types.Scope() {
+			// Package-level declarations: exported names are prefixed
+			// with the package name (e.g. RectArea -> geom_RectArea),
+			// and extern overrides are applied (e.g. maxInt64 -> INT64_MAX).
 			name = g.symbolName(name)
 		}
 	}

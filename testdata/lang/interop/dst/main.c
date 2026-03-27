@@ -1,4 +1,5 @@
 #include "main.h"
+#include <stdint.h>
 #include <stdio.h>
 #include "person.ext.h"
 
@@ -24,6 +25,12 @@ int main(void) {
         account_set_name(&acc, name);
         if (so_string_ne(acc.name, so_str("Alice"))) {
             so_panic("Extern nodecay failed");
+        }
+    }
+    {
+        // Extern constants.
+        if (INT64_MAX != ((so_int)1 << 63) - 1) {
+            so_panic("maxInt64 != 1<<63-1");
         }
     }
 }

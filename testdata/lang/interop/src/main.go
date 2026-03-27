@@ -1,7 +1,11 @@
 package main
 
+//so:include <stdint.h>
 //so:include <stdio.h>
 //so:include "person.ext.h"
+
+//so:extern INT64_MAX
+const maxInt64 = 1<<63 - 1
 
 //so:extern Account
 type Account struct {
@@ -48,6 +52,12 @@ func main() {
 		account_set_name(&acc, name)
 		if acc.name != "Alice" {
 			panic("Extern nodecay failed")
+		}
+	}
+	{
+		// Extern constants.
+		if maxInt64 != 1<<63-1 {
+			panic("maxInt64 != 1<<63-1")
 		}
 	}
 }
