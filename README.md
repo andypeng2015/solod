@@ -112,7 +112,7 @@ Write regular Go code, but use So packages instead of the standard Go packages:
 ```go
 package main
 
-import "solod.dev/so/c/math"
+import "solod.dev/so/math"
 
 func main() {
     ans := math.Sqrt(1764)

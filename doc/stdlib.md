@@ -88,10 +88,6 @@ Types:
 - `LimitedReader` and `SectionReader` implement specialized readerss.
 - `Discard` is a no-op writer.
 
-## [so/math/bits](https://pkg.go.dev/solod.dev/so/math/bits)
-
-Bit counting and manipulation functions. Offers the same API as Go's `math/bits` package.
-
 ## [so/maps](https://pkg.go.dev/solod.dev/so/maps)
 
 Generic hashmap similar to Go's built-in `map[K]V`, backed by a Robin Hood hash table with automatic grow/shrink.
@@ -103,6 +99,14 @@ Functions:
 Types:
 
 - `Map[K, V]` is a generic hashmap with `Get`, `Set`, and `Delete` methods.
+
+## [so/math](https://pkg.go.dev/solod.dev/so/math)
+
+Mathematical functions and constants. Offers the same API as Go's `math` package.
+
+## [so/math/bits](https://pkg.go.dev/solod.dev/so/math/bits)
+
+Bit counting and manipulation functions. Offers the same API as Go's `math/bits` package.
 
 ## [so/mem](https://pkg.go.dev/solod.dev/so/mem)
 
