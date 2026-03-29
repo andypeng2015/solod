@@ -4,7 +4,8 @@
 package os
 
 import (
-	"solod.dev/so/c"
+	"unsafe"
+
 	"solod.dev/so/errors"
 	"solod.dev/so/time"
 )
@@ -103,11 +104,12 @@ func Mkdir(name string, perm FileMode) error {
 //
 // Writes the result into buf. The returned string is a view into buf.
 func Readlink(buf []byte, name string) (string, error) {
-	n := readlink(name, c.CharPtr(&buf[0]), uintptr(len(buf)))
+	bufPtr := &buf[0]
+	n := os_readlink(name, bufPtr, len(buf))
 	if n < 0 {
 		return "", mapError()
 	}
-	return string(c.Bytes(&buf[0], n)), nil
+	return unsafe.String(bufPtr, n), nil
 }
 
 // Remove removes the named file or (empty) directory.

@@ -43,7 +43,7 @@ func Getuid() int {
 //
 // Writes the result into buf. The returned string is a view into buf.
 func Getwd(buf []byte) (string, error) {
-	ptr := getcwd(c.CharPtr(&buf[0]), uintptr(len(buf))).(*byte)
+	ptr := os_getcwd(&buf[0], len(buf))
 	if ptr == nil {
 		return "", mapError()
 	}

@@ -97,10 +97,12 @@ func fdopen(fd int, mode string) *os_file {
 	return nil
 }
 
+// os_getcwd wraps getcwd with a null check to avoid
+// glibc fortify-source nonnull warning when buf comes from a slice.
 // char* getcwd(char *buf, size_t size);
 //
 //so:extern
-func getcwd(buf *byte, size uintptr) any {
+func os_getcwd(buf *byte, size int) *byte {
 	_, _ = buf, size
 	return nil
 }
@@ -147,6 +149,16 @@ func getuid() uid_t {
 	return 0
 }
 
+// os_gethostname wraps gethostname with a null check to avoid
+// glibc fortify-source nonnull warning when buf comes from a slice.
+// int gethostname(char* name, size_t namelen);
+//
+//so:extern
+func os_gethostname(buf *byte, size int) int {
+	_, _ = buf, size
+	return 0
+}
+
 // int lchown(const char *path, uid_t owner, gid_t group);
 //
 //so:extern
@@ -161,6 +173,15 @@ func lchown(path string, uid uid_t, gid gid_t) int {
 func link(old, new string) int {
 	_, _ = old, new
 	return 0
+}
+
+// lstat wrapper (fills os_statResult).
+// int lstat(const char* restrict path, struct stat* restrict buf);
+//
+//so:extern
+func os_lstat(path string) os_statResult {
+	_ = path
+	return os_statResult{}
 }
 
 // int mkdir(const char *path, mode_t mode);
@@ -195,12 +216,23 @@ func posixOpen(path string, flags int, mode uint32) int {
 	return 0
 }
 
-// ssize_t readlink(const char *path, char *buf, size_t bufsiz);
+// os_readlink wraps readlink with a null check to avoid
+// glibc fortify-source nonnull warning when buf comes from a slice.
+// ssize_t readlink(const char* restrict path, char* restrict buf, size_t bufsize);
 //
 //so:extern
-func readlink(path string, buf *byte, bufsiz uintptr) int {
+func os_readlink(path string, buf *byte, bufsiz int) int {
 	_, _, _ = path, buf, bufsiz
 	return 0
+}
+
+// stat wrapper (fills os_statResult).
+// int stat(const char* restrict path, struct stat* restrict buf);
+//
+//so:extern
+func os_stat(path string) os_statResult {
+	_ = path
+	return os_statResult{}
 }
 
 // int symlink(const char *path1, const char *path2);
@@ -235,31 +267,7 @@ func unsetenv(key string) int {
 	return 0
 }
 
-// os_gethostname wraps gethostname with a null check to avoid
-// glibc fortify-source nonnull warning when buf comes from a slice.
-// int gethostname(char* name, size_t namelen);
-//
-//so:extern
-func os_gethostname(buf *byte, size int) int {
-	_, _ = buf, size
-	return 0
-}
-
-// Stat/lstat C helpers.
-//
-//so:extern
-func os_stat(path string) os_statResult {
-	_ = path
-	return os_statResult{}
-}
-
-//so:extern
-func os_lstat(path string) os_statResult {
-	_ = path
-	return os_statResult{}
-}
-
-// utimensat wrapper.
+// utimensat wrapper (passes timespec values as separate arguments).
 //
 //so:extern
 func os_utimens(path string, asec, ansec, msec, mnsec int64) int {
