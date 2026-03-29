@@ -10,6 +10,23 @@ extern so_Error fmt_ErrPrint;  // print failure
 extern so_Error fmt_ErrScan;   // scan failure
 extern so_Error fmt_ErrSize;   // buffer size exceeded
 
+// Buffer is a fixed-size stack-allocated buffer
+// for formatted output and scanning.
+typedef struct {
+    void* Ptr;
+    size_t Len;
+} fmt_Buffer;
+
+// NewBuffer creates a new stack-allocated Buffer of the given size.
+#define fmt_NewBuffer(size) ({                             \
+    so_int _isize = (size);                                \
+    if (_isize < 0) {                                      \
+        so_panic("fmt: negative buffer size");             \
+    }                                                      \
+    size_t _bsize = (size_t)_isize;                        \
+    (fmt_Buffer){.Ptr = so_alloca(_bsize), .Len = _bsize}; \
+})
+
 // Print writes its arguments to standard output, separated by spaces.
 // It returns the number of bytes written and any write error encountered.
 #define fmt_Print(...) fmt_print(false, __VA_ARGS__, NULL)
@@ -20,6 +37,10 @@ so_Result fmt_print(int newline, ...);
 // Printf formats according to a format specifier and writes to standard output.
 // It returns the number of bytes written and any write error encountered.
 so_Result fmt_Printf(const char* format, ...);
+
+// Sprintf formats according to a format specifier and returns the resulting string.
+// If the output size exceeds buf length, it silently truncates the output.
+so_String fmt_Sprintf(fmt_Buffer buf, const char* format, ...);
 
 // Fprintf formats according to a format specifier and writes to w.
 // It returns the number of bytes written and any write error encountered.

@@ -15,6 +15,7 @@ func main() {
 		if n != 11 {
 			panic("Print: wrong count")
 		}
+		fmt.Print("\n")
 	}
 	{
 		// Println.
@@ -39,49 +40,62 @@ func main() {
 		}
 	}
 	{
+		// Sprintf.
+		buf := fmt.NewBuffer(32)
+		s := "world"
+		d := 42
+		out := fmt.Sprintf(buf, "s = %s, d = %d", s, d)
+		if out != "s = world, d = 42" {
+			panic("Sprintf: wrong output")
+		}
+	}
+	{
 		// Fprintf.
 		var sb strings.Builder
+		var i int32 = 42
 		s := "world"
-		n, err := fmt.Fprintf(&sb, "hello %s", s)
+		n, err := fmt.Fprintf(&sb, "hello %d %s", i, s)
 		if err != nil {
 			panic("Fprintf failed")
 		}
-		if n != 11 {
+		if n != 14 {
 			panic("Fprintf: wrong count")
 		}
-		if sb.String() != "hello world" {
+		if sb.String() != "hello 42 world" {
 			panic("Fprintf: wrong output")
 		}
 		sb.Free()
 	}
 	{
 		// Sscanf.
-		var a int32
-		var b int32
-		n, err := fmt.Sscanf("42 7", "%d %d", &a, &b)
+		var n1, n2 int32
+		buf := fmt.NewBuffer(32)
+		n, err := fmt.Sscanf("5 1 gophers", "%d %d %s", &n1, &n2, buf.Ptr)
 		if err != nil {
 			panic("Sscanf failed")
 		}
-		if n != 2 {
+		s := buf.String()
+		if n != 3 {
 			panic("Sscanf: wrong count")
 		}
-		if a != 42 || b != 7 {
+		if n1 != 5 || n2 != 1 || s != "gophers" {
 			panic("Sscanf: wrong values")
 		}
 	}
 	{
 		// Fscanf.
-		r := strings.NewReader("100 200")
-		var a int32
-		var b int32
-		n, err := fmt.Fscanf(&r, "%d %d", &a, &b)
+		var n1, n2 int32
+		buf := fmt.NewBuffer(32)
+		r := strings.NewReader("5 1 gophers")
+		n, err := fmt.Fscanf(&r, "%d %d %s", &n1, &n2, buf.Ptr)
 		if err != nil {
 			panic("Fscanf failed")
 		}
-		if n != 2 {
+		s := buf.String()
+		if n != 3 {
 			panic("Fscanf: wrong count")
 		}
-		if a != 100 || b != 200 {
+		if n1 != 5 || n2 != 1 || s != "gophers" {
 			panic("Fscanf: wrong values")
 		}
 	}

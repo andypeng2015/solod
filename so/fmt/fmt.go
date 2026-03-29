@@ -26,6 +26,7 @@ import (
 	_ "embed"
 	"fmt" // for testing
 
+	"solod.dev/so/c"
 	"solod.dev/so/errors"
 	"solod.dev/so/io"
 )
@@ -42,16 +43,43 @@ var fmt_c string
 const BufSize = 1024
 
 //so:extern
-var ErrPrint = errors.New("print failure")
+var (
+	ErrPrint = errors.New("print failure")
+	ErrScan  = errors.New("scan failure")
+	ErrSize  = errors.New("buffer size exceeded")
+)
 
+// Buffer is a fixed-size stack-allocated buffer
+// for formatted output and scanning.
+//
 //so:extern
-var ErrScan = errors.New("scan failure")
+type Buffer struct {
+	Ptr *byte
+	Len int
+}
 
+// NewBuffer creates a new stack-allocated Buffer of the given size.
+//
 //so:extern
-var ErrSize = errors.New("buffer size exceeded")
+func NewBuffer(size int) Buffer {
+	b := make([]byte, size)
+	return Buffer{
+		Ptr: &b[0],
+		Len: size,
+	}
+}
+
+// String returns the contents of the Buffer as a string,
+// up to the first null byte.
+func (b Buffer) String() string {
+	return c.String(b.Ptr)
+}
 
 // Print writes its arguments to standard output, separated by spaces.
 // It returns the number of bytes written and any write error encountered.
+//
+// Since Print only accepts string arguments, most of the time you'd want
+// to use the print built-in function instead.
 //
 //so:extern
 func Print(a ...string) (int, error) {
@@ -63,6 +91,9 @@ func Print(a ...string) (int, error) {
 }
 
 // Println is like Print but adds a newline at the end.
+//
+// Since Println only accepts string arguments, most of the time you'd want
+// to use the println built-in function instead.
 //
 //so:extern
 func Println(a ...string) (int, error) {
@@ -81,10 +112,12 @@ func Printf(format string, a ...any) (int, error) {
 	return fmt.Printf(format, a...)
 }
 
-// Sprintf is not implemented, provided here for testing purposes only.
+// Sprintf formats according to a format specifier, outputs to buf,
+// and returns the resulting string.
+// If the output size exceeds buf length, it silently truncates the output.
 //
 //so:extern
-func Sprintf(format string, a ...any) string {
+func Sprintf(buf Buffer, format string, a ...any) string {
 	return fmt.Sprintf(format, a...)
 }
 

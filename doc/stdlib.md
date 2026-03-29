@@ -70,10 +70,13 @@ Formatted I/O with functions analogous to C's printf and scanf. Uses C format ve
 
 - `Print` and `Println` write strings to standard output.
 - `Printf` formats and writes to standard output.
+- `Sprintf` formats and writes to a string.
 - `Fprintf` formats and writes to an `io.Writer`.
 - `Scanf` scans formatted text from standard input.
 - `Sscanf` scans formatted text from a string.
 - `Fscanf` scans formatted text from an `io.Reader`.
+
+Since `Print` and `Println` only take string arguments, you'll usually want to use the built-in functions `print` and `println` instead.
 
 ## [so/io](https://pkg.go.dev/solod.dev/so/io)
 

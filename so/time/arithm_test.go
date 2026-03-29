@@ -142,6 +142,7 @@ func abs(t Time) (sec, nsec int64) {
 
 // absString returns abs as a decimal string.
 func absString(t Time) string {
+	buf := fmt.NewBuffer(32)
 	sec, nsec := abs(t)
 	if sec < 0 {
 		sec = -sec
@@ -150,9 +151,9 @@ func absString(t Time) string {
 			nsec += 1e9
 			sec--
 		}
-		return fmt.Sprintf("-%d%09d", sec, nsec)
+		return fmt.Sprintf(buf, "-%d%09d", sec, nsec)
 	}
-	return fmt.Sprintf("%d%09d", sec, nsec)
+	return fmt.Sprintf(buf, "%d%09d", sec, nsec)
 }
 
 var truncateRoundTests = []struct {

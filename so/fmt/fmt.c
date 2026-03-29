@@ -42,6 +42,23 @@ so_Result fmt_Printf(const char* format, ...) {
     return (so_Result){.val = {.as_int = n}, .err = err};
 }
 
+so_String fmt_Sprintf(fmt_Buffer buf, const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    int n = vsnprintf(buf.Ptr, buf.Len, format, args);
+    va_end(args);
+
+    if (n < 0) {
+        return (so_String){.ptr = buf.Ptr, .len = 0};
+    }
+
+    size_t size = (size_t)n;
+    if (size >= buf.Len) {
+        return (so_String){.ptr = buf.Ptr, .len = buf.Len - 1};
+    }
+    return (so_String){.ptr = buf.Ptr, .len = size};
+}
+
 so_Result fmt_Fprintf(io_Writer w, const char* format, ...) {
     char buf[fmt_BufSize];
 
