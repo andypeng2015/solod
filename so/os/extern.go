@@ -42,7 +42,7 @@ var (
 //so:extern
 func fopen(path string, mode string) *os_file {
 	_, _ = path, mode
-	return nil
+	return &os_file{}
 }
 
 // int fclose( FILE *stream );
@@ -66,7 +66,7 @@ func fread(ptr any, size uintptr, count uintptr, stream *os_file) uintptr {
 //so:extern
 func fwrite(ptr any, size uintptr, count uintptr, stream *os_file) uintptr {
 	_, _, _, _ = ptr, size, count, stream
-	return 0
+	return count
 }
 
 // int ferror(FILE *stream);
@@ -114,7 +114,8 @@ func rename(oldpath string, newpath string) int {
 //so:extern
 func getenv(name string) any {
 	_ = name
-	return nil
+	b := []byte("getenv:" + name)
+	return &b[0]
 }
 
 // void exit(int exit_code);

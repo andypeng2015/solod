@@ -94,7 +94,7 @@ func fdclose(fd int) int {
 //so:extern
 func fdopen(fd int, mode string) *os_file {
 	_, _ = fd, mode
-	return nil
+	return &os_file{}
 }
 
 // os_getcwd wraps getcwd with a null check to avoid
@@ -181,7 +181,7 @@ func link(old, new string) int {
 //so:extern
 func os_lstat(path string) os_statResult {
 	_ = path
-	return os_statResult{}
+	return os_statResult{size: 42, mode: 0o777, ok: true}
 }
 
 // int mkdir(const char *path, mode_t mode);
@@ -205,7 +205,8 @@ func mkstemp(tmpl *byte) int {
 //so:extern
 func mkdtemp(tmpl *byte) any {
 	_ = tmpl
-	return nil
+	b := []byte("example/tmpdir")
+	return &b[0]
 }
 
 // int open(const char *path, int oflag, ...);
@@ -213,7 +214,7 @@ func mkdtemp(tmpl *byte) any {
 //so:extern open
 func posixOpen(path string, flags int, mode uint32) int {
 	_, _, _ = path, flags, mode
-	return 0
+	return 42
 }
 
 // os_readlink wraps readlink with a null check to avoid
