@@ -78,9 +78,9 @@ type Generator struct {
 	types    *types.Info
 	state    State
 	externs  map[string]externInfo // symbols provided by C headers
-	includes []string              // included headers from //so:include
+	includes []string              // included headers from so:include
 	symbols  []symbol              // pre-collected top-level declarations
-	embeds   Embeds                // embedded C files from //so:embed
+	embeds   Embeds                // embedded C files from so:embed
 	comments ast.CommentMap        // all comments across all files
 	initFunc *ast.FuncDecl         // package init() function, if any
 	panicked bool                  // true after first panic caught in Visit

@@ -78,10 +78,13 @@ func (g *Generator) emitHeaderDecls(w io.Writer) {
 		}
 	}
 
-	// Phase 3: exported function/method prototypes from collected symbols.
+	// Phase 3: exported function/method prototypes and inline function bodies.
 	var funcSyms []symbol
 	for _, sym := range g.symbols {
-		if !sym.exported || (sym.kind != symbolFunc && sym.kind != symbolMethod) {
+		if sym.kind != symbolFunc && sym.kind != symbolMethod {
+			continue
+		}
+		if !sym.exported && !sym.inlined {
 			continue
 		}
 		funcSyms = append(funcSyms, sym)
@@ -90,9 +93,13 @@ func (g *Generator) emitHeaderDecls(w io.Writer) {
 		fmt.Fprintln(w)
 		fmt.Fprintln(w, "// -- Functions and methods --")
 		for _, sym := range funcSyms {
-			g.emitComments(w, sym.funcDecl)
-			g.emitFuncProto(w, sym.funcDecl)
-			fmt.Fprintln(w, ";")
+			if sym.inlined {
+				g.emitInlineFuncDecl(w, sym.funcDecl)
+			} else {
+				g.emitComments(w, sym.funcDecl)
+				g.emitFuncProto(w, sym.funcDecl)
+				fmt.Fprintln(w, ";")
+			}
 		}
 	}
 }

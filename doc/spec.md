@@ -980,6 +980,17 @@ func MyFunc(s string)
 
 The `so/c` package includes helpers for converting C pointers back to So string and slice types: `c.String(ptr)` and `c.Bytes(ptr, n)`. It also provides `c.CharPtr(ptr)` to cast a `*byte` (`uint8_t*`) to `char*` for C functions that expect `char*` (e.g. `strftime`).
 
+Force a function to be emitted as `static inline` in the header file using `//so:inline`. This is useful for small, frequently used functions when the compiler won't inline them automatically:
+
+```go
+//so:inline
+func add(a, b int) int {
+    return a + b
+}
+```
+
+The function body is emitted directly in the `.h` file and skipped from the `.c` file. Works with both functions and methods.
+
 ## Generics
 
 So supports generics only for extern declarations. Generic type parameters are translated to C macro arguments, prepended before the regular arguments.

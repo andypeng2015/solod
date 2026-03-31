@@ -21,6 +21,7 @@ const (
 type symbol struct {
 	kind     symbolKind
 	exported bool
+	inlined  bool         // so:inline directive present
 	genDecl  *ast.GenDecl // parent GenDecl (for type symbols, enables comment lookup)
 	typeSpec *ast.TypeSpec
 	funcDecl *ast.FuncDecl
@@ -90,6 +91,7 @@ func (g *Generator) collectSymbols() {
 				g.symbols = append(g.symbols, symbol{
 					kind:     kind,
 					exported: exported,
+					inlined:  hasInlineDirective(d.Doc),
 					funcDecl: d,
 				})
 			}
@@ -109,7 +111,7 @@ func (g *Generator) collectSymbols() {
 }
 
 // collectExterns scans all files for extern symbols and include directives.
-// Body-less functions and declarations annotated with //so:extern are treated
+// Body-less functions and declarations annotated with so:extern are treated
 // as external C symbols that should not be emitted.
 func (g *Generator) collectExterns() {
 	for _, file := range g.pkg.Syntax {
@@ -199,7 +201,10 @@ func (g *Generator) emitUnexportedTypes(w io.Writer) {
 func (g *Generator) emitForwardFuncDecls(w io.Writer) {
 	var funcDecls []*ast.FuncDecl
 	for _, sym := range g.symbols {
-		if sym.exported || (sym.kind != symbolFunc && sym.kind != symbolMethod) {
+		if sym.kind != symbolFunc && sym.kind != symbolMethod {
+			continue
+		}
+		if sym.exported || sym.inlined {
 			continue
 		}
 		funcDecls = append(funcDecls, sym.funcDecl)

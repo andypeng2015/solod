@@ -12,9 +12,12 @@ import (
 // emitFuncProto writes a full C function prototype (e.g. "static void main_foo(int x)")
 // without a terminator. Returns the function's type signature for callers that need it.
 func (g *Generator) emitFuncProto(w io.Writer, decl *ast.FuncDecl) *types.Signature {
-	// Specifier: static for unexported, empty for exported and main.
+	// Specifier: static inline for so:inline, static for unexported,
+	// empty for exported and main.
 	spec := ""
-	if decl.Name.Name != "main" {
+	if hasInlineDirective(decl.Doc) {
+		spec = "static inline "
+	} else if decl.Name.Name != "main" {
 		exported := ast.IsExported(decl.Name.Name)
 		if exported && decl.Recv != nil {
 			exported = ast.IsExported(recvTypeName(decl.Recv.List[0]))
@@ -91,7 +94,9 @@ func (g *Generator) emitFuncTypeSpec(w io.Writer, spec *ast.TypeSpec) {
 	fmt.Fprintf(w, "%stypedef %s (*%s)(%s);\n", g.indent(), retType, name, strings.Join(params, ", "))
 }
 
-// emitFuncDecl emits a function declaration.
+// emitFuncDecl emits a function declaration into the .c file.
+// Inline functions are skipped here - they are emitted into the header
+// by [Generator.emitInlineFuncDecl].
 func (g *Generator) emitFuncDecl(decl *ast.FuncDecl) {
 	if decl.Body == nil || g.hasExtern("", externFuncKey(decl)) {
 		return
@@ -99,6 +104,24 @@ func (g *Generator) emitFuncDecl(decl *ast.FuncDecl) {
 	if decl.Name.Name == "init" {
 		return
 	}
+	if hasInlineDirective(decl.Doc) {
+		return
+	}
+	g.emitFuncBody(decl)
+}
+
+// emitInlineFuncDecl emits a so:inline function declaration as static inline
+// into the given writer (typically the header).
+func (g *Generator) emitInlineFuncDecl(w io.Writer, decl *ast.FuncDecl) {
+	saved := g.state.writer
+	g.state.writer = w
+	g.emitFuncBody(decl)
+	g.state.writer = saved
+}
+
+// emitFuncBody emits a function or method body. Shared by [Generator.emitFuncDecl]
+// and [Generator.emitInlineFuncDecl].
+func (g *Generator) emitFuncBody(decl *ast.FuncDecl) {
 	if decl.Recv != nil {
 		g.emitMethodDecl(decl)
 		return

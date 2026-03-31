@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// externInfo holds metadata parsed from a //so:extern directive.
+// externInfo holds metadata parsed from a so:extern directive.
 type externInfo struct {
 	name    string // C name override (empty = use default)
 	nodecay bool   // skip decay for call args
@@ -94,7 +94,21 @@ func externFuncKey(decl *ast.FuncDecl) string {
 	return decl.Name.Name
 }
 
-// parseExternDirective checks if a comment group contains the //so:extern
+// hasInlineDirective reports whether a comment group
+// contains the so:inline directive.
+func hasInlineDirective(doc *ast.CommentGroup) bool {
+	if doc == nil {
+		return false
+	}
+	for _, c := range doc.List {
+		if strings.TrimSpace(c.Text) == "//so:inline" {
+			return true
+		}
+	}
+	return false
+}
+
+// parseExternDirective checks if a comment group contains the so:extern
 // directive and parses its options (name override and nodecay flag).
 func parseExternDirective(doc *ast.CommentGroup) (bool, externInfo) {
 	if doc == nil {
