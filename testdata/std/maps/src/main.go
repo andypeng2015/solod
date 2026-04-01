@@ -2,6 +2,14 @@ package main
 
 import "solod.dev/so/maps"
 
+func makeMap() maps.Map[string, int] {
+	m := maps.New[string, int](nil, 0)
+	m.Set("abc", 11)
+	m.Set("def", 22)
+	m.Set("xyz", 33)
+	return m
+}
+
 func main() {
 	{
 		// SetGet: insert 3 entries, verify all values
@@ -122,6 +130,21 @@ func main() {
 		}
 		if m.Len() != 100 {
 			panic("want len = 100 after grow")
+		}
+		m.Free()
+	}
+	{
+		// Return a map from a function.
+		m := makeMap()
+		m.Set("mno", 99)
+		if m.Get("abc") != 11 {
+			panic("want abc = 11")
+		}
+		if m.Get("mno") != 99 {
+			panic("want mno = 99")
+		}
+		if m.Len() != 4 {
+			panic("want len = 4")
 		}
 		m.Free()
 	}

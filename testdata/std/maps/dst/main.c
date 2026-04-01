@@ -1,6 +1,17 @@
 #include "main.h"
 
+// -- Forward declarations --
+static maps_Map makeMap(void);
+
 // -- Implementation --
+
+static maps_Map makeMap(void) {
+    maps_Map m = maps_New(so_String, so_int, (mem_Allocator){0}, 0);
+    maps_Map_Set(so_String, so_int, &m, so_str("abc"), 11);
+    maps_Map_Set(so_String, so_int, &m, so_str("def"), 22);
+    maps_Map_Set(so_String, so_int, &m, so_str("xyz"), 33);
+    return m;
+}
 
 int main(void) {
     {
@@ -125,5 +136,20 @@ int main(void) {
             so_panic("want len = 100 after grow");
         }
         maps_Map_Free(so_int, so_int, &m);
+    }
+    {
+        // Return a map from a function.
+        maps_Map m = makeMap();
+        maps_Map_Set(so_String, so_int, &m, so_str("mno"), 99);
+        if (maps_Map_Get(so_String, so_int, &m, so_str("abc")) != 11) {
+            so_panic("want abc = 11");
+        }
+        if (maps_Map_Get(so_String, so_int, &m, so_str("mno")) != 99) {
+            so_panic("want mno = 99");
+        }
+        if (maps_Map_Len(so_String, so_int, &m) != 4) {
+            so_panic("want len = 4");
+        }
+        maps_Map_Free(so_String, so_int, &m);
     }
 }
