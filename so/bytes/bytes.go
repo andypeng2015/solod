@@ -12,6 +12,7 @@ package bytes
 
 import (
 	"solod.dev/so/bytealg"
+	"solod.dev/so/math/bits"
 	"solod.dev/so/mem"
 	"solod.dev/so/slices"
 	"solod.dev/so/unicode/utf8"
@@ -192,6 +193,59 @@ func Join(a mem.Allocator, s [][]byte, sep []byte) []byte {
 		bp += copy(b[bp:], v)
 	}
 	return b
+}
+
+// Repeat returns a new byte slice consisting of count copies of b.
+// It panics if count is negative or if the result of (len(b) * count) overflows.
+//
+// If the allocator is nil, uses the system allocator.
+// The returned slice is allocated; the caller owns it.
+func Repeat(a mem.Allocator, b []byte, count int) []byte {
+	if count == 0 {
+		return []byte{}
+	}
+
+	// Since we cannot return an error on overflow,
+	// we should panic if the repeat will generate an overflow.
+	// See golang.org/issue/16237.
+	if count < 0 {
+		panic("bytes: negative Repeat count")
+	}
+	hi, lo := bits.Mul(uint(len(b)), uint(count))
+	if hi > 0 || lo > uint(maxInt) {
+		panic("bytes: Repeat output length overflow")
+	}
+	n := int(lo) // lo = len(b) * count
+
+	if len(b) == 0 {
+		return []byte{}
+	}
+
+	// Past a certain chunk size it is counterproductive to use
+	// larger chunks as the source of the write, as when the source
+	// is too large we are basically just thrashing the CPU D-cache.
+	// So if the result length is larger than an empirically-found
+	// limit (8KB), we stop growing the source string once the limit
+	// is reached and keep reusing the same source string - that
+	// should therefore be always resident in the L1 cache - until we
+	// have completed the construction of the result.
+	// This yields significant speedups (up to +100%) in cases where
+	// the result length is large (roughly, over L2 cache size).
+	const chunkLimit = 8 * 1024
+	chunkMax := n
+	if chunkMax > chunkLimit {
+		chunkMax = chunkLimit / len(b) * len(b)
+		if chunkMax == 0 {
+			chunkMax = len(b)
+		}
+	}
+	nb := mem.AllocSlice[byte](a, n, n)
+	bp := copy(nb, b)
+	for bp < n {
+		chunk := min(bp, chunkMax)
+		bp += copy(nb[bp:], nb[:chunk])
+	}
+	return nb
 }
 
 // Replace returns a copy of the slice s with the first n

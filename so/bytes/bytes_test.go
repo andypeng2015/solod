@@ -335,6 +335,34 @@ func TestCountByteNoMatch(t *testing.T) {
 	}
 }
 
+func TestRepeat(t *testing.T) {
+	longString := "a" + string(make([]byte, 1<<16)) + "z"
+	var tests = []struct {
+		in, out string
+		count   int
+	}{
+		{"", "", 0},
+		{"", "", 1},
+		{"", "", 2},
+		{"-", "", 0},
+		{"-", "-", 1},
+		{"-", "----------", 10},
+		{"abc ", "abc abc abc ", 3},
+		// Tests for results over the chunkLimit
+		{string(rune(0)), string(make([]byte, 1<<16)), 1 << 16},
+		{longString, longString + longString, 2},
+	}
+	for _, tt := range tests {
+		tin := []byte(tt.in)
+		tout := []byte(tt.out)
+		got := Repeat(nil, tin, tt.count)
+		if !Equal(got, tout) {
+			t.Errorf("Repeat(%q, %d) = %q; want %q", tin, tt.count, got, tout)
+			continue
+		}
+	}
+}
+
 func TestReplace(t *testing.T) {
 	type replaceTest struct {
 		in       string

@@ -126,6 +126,15 @@ int main(void) {
         mem_FreeSlice(so_byte, (mem_Allocator){0}, mapped);
     }
     {
+        // Repeat.
+        so_Slice b = so_string_bytes(so_str("abc"));
+        so_Slice repeated = bytes_Repeat((mem_Allocator){0}, b, 3);
+        if (so_string_ne(so_bytes_string(repeated), so_str("abcabcabc"))) {
+            so_panic("Repeat failed");
+        }
+        mem_FreeSlice(so_byte, (mem_Allocator){0}, repeated);
+    }
+    {
         // Replace.
         so_Slice b = so_string_bytes(so_str("hello"));
         so_Slice r1 = bytes_Replace((mem_Allocator){0}, b, so_string_bytes(so_str("l")), so_string_bytes(so_str("x")), 1);

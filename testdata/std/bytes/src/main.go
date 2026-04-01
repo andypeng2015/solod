@@ -127,6 +127,15 @@ func main() {
 		mem.FreeSlice(nil, mapped)
 	}
 	{
+		// Repeat.
+		b := []byte("abc")
+		repeated := bytes.Repeat(nil, b, 3)
+		if string(repeated) != "abcabcabc" {
+			panic("Repeat failed")
+		}
+		mem.FreeSlice(nil, repeated)
+	}
+	{
 		// Replace.
 		b := []byte("hello")
 		r1 := bytes.Replace(nil, b, []byte("l"), []byte("x"), 1)
