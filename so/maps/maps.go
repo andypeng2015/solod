@@ -70,6 +70,15 @@ func (m *Map[K, V]) Len() int {
 	return len(m.m)
 }
 
+// Clear removes all key-value pairs from the map, resetting
+// it to an empty state. Does not free map resources;
+// the map can be reused after Clear.
+//
+//so:extern
+func (m *Map[K, V]) Clear() {
+	clear(m.m)
+}
+
 // Free frees internal resources used by the map.
 // If the map is already freed, does nothing.
 // The map must not be used after calling Free.

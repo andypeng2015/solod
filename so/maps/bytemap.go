@@ -30,9 +30,10 @@ type ByteMap struct {
 	ksize int
 	vsize int
 
-	len    int // number of items in the map
-	mask   int // mask for indexing into buckets
-	growAt int // length at which to grow the map
+	seed   uint64 // per-instance hash seed
+	len    int    // number of items in the map
+	mask   int    // mask for indexing into buckets
+	growAt int    // length at which to grow the map
 }
 
 // NewByteMap creates a new ByteMap with the given initial capacity,
@@ -43,7 +44,7 @@ type ByteMap struct {
 // The caller is responsible for freeing map resources
 // with [ByteMap.Free] when done using it.
 func NewByteMap(a mem.Allocator, size, ksize, vsize int) ByteMap {
-	m := ByteMap{a: a, ksize: ksize, vsize: vsize}
+	m := ByteMap{a: a, ksize: ksize, vsize: vsize, seed: seed()}
 	sz := 8
 	for sz < size {
 		sz *= 2
@@ -59,6 +60,16 @@ func NewByteMap(a mem.Allocator, size, ksize, vsize int) ByteMap {
 // Len returns the number of key-value pairs in the map.
 func (m *ByteMap) Len() int {
 	return m.len
+}
+
+// Clear removes all key-value pairs from the map, resetting
+// it to an empty state. Does not free map resources;
+// the map can be reused after Clear.
+func (m *ByteMap) Clear() {
+	clear(m.hdib)
+	m.keys = m.keys[:0]
+	m.vals = m.vals[:0]
+	m.len = 0
 }
 
 // Free frees internal resources used by the map.
@@ -80,6 +91,7 @@ func (m *ByteMap) Free() {
 // Resize grows or reallocates the map to hold at least size entries.
 func (m *ByteMap) Resize(size int) {
 	nmap := NewByteMap(m.a, size, m.ksize, m.vsize)
+	nmap.seed = m.seed // preserve seed so stored hashes remain valid
 	rehash(&nmap, m)
 	m.Free()
 	*m = nmap
@@ -87,3 +99,6 @@ func (m *ByteMap) Resize(size int) {
 
 //so:extern maps_rehash
 func rehash(dst, src *ByteMap) {}
+
+//so:extern maps_seed
+func seed() uint64 { return 0 }

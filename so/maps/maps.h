@@ -68,7 +68,7 @@ static inline void maps_rehash(maps_ByteMap* dst, maps_ByteMap* src) {
     bool _found = false;                                  \
     maps_ByteMap* _m = (m);                               \
     if (_m->hdib.len > 0) {                               \
-        so_int _hash = maps_keyHash(K, &_key);            \
+        so_int _hash = maps_keyHash(K, &_key, _m->seed);  \
         so_int _i = _hash & _m->mask;                     \
         uint64_t* _hdib = (uint64_t*)_m->hdib.ptr;        \
         K* _keys = (K*)_m->keys.ptr;                      \
@@ -96,7 +96,7 @@ static inline void maps_rehash(maps_ByteMap* dst, maps_ByteMap* src) {
     memset(&_val, 0, sizeof(V));                          \
     maps_ByteMap* _m = (m);                               \
     if (_m->hdib.len > 0) {                               \
-        so_int _hash = maps_keyHash(K, &_key);            \
+        so_int _hash = maps_keyHash(K, &_key, _m->seed);  \
         so_int _i = _hash & _m->mask;                     \
         uint64_t* _hdib = (uint64_t*)_m->hdib.ptr;        \
         K* _keys = (K*)_m->keys.ptr;                      \
@@ -126,7 +126,7 @@ static inline void maps_rehash(maps_ByteMap* dst, maps_ByteMap* src) {
         if (_m->len >= _m->growAt) {                           \
             maps_ByteMap_Resize(_m, (so_int)_m->hdib.len * 2); \
         }                                                      \
-        so_int _hash = maps_keyHash(K, &_key);                 \
+        so_int _hash = maps_keyHash(K, &_key, _m->seed);       \
         uint64_t _ehdib = ((uint64_t)_hash << 16) | 1;         \
         so_int _i = _hash & _m->mask;                          \
         uint64_t* _hdib = (uint64_t*)_m->hdib.ptr;             \
@@ -170,7 +170,7 @@ static inline void maps_rehash(maps_ByteMap* dst, maps_ByteMap* src) {
         K _key = (key);                                      \
         maps_ByteMap* _m = (m);                              \
         if (_m->hdib.len == 0) break;                        \
-        so_int _hash = maps_keyHash(K, &_key);               \
+        so_int _hash = maps_keyHash(K, &_key, _m->seed);     \
         so_int _i = _hash & _m->mask;                        \
         uint64_t* _hdib = (uint64_t*)_m->hdib.ptr;           \
         K* _keys = (K*)_m->keys.ptr;                         \
@@ -204,6 +204,12 @@ static inline void maps_rehash(maps_ByteMap* dst, maps_ByteMap* src) {
 // Len returns the number of key-value pairs in the map.
 #define maps_Map_Len(K, V, m) \
     maps_ByteMap_Len(m)
+
+// Clear removes all key-value pairs from the map, resetting
+// it to an empty state. Does not free map resources;
+// the map can be reused after Clear.
+#define maps_Map_Clear(K, V, m) \
+    maps_ByteMap_Clear(m)
 
 // Free frees internal resources used by the map.
 // If the map is already freed, does nothing.
