@@ -2,6 +2,11 @@
 
 Here are some benchmarks that show how So performs on common tasks compared to Go.
 
+[Bytes](#byte-functions) •
+[Maps](#maps) •
+[Strings](#string-conversion) •
+[Time](#time)
+
 ## Byte functions
 
 So is generally ~1.5x faster than Go, except for Index operations.
@@ -64,7 +69,7 @@ So lookups are on par with Go, while modifications are 1.5x slower.
 
 Apple M1 • Go 1.26.1 • [details](./maps/README.md)
 
-## Strconv
+## String conversion
 
 ### Parsing
 
@@ -132,6 +137,27 @@ So is 2-4x faster than Go and uses 10%-20% less memory.
 | Write string (pre-grow)  | 113ns |          29ns |       26ns | **So** - 3.9x |
 
 Apple M1 • Go 1.26.1 • [details](./strings/README.md#builder)
+
+## Time
+
+Regular time functions and methods in So are slightly slower than in Go.
+In parsing and formatting, So is 5x faster for predefined layouts (RFC3339, DateTime, etc.),
+about the same for custom parsing, and 5x slower for custom formatting (due to strftime overhead).
+
+| Benchmark    |   Go |    So | Winner        |
+| ------------ | ---: | ----: | ------------- |
+| Date         |  7ns |   2ns | **So** - 3.2x |
+| ISOWeek      |  9ns |   2ns | **So** - 4.3x |
+| Now          | 34ns |  39ns | Go - 0.9x     |
+| Since        | 17ns |  25ns | Go - 0.7x     |
+| UnixNano     | 34ns |  38ns | Go - 0.9x     |
+| Until        | 17ns |  24ns | Go - 0.7x     |
+| Format       | 39ns |   4ns | **So** - 8.8x |
+| FormatCustom | 55ns | 250ns | Go - 0.2x     |
+| Parse        | 27ns |   6ns | **So** - 4.9x |
+| ParseCustom  | 55ns |  45ns | **So** - 1.2x |
+
+Apple M1 • Go 1.26.1 • [details](./time/README.md)
 
 ## Methodology
 
