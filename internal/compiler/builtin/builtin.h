@@ -26,6 +26,25 @@ typedef int32_t so_rune;
 typedef int64_t so_int;
 typedef uint64_t so_uint;
 
+// --- Build metadata ---
+#if !defined(so_version)
+#define so_version "devel"
+#endif
+
+#if defined(__APPLE__)
+#define so_build_darwin
+#elif defined(__linux__)
+#define so_build_linux
+#elif defined(_WIN32)
+#define so_build_windows
+#endif
+
+#if defined(__x86_64__) || defined(_M_X64)
+#define so_build_amd64
+#elif defined(__aarch64__) || defined(_M_ARM64)
+#define so_build_arm64
+#endif
+
 // --- Alloca safety ---
 
 // MaxAllocaSize is the maximum size that can be

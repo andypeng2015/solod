@@ -8,6 +8,19 @@ GCC_DOCKER  = docker run --rm -v "$(shell pwd)":/src -w /src gcc:15.2.0
 compiler =
 RUN_CMD = ./build/main
 
+# Set build metadata variables based on git information if available.
+has_git := $(shell command -v git 2>/dev/null)
+build_ver := devel
+
+ifdef has_git
+build_ver := $(shell git rev-parse --short HEAD)
+git_tag := $(shell git describe --tags --exact-match 2>/dev/null)
+endif
+
+ifdef git_tag
+build_ver := $(git_tag)
+endif
+
 # Set CC and CFLAGS based on the selected compiler.
 ifeq ($(compiler), clang)
     CC = $(CLANG)
@@ -90,7 +103,11 @@ run-example:
 
 run-c:
 	@mkdir -p build
-	@$(CC) -O1 $(CFLAGS) -I$(path) -o build/main $(shell find $(path) -name "*.c") $(LDLIBS)
+	@$(CC) -O1 $(CFLAGS) -I$(path) \
+		-Dso_version=\"$(build_ver)\" \
+		-o build/main \
+		$(shell find $(path) -name "*.c") \
+		$(LDLIBS)
 	@$(RUN_CMD)
 	@rm -f build/main
 

@@ -12,6 +12,7 @@ Solod provides a growing set of high-level packages similar to Go's stdlib, and 
 [math/bits](#somathbits) •
 [mem](#somem) •
 [os](#soos) •
+[runtime](#soruntime) •
 [slices](#soslices) •
 [strconv](#sostrconv) •
 [strings](#sostrings) •
@@ -154,6 +155,13 @@ Types:
 - `File` represents an open file with methods for reading and writing data.
 - `FileInfo` describes a file (returned by `Stat` and `Lstat`).
 - `FileMode` represents a file's mode and permission bits.
+
+## [so/runtime](https://pkg.go.dev/solod.dev/so/runtime)
+
+Information about the environment where the program was compiled:
+
+- `Version` returns So's compiler version (git commit hash or tag).
+- `GOOS` and `GOARCH` specify the target operating system and architecture.
 
 ## [so/slices](https://pkg.go.dev/solod.dev/so/slices)
 
