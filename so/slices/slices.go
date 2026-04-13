@@ -1,26 +1,43 @@
 // Package slices provides various functions useful with slices of any type.
+// Based on the [slices] package.
+//
+// [slices]: https://github.com/golang/go/blob/go1.26.2/src/slices/slices.go
 package slices
 
 import (
 	"unsafe"
 
 	"solod.dev/so/c"
+	"solod.dev/so/cmp"
 	"solod.dev/so/mem"
 )
 
 //so:embed slices.h
 var slices_h string
 
+// A Slice is a header for a slice of any type.
+//
 //so:extern so_Slice
-type sliceHeader struct {
+type Slice struct {
 	ptr *byte
 	len uintptr
 	cap uintptr
 }
 
+// Header returns the Slice header for a given slice.
+//
+//so:extern
+func Header[T any](s []T) Slice {
+	return Slice{
+		ptr: c.PtrAs[byte](unsafe.SliceData(s)),
+		len: uintptr(len(s)),
+		cap: uintptr(cap(s)),
+	}
+}
+
 //so:extern so_R_slice_err
 type sliceResult struct {
-	val sliceHeader
+	val Slice
 	err error
 }
 
@@ -66,15 +83,13 @@ func Clone[T any](a mem.Allocator, s []T) []T {
 // Equal reports whether two slices are equal: the same length and all
 // elements equal. Empty and nil slices are considered equal.
 //
-//so:extern
+//so:inline
 func Equal[T comparable](s1, s2 []T) bool {
-	if len(s1) != len(s2) {
-		return false
+	_s1, _s2 := s1, s2
+	_eq := len(_s1) == len(_s2)
+	for i := 0; i < len(_s1) && _eq; i++ {
+		v1, v2 := _s1[i], _s2[i]
+		_eq = cmp.Equal(v1, v2)
 	}
-	for i := range s1 {
-		if s1[i] != s2[i] {
-			return false
-		}
-	}
-	return true
+	return _eq
 }

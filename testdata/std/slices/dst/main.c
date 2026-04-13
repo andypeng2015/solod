@@ -1,8 +1,20 @@
 #include "main.h"
 
-// -- Implementation --
+// -- Forward declarations --
+static void sliceTest(void);
+static so_int descInt(void* a, void* b);
+static void sortTest(void);
+
+// -- main.go --
 
 int main(void) {
+    sliceTest();
+    sortTest();
+}
+
+// -- slice.go --
+
+static void sliceTest(void) {
     {
         // Make a slice.
         so_Slice s = slices_Make(so_int, ((mem_Allocator){0}), (3));
@@ -104,5 +116,157 @@ int main(void) {
         if (slices_Equal(point, (s1), (s3))) {
             so_panic("want s1 != s3");
         }
+    }
+}
+
+// -- sort.go --
+
+static so_int descInt(void* a, void* b) {
+    so_int va = *(so_int*)a;
+    so_int vb = *(so_int*)b;
+    return vb - va;
+}
+
+static void sortTest(void) {
+    so_int ints[13] = {74, 59, 238, -784, 9845, 959, 905, 0, 0, 42, 7586, -5467984, 7586};
+    double float64s[18] = {74.3, 59.0, math_Inf(1), 238.2, -784.0, 2.3, math_Inf(-1), 9845.768, -959.7485, 905, 7.8, 7.8, 74.3, 59.0, math_Inf(1), 238.2, -784.0, 2.3};
+    so_String strs[8] = {so_str(""), so_str("Hello"), so_str("foo"), so_str("bar"), so_str("foo"), so_str("f00"), so_str("%*&^*&^&"), so_str("***")};
+    {
+        // IsSorted: false on unsorted data.
+        if (slices_IsSorted(so_int, (so_array_slice(so_int, ints, 0, 13, 13)))) {
+            so_panic("IsSorted: unsorted ints");
+        }
+        if (slices_IsSorted(so_String, (so_array_slice(so_String, strs, 0, 8, 8)))) {
+            so_panic("IsSorted: unsorted strs");
+        }
+        // IsSorted: true on sorted data.
+        so_Slice sorted = (so_Slice){(so_int[5]){1, 2, 3, 4, 5}, 5, 5};
+        if (!slices_IsSorted(so_int, (sorted))) {
+            so_panic("IsSorted: sorted ints");
+        }
+        so_Slice sortedStrs = (so_Slice){(so_String[3]){so_str("a"), so_str("b"), so_str("c")}, 3, 3};
+        if (!slices_IsSorted(so_String, (sortedStrs))) {
+            so_panic("IsSorted: sorted strs");
+        }
+    }
+    {
+        // IsSortedFunc: false on unsorted data.
+        cmp_Func compare = cmp_FuncFor(so_int);
+        if (slices_IsSortedFunc(so_int, (so_array_slice(so_int, ints, 0, 13, 13)), (compare))) {
+            so_panic("IsSortedFunc: unsorted ints");
+        }
+        // IsSortedFunc: true on sorted data.
+        so_Slice sorted = (so_Slice){(so_int[5]){1, 2, 3, 4, 5}, 5, 5};
+        if (!slices_IsSortedFunc(so_int, (sorted), (compare))) {
+            so_panic("IsSortedFunc: sorted ints");
+        }
+    }
+    {
+        // Sort ints.
+        so_Slice s = slices_Clone(so_int, ((mem_Allocator){0}), (so_array_slice(so_int, ints, 0, 13, 13)));
+        slices_Sort(so_int, (s));
+        if (!slices_IsSorted(so_int, (s))) {
+            so_panic("Sort ints: not sorted");
+        }
+        if (so_at(so_int, s, 0) != -5467984 || so_at(so_int, s, 12) != 9845) {
+            so_panic("Sort ints: wrong values");
+        }
+        slices_Free(so_int, ((mem_Allocator){0}), (s));
+    }
+    {
+        // Sort float64s.
+        so_Slice s = slices_Clone(double, ((mem_Allocator){0}), (so_array_slice(double, float64s, 0, 18, 18)));
+        slices_Sort(double, (s));
+        if (!slices_IsSorted(double, (s))) {
+            so_panic("Sort float64s: not sorted");
+        }
+        if (so_at(double, s, 0) != math_Inf(-1) || so_at(double, s, 17) != math_Inf(1)) {
+            so_panic("Sort float64s: wrong values");
+        }
+        slices_Free(double, ((mem_Allocator){0}), (s));
+    }
+    {
+        // Sort strings.
+        so_Slice s = slices_Clone(so_String, ((mem_Allocator){0}), (so_array_slice(so_String, strs, 0, 8, 8)));
+        slices_Sort(so_String, (s));
+        if (!slices_IsSorted(so_String, (s))) {
+            so_panic("Sort strings: not sorted");
+        }
+        if (so_string_ne(so_at(so_String, s, 0), so_str("")) || so_string_ne(so_at(so_String, s, 7), so_str("foo"))) {
+            so_panic("Sort strings: wrong values");
+        }
+        slices_Free(so_String, ((mem_Allocator){0}), (s));
+    }
+    {
+        // SortFunc (reverse order).
+        so_Slice s = slices_Clone(so_int, ((mem_Allocator){0}), (so_array_slice(so_int, ints, 0, 13, 13)));
+        slices_SortFunc(so_int, (s), (descInt));
+        if (!slices_IsSortedFunc(so_int, (s), (descInt))) {
+            so_panic("SortFunc ints: not sorted");
+        }
+        if (so_at(so_int, s, 0) != 9845 || so_at(so_int, s, 12) != -5467984) {
+            so_panic("SortFunc ints: wrong values");
+        }
+        slices_Free(so_int, ((mem_Allocator){0}), (s));
+    }
+    {
+        // SortFunc with nil compare.
+        typedef struct point {
+            so_int x;
+            so_int y;
+        } point;
+        so_Slice s = (so_Slice){(point[3]){(point){1, 2}, (point){3, 4}, (point){2, 3}}, 3, 3};
+        slices_SortFunc(point, (s), (NULL));
+        if (!slices_IsSortedFunc(point, (s), (NULL))) {
+            so_panic("SortFunc with nil: not sorted");
+        }
+        if (so_at(point, s, 0).x != 1 || so_at(point, s, 0).y != 2) {
+            so_panic("SortFunc with nil: wrong s[0]");
+        }
+        if (so_at(point, s, 1).x != 2 || so_at(point, s, 1).y != 3) {
+            so_panic("SortFunc with nil: wrong s[1]");
+        }
+        if (so_at(point, s, 2).x != 3 || so_at(point, s, 2).y != 4) {
+            so_panic("SortFunc with nil: wrong s[2]");
+        }
+    }
+    {
+        // SortStableFunc ints.
+        so_Slice s = slices_Clone(so_int, ((mem_Allocator){0}), (so_array_slice(so_int, ints, 0, 13, 13)));
+        cmp_Func compare = cmp_FuncFor(so_int);
+        slices_SortStableFunc(so_int, (s), (compare));
+        if (!slices_IsSorted(so_int, (s))) {
+            so_panic("SortStable ints: not sorted");
+        }
+        if (so_at(so_int, s, 0) != -5467984 || so_at(so_int, s, 12) != 9845) {
+            so_panic("SortStable ints: wrong values");
+        }
+        slices_Free(so_int, ((mem_Allocator){0}), (s));
+    }
+    {
+        // SortStableFunc float64s.
+        so_Slice s = slices_Clone(double, ((mem_Allocator){0}), (so_array_slice(double, float64s, 0, 18, 18)));
+        cmp_Func compare = cmp_FuncFor(double);
+        slices_SortStableFunc(double, (s), (compare));
+        if (!slices_IsSorted(double, (s))) {
+            so_panic("SortStable float64s: not sorted");
+        }
+        if (so_at(double, s, 0) != math_Inf(-1) || so_at(double, s, 17) != math_Inf(1)) {
+            so_panic("SortStable float64s: wrong values");
+        }
+        slices_Free(double, ((mem_Allocator){0}), (s));
+    }
+    {
+        // SortStableFunc strings.
+        so_Slice s = slices_Clone(so_String, ((mem_Allocator){0}), (so_array_slice(so_String, strs, 0, 8, 8)));
+        cmp_Func compare = cmp_FuncFor(so_String);
+        slices_SortStableFunc(so_String, (s), (compare));
+        if (!slices_IsSorted(so_String, (s))) {
+            so_panic("SortStable strings: not sorted");
+        }
+        if (so_string_ne(so_at(so_String, s, 0), so_str("")) || so_string_ne(so_at(so_String, s, 7), so_str("foo"))) {
+            so_panic("SortStable strings: wrong values");
+        }
+        slices_Free(so_String, ((mem_Allocator){0}), (s));
     }
 }

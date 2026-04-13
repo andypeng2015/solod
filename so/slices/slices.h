@@ -32,15 +32,5 @@
 #define slices_Extend(T, a, s, other) \
     slices_extend((a), (s), (other), sizeof(T), alignof(so_typeof(T)))
 
-// Equal reports whether two slices are equal: the same length and all
-// elements equal. Empty and nil slices are considered equal.
-#define slices_Equal(T, s1_, s2_) ({                 \
-    so_Slice _s1 = (s1_), _s2 = (s2_);               \
-    bool _eq = _s1.len == _s2.len;                   \
-    for (size_t _i = 0; _i < _s1.len && _eq; _i++) { \
-        T _v1 = ((T*)_s1.ptr)[_i];                   \
-        T _v2 = ((T*)_s2.ptr)[_i];                   \
-        _eq = so_key_eq(_v1)(&_v1, &_v2, sizeof(T)); \
-    }                                                \
-    _eq;                                             \
-})
+// Header returns the Slice header for a given slice.
+#define slices_Header(T, s) (s)

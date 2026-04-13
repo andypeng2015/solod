@@ -197,6 +197,25 @@ func Clear(ptr any, size int) {
 	memset(ptr, 0, uintptr(size))
 }
 
+// Compare compares size bytes at a and b.
+// Returns an integer comparing the bytes at a and b.
+// The result will be 0 if the bytes are equal, -1 if a < b, and +1 if a > b.
+// Panics if either a or b is nil.
+//
+//so:inline
+func Compare(a any, b any, size int) int {
+	c.Assert(a != nil, "mem: nil pointer")
+	c.Assert(b != nil, "mem: nil pointer")
+	c.Assert(size >= 0, "mem: negative size")
+	res := memcmp(a, b, uintptr(size))
+	if res < 0 {
+		return -1
+	} else if res > 0 {
+		return 1
+	}
+	return 0
+}
+
 // Copy copies n bytes from src to dst. Returns dst.
 // The memory areas must not overlap.
 // Panics if either dst or src is nil.
@@ -242,10 +261,12 @@ func Swap[T any](a *T, b *T) {
 //so:extern
 func SwapByte(a any, b any, n int) {
 	// Has to be implemented as extern because it uses VLA.
+	pa := unsafe.Slice((*byte)(ptrVal(a)), n)
+	pb := unsafe.Slice((*byte)(ptrVal(b)), n)
 	tmp := make([]byte, n)
-	memcpy(tmp, b, uintptr(n))
-	memcpy(b, a, uintptr(n))
-	memcpy(a, tmp, uintptr(n))
+	copy(tmp, pb)
+	copy(pb, pa)
+	copy(pa, tmp)
 }
 
 // void* memset(void *dest, int ch, size_t count);
@@ -257,6 +278,20 @@ func memset(ptr any, ch int, count uintptr) any {
 		s[i] = byte(ch)
 	}
 	return ptr
+}
+
+// int memcmp(const void *s1, const void *s2, size_t n);
+//
+//so:extern
+func memcmp(s1 any, s2 any, n uintptr) int {
+	slice1 := unsafe.Slice((*byte)(ptrVal(s1)), int(n))
+	slice2 := unsafe.Slice((*byte)(ptrVal(s2)), int(n))
+	for i := range slice1 {
+		if slice1[i] != slice2[i] {
+			return int(slice1[i]) - int(slice2[i])
+		}
+	}
+	return 0
 }
 
 // void* memcpy(void* dest, const void* src, size_t count);

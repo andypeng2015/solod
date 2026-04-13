@@ -174,6 +174,7 @@ Operations on slices:
 - `Extend` appends another slice to a heap slice, growing if needed.
 - `Clone` creates a shallow copy of the slice.
 - `Equal` reports whether two slices are equal.
+- `Sort`, `SortFunc` and `SortStableFunc` sort slices.
 
 ## [so/strconv](https://pkg.go.dev/solod.dev/so/strconv)
 
