@@ -1,9 +1,46 @@
 #include "main.h"
 
 // -- Forward declarations --
+static void iterTest(void);
 static maps_Map makeMap(void);
+static void mapTest(void);
 
-// -- Implementation --
+// -- iter.go --
+
+static void iterTest(void) {
+    {
+        // Iterate over map.
+        maps_Map m = makeMap();
+        so_Map* seen = so_make_map(so_String, bool, maps_Map_Len(so_String, so_int, (&m)));
+        maps_Iter it = maps_Map_Iter(so_String, so_int, (&m));
+        for (; maps_Iter_Next(so_String, so_int, (&it));) {
+            so_String k = maps_Iter_Key(so_String, so_int, (&it));
+            so_int v = maps_Iter_Value(so_String, so_int, (&it));
+            if (maps_Map_Get(so_String, so_int, (&m), (k)) != v) {
+                so_panic("invalid key-value pair");
+            }
+            if (so_map_get(so_String, bool, seen, k)) {
+                so_panic("duplicate key");
+            }
+            so_map_set(so_String, bool, seen, k, true);
+        }
+        if ((so_int)seen->len != maps_Map_Len(so_String, so_int, (&m))) {
+            so_panic("missing keys");
+        }
+        maps_Map_Free(so_String, so_int, (&m));
+    }
+    {
+        // Iterate over empty map.
+        maps_Map m = maps_New(so_String, so_int, ((mem_Allocator){0}), (0));
+        maps_Iter it = maps_Map_Iter(so_String, so_int, (&m));
+        if (maps_Iter_Next(so_String, so_int, (&it))) {
+            so_panic("expected no elements");
+        }
+        maps_Map_Free(so_String, so_int, (&m));
+    }
+}
+
+// -- main.go --
 
 static maps_Map makeMap(void) {
     maps_Map m = maps_New(so_String, so_int, ((mem_Allocator){0}), (0));
@@ -14,6 +51,13 @@ static maps_Map makeMap(void) {
 }
 
 int main(void) {
+    mapTest();
+    iterTest();
+}
+
+// -- map.go --
+
+static void mapTest(void) {
     {
         // SetGet: insert 3 entries, verify all values
         maps_Map m = maps_New(so_String, so_int, ((mem_Allocator){0}), (0));

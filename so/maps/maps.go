@@ -170,6 +170,14 @@ func (m *Map[K, V]) Delete(key K) {
 	}
 }
 
+// Iter returns an iterator over the map's key-value pairs.
+// The map must not be modified or freed while iterating.
+//
+//so:inline
+func (m *Map[K, V]) Iter() Iter[K, V] {
+	return Iter[K, V]{hdib: m.bm.hdib, keys: m.bm.keys, vals: m.bm.vals}
+}
+
 // Len returns the number of key-value pairs in the map.
 //
 //so:inline

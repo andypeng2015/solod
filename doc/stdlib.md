@@ -122,7 +122,8 @@ Functions:
 
 Types:
 
-- `Map[K, V]` is a generic hashmap with `Get`, `Set`, and `Delete` methods.
+- `Map` is a generic hashmap with `Get`, `Set`, and `Delete` methods.
+- `Iter` is an iterator over a map's key-value pairs.
 
 ## [so/math](https://pkg.go.dev/solod.dev/so/math)
 
