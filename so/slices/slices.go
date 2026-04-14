@@ -88,8 +88,32 @@ func Equal[T comparable](s1, s2 []T) bool {
 	_s1, _s2 := s1, s2
 	_eq := len(_s1) == len(_s2)
 	for i := 0; i < len(_s1) && _eq; i++ {
-		v1, v2 := _s1[i], _s2[i]
-		_eq = cmp.Equal(v1, v2)
+		_v1, _v2 := _s1[i], _s2[i]
+		_eq = cmp.Equal(_v1, _v2)
 	}
 	return _eq
+}
+
+// Contains reports whether v is present in s.
+//
+//so:inline
+func Contains[T comparable](s []T, v T) bool {
+	return Index(s, v) >= 0
+}
+
+// Index returns the index of the first occurrence of v in s,
+// or -1 if not present.
+//
+//so:inline
+func Index[T comparable](s []T, v T) int {
+	_s, _v := s, v
+	_idx := -1
+	for _j := range _s {
+		_sj := _s[_j]
+		if cmp.Equal(_sj, _v) {
+			_idx = _j
+			break
+		}
+	}
+	return _idx
 }

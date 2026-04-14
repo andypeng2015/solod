@@ -104,4 +104,38 @@ func sliceTest() {
 			panic("want s1 != s3")
 		}
 	}
+	{
+		// Index of an element.
+		ints := []int{10, 20, 30, 20}
+		if slices.Index(ints, 20) != 1 {
+			panic("Index failed")
+		}
+		if slices.Index(ints, 40) != -1 {
+			panic("Index failed")
+		}
+		strs := []string{"a", "b", "c", "b"}
+		if slices.Index(strs, "b") != 1 {
+			panic("Index failed")
+		}
+		if slices.Index(strs, "d") != -1 {
+			panic("Index failed")
+		}
+	}
+	{
+		// Contains an element.
+		ints := []int{10, 20, 30, 20}
+		if !slices.Contains(ints, 20) {
+			panic("Contains failed")
+		}
+		if slices.Contains(ints, 40) {
+			panic("Contains failed")
+		}
+		strs := []string{"a", "b", "c", "b"}
+		if !slices.Contains(strs, "b") {
+			panic("Contains failed")
+		}
+		if slices.Contains(strs, "d") {
+			panic("Contains failed")
+		}
+	}
 }

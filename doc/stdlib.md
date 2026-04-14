@@ -4,6 +4,7 @@ Solod provides a growing set of high-level packages similar to Go's stdlib, and 
 
 [bytes](#sobytes) •
 [c](#soc) •
+[cmp](#socmp) •
 [errors](#soerrors) •
 [fmt](#sofmt) •
 [io](#soio) •
@@ -58,6 +59,21 @@ Low-level C interop helpers for pointers, strings, and type information.
 - `CharPtr` - cast a `*byte` to `char*`.
 - `PtrAdd`, `PtrAs` and `PtrAt` manipulate pointers.
 - `Zero` returns the zero value of type T.
+
+## [so/cmp](https://pkg.go.dev/solod.dev/so/cmp)
+
+Comparing ordered values. Based on Go's `cmp` package.
+
+Functions:
+
+- `Compare` returns -1, 0, or +1 for two ordered values.
+- `Equal` reports whether two comparable values are equal.
+- `Less` reports whether x is less than y.
+
+Types:
+
+- `Func` is a comparison function `func(a, b any) int`.
+- `FuncFor` returns the appropriate comparison function for type T.
 
 ## [so/errors](https://pkg.go.dev/solod.dev/so/errors)
 
@@ -174,6 +190,8 @@ Operations on slices:
 - `Extend` appends another slice to a heap slice, growing if needed.
 - `Clone` creates a shallow copy of the slice.
 - `Equal` reports whether two slices are equal.
+- `Contains` and `Index` search for value in a slice.
+- `Min`, `MinFunc`, `Max` and `MaxFunc` return the minimum/maximum element.
 - `Sort`, `SortFunc` and `SortStableFunc` sort slices.
 
 ## [so/strconv](https://pkg.go.dev/solod.dev/so/strconv)

@@ -119,6 +119,40 @@ static void sliceTest(void) {
             so_panic("want s1 != s3");
         }
     }
+    {
+        // Index of an element.
+        so_Slice ints = (so_Slice){(so_int[4]){10, 20, 30, 20}, 4, 4};
+        if (slices_Index(so_int, (ints), (20)) != 1) {
+            so_panic("Index failed");
+        }
+        if (slices_Index(so_int, (ints), (40)) != -1) {
+            so_panic("Index failed");
+        }
+        so_Slice strs = (so_Slice){(so_String[4]){so_str("a"), so_str("b"), so_str("c"), so_str("b")}, 4, 4};
+        if (slices_Index(so_String, (strs), (so_str("b"))) != 1) {
+            so_panic("Index failed");
+        }
+        if (slices_Index(so_String, (strs), (so_str("d"))) != -1) {
+            so_panic("Index failed");
+        }
+    }
+    {
+        // Contains an element.
+        so_Slice ints = (so_Slice){(so_int[4]){10, 20, 30, 20}, 4, 4};
+        if (!slices_Contains(so_int, (ints), (20))) {
+            so_panic("Contains failed");
+        }
+        if (slices_Contains(so_int, (ints), (40))) {
+            so_panic("Contains failed");
+        }
+        so_Slice strs = (so_Slice){(so_String[4]){so_str("a"), so_str("b"), so_str("c"), so_str("b")}, 4, 4};
+        if (!slices_Contains(so_String, (strs), (so_str("b")))) {
+            so_panic("Contains failed");
+        }
+        if (slices_Contains(so_String, (strs), (so_str("d")))) {
+            so_panic("Contains failed");
+        }
+    }
 }
 
 // -- sort.go --
