@@ -3,7 +3,7 @@
 Run the benchmark:
 
 ```text
-make bench name=encoding/binary
+make bench name=encoding-binary
 ```
 
 Go 1.26.1:
@@ -11,7 +11,7 @@ Go 1.26.1:
 ```text
 goos: darwin
 goarch: arm64
-pkg: solod.dev/bench/encoding/binary
+pkg: solod.dev/bench/encoding-binary
 cpu: Apple M1
 Benchmark_BE_PutUint64-8       1000000000    0.6283 ns/op    12732.19 MB/s
 Benchmark_BE_AppendUint64-8    695606808     1.772 ns/op      4514.40 MB/s
