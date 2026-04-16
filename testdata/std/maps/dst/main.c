@@ -24,7 +24,7 @@ static void iterTest(void) {
             }
             so_map_set(so_String, bool, seen, k, true);
         }
-        if ((so_int)seen->len != maps_Map_Len(so_String, so_int, (&m))) {
+        if (seen->len != maps_Map_Len(so_String, so_int, (&m))) {
             so_panic("missing keys");
         }
         maps_Map_Free(so_String, so_int, (&m));

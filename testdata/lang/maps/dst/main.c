@@ -25,7 +25,7 @@ static so_int main_MapHolder_get(main_MapHolder h, so_String key) {
 
 static so_int main_MapHolder_sum(main_MapHolder h) {
     so_int s = 0;
-    for (so_int _i = 0; _i < (so_int)h.m->cap; _i++) {
+    for (so_int _i = 0; _i < h.m->cap; _i++) {
         if (!h.m->used[_i]) continue;
         so_int v = ((so_int*)h.m->vals)[_i];
         s += v;
@@ -176,14 +176,14 @@ int main(void) {
     {
         // Empty literal
         so_Map* m = &(so_Map){0};
-        if ((so_int)m->len != 0) {
+        if (m->len != 0) {
             so_panic("empty literal");
         }
     }
     {
         // Make and populate
         so_Map* m = so_make_map(so_String, so_int, 3);
-        if ((so_int)m->len != 0) {
+        if (m->len != 0) {
             so_panic("make initial len");
         }
         so_map_set(so_String, so_int, m, so_str("a"), 10);
@@ -192,7 +192,7 @@ int main(void) {
         if (so_map_get(so_String, so_int, m, so_str("a")) != 10 || so_map_get(so_String, so_int, m, so_str("b")) != 20 || so_map_get(so_String, so_int, m, so_str("c")) != 30) {
             so_panic("make values");
         }
-        if ((so_int)m->len != 3) {
+        if (m->len != 3) {
             so_panic("make final len");
         }
     }
@@ -241,7 +241,7 @@ int main(void) {
         if (so_map_get(so_String, so_int, m, so_str("a")) != 99) {
             so_panic("overwrite value");
         }
-        if ((so_int)m->len != 1) {
+        if (m->len != 1) {
             so_panic("overwrite len");
         }
     }
@@ -328,7 +328,7 @@ int main(void) {
         // Range: key + value
         so_Map* m = so_map_lit(so_int, so_int, 3, ((so_int[]){1, 2, 3}), ((so_int[]){10, 20, 30}));
         so_int sum = 0;
-        for (so_int _i = 0; _i < (so_int)m->cap; _i++) {
+        for (so_int _i = 0; _i < m->cap; _i++) {
             if (!m->used[_i]) continue;
             so_int k = ((so_int*)m->keys)[_i];
             so_int v = ((so_int*)m->vals)[_i];
@@ -343,7 +343,7 @@ int main(void) {
         // Range: key only
         so_Map* m = so_map_lit(so_int, so_int, 2, ((so_int[]){10, 20}), ((so_int[]){100, 200}));
         so_int sum = 0;
-        for (so_int _i = 0; _i < (so_int)m->cap; _i++) {
+        for (so_int _i = 0; _i < m->cap; _i++) {
             if (!m->used[_i]) continue;
             so_int k = ((so_int*)m->keys)[_i];
             sum += k;
@@ -356,7 +356,7 @@ int main(void) {
         // Range: value only
         so_Map* m = so_map_lit(so_int, so_int, 2, ((so_int[]){10, 20}), ((so_int[]){100, 200}));
         so_int sum = 0;
-        for (so_int _i = 0; _i < (so_int)m->cap; _i++) {
+        for (so_int _i = 0; _i < m->cap; _i++) {
             if (!m->used[_i]) continue;
             so_int v = ((so_int*)m->vals)[_i];
             sum += v;
@@ -371,7 +371,7 @@ int main(void) {
         so_int k = 0;
         so_int v = 0;
         so_int sum = 0;
-        for (so_int _i = 0; _i < (so_int)m->cap; _i++) {
+        for (so_int _i = 0; _i < m->cap; _i++) {
             if (!m->used[_i]) continue;
             k = ((so_int*)m->keys)[_i];
             v = ((so_int*)m->vals)[_i];
@@ -387,7 +387,7 @@ int main(void) {
         so_Map* m = so_map_lit(so_String, so_String, 2, ((so_String[]){so_str("hello"), so_str("foo")}), ((so_String[]){so_str("world"), so_str("bar")}));
         so_String keys = so_str("");
         so_String vals = so_str("");
-        for (so_int _i = 0; _i < (so_int)m->cap; _i++) {
+        for (so_int _i = 0; _i < m->cap; _i++) {
             if (!m->used[_i]) continue;
             so_String k = ((so_String*)m->keys)[_i];
             so_String v = ((so_String*)m->vals)[_i];
@@ -405,7 +405,7 @@ int main(void) {
         // Range: over struct values
         so_Map* m = so_map_lit(so_String, main_Pair, 2, ((so_String[]){so_str("a"), so_str("b")}), ((main_Pair[]){(main_Pair){1, 2}, (main_Pair){3, 4}}));
         so_int sum = 0;
-        for (so_int _i = 0; _i < (so_int)m->cap; _i++) {
+        for (so_int _i = 0; _i < m->cap; _i++) {
             if (!m->used[_i]) continue;
             main_Pair v = ((main_Pair*)m->vals)[_i];
             sum += v.x + v.y;
@@ -417,29 +417,29 @@ int main(void) {
     {
         // len: literal
         so_Map* m = so_map_lit(so_String, so_int, 3, ((so_String[]){so_str("a"), so_str("b"), so_str("c")}), ((so_int[]){1, 2, 3}));
-        if ((so_int)m->len != 3) {
+        if (m->len != 3) {
             so_panic("len literal");
         }
     }
     {
         // len: empty
         so_Map* m = &(so_Map){0};
-        if ((so_int)m->len != 0) {
+        if (m->len != 0) {
             so_panic("len empty");
         }
     }
     {
         // len: grows with set
         so_Map* m = so_make_map(so_String, so_int, 3);
-        if ((so_int)m->len != 0) {
+        if (m->len != 0) {
             so_panic("len make 0");
         }
         so_map_set(so_String, so_int, m, so_str("a"), 1);
-        if ((so_int)m->len != 1) {
+        if (m->len != 1) {
             so_panic("len make 1");
         }
         so_map_set(so_String, so_int, m, so_str("b"), 2);
-        if ((so_int)m->len != 2) {
+        if (m->len != 2) {
             so_panic("len make 2");
         }
     }
@@ -447,14 +447,14 @@ int main(void) {
         // len: overwrite does not change len
         so_Map* m = so_map_lit(so_String, so_int, 1, ((so_String[]){so_str("a")}), ((so_int[]){1}));
         so_map_set(so_String, so_int, m, so_str("a"), 99);
-        if ((so_int)m->len != 1) {
+        if (m->len != 1) {
             so_panic("len overwrite");
         }
     }
     {
         // len: in expression
         so_Map* m = so_map_lit(so_String, so_int, 2, ((so_String[]){so_str("a"), so_str("b")}), ((so_int[]){1, 2}));
-        so_int n = (so_int)m->len + 1;
+        so_int n = m->len + 1;
         if (n != 3) {
             so_panic("len expr");
         }
@@ -492,7 +492,7 @@ int main(void) {
         if (so_map_get(so_String, so_int, m, so_str("b")) != 22) {
             so_panic("func modify b");
         }
-        if ((so_int)m->len != 2) {
+        if (m->len != 2) {
             so_panic("func modify len");
         }
     }
@@ -535,7 +535,7 @@ int main(void) {
         // Named map type: range
         main_StrMap m = so_map_lit(so_String, so_int, 2, ((so_String[]){so_str("a"), so_str("b")}), ((so_int[]){1, 2}));
         so_int sum = 0;
-        for (so_int _i = 0; _i < (so_int)m->cap; _i++) {
+        for (so_int _i = 0; _i < m->cap; _i++) {
             if (!m->used[_i]) continue;
             so_int v = ((so_int*)m->vals)[_i];
             sum += v;
