@@ -271,7 +271,7 @@ func (g *Generator) emitCallExpr(n *ast.CallExpr) {
 	// Method call (e.g. r.Area()).
 	if sel, ok := n.Fun.(*ast.SelectorExpr); ok {
 		if selection, ok := g.types.Selections[sel]; ok && selection.Kind() == types.MethodVal {
-			g.emitMethodCall(sel, n.Args)
+			g.emitMethodCall(sel, n)
 			return
 		}
 	}

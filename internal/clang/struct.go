@@ -198,7 +198,7 @@ func (g *Generator) emitBareStructInit(n *ast.CompositeLit) {
 }
 
 // emitMethodCall emits a method call.
-func (g *Generator) emitMethodCall(sel *ast.SelectorExpr, args []ast.Expr) {
+func (g *Generator) emitMethodCall(sel *ast.SelectorExpr, call *ast.CallExpr) {
 	w := g.state.writer
 	selection := g.types.Selections[sel]
 	recv := selection.Recv()
@@ -218,10 +218,7 @@ func (g *Generator) emitMethodCall(sel *ast.SelectorExpr, args []ast.Expr) {
 		fmt.Fprintf(w, ".%s(", sel.Sel.Name)
 		g.emitExpr(sel.X)
 		fmt.Fprintf(w, ".self")
-		for i, arg := range args {
-			fmt.Fprintf(w, ", ")
-			g.emitExprAsType(sel, arg, sig.Params().At(i).Type())
-		}
+		g.emitMethodCallArgs(sel, call, sig, "", "")
 		fmt.Fprintf(w, ")")
 		return
 	}
@@ -278,12 +275,44 @@ func (g *Generator) emitMethodCall(sel *ast.SelectorExpr, args []ast.Expr) {
 	fmt.Fprintf(w, "%s", rparen)
 
 	// Pass method arguments.
-	for i, arg := range args {
-		fmt.Fprintf(w, ", %s", lparen)
-		g.emitExprAsType(sel, arg, sig.Params().At(i).Type())
-		fmt.Fprint(w, rparen)
-	}
+	g.emitMethodCallArgs(sel, call, sig, lparen, rparen)
 	fmt.Fprintf(w, ")")
+}
+
+// emitMethodCallArgs emits method arguments, handling variadic arg packing.
+func (g *Generator) emitMethodCallArgs(sel *ast.SelectorExpr, call *ast.CallExpr, sig *types.Signature, lparen, rparen string) {
+	w := g.state.writer
+	args := call.Args
+
+	if sig.Variadic() && !call.Ellipsis.IsValid() {
+		// Variadic call with individual args: emit fixed args, then pack trailing args.
+		fixedCount := sig.Params().Len() - 1
+		for i := 0; i < fixedCount && i < len(args); i++ {
+			fmt.Fprintf(w, ", %s", lparen)
+			g.emitExprAsType(sel, args[i], sig.Params().At(i).Type())
+			fmt.Fprint(w, rparen)
+		}
+		variadicArgs := args[fixedCount:]
+		variadicParam := sig.Params().At(sig.Params().Len() - 1)
+		elemType := g.mapType(sel, variadicParam.Type().(*types.Slice).Elem())
+		count := len(variadicArgs)
+		targetType := variadicParam.Type().(*types.Slice).Elem()
+		fmt.Fprintf(w, ", %s(so_Slice){(%s[%d]){", lparen, elemType, count)
+		for i, arg := range variadicArgs {
+			if i > 0 {
+				fmt.Fprintf(w, ", ")
+			}
+			g.emitExprAsType(sel, arg, targetType)
+		}
+		fmt.Fprintf(w, "}, %d, %d}%s", count, count, rparen)
+	} else {
+		// Non-variadic call or variadic call with ellipsis: emit all args directly.
+		for i, arg := range args {
+			fmt.Fprintf(w, ", %s", lparen)
+			g.emitExprAsType(sel, arg, sig.Params().At(i).Type())
+			fmt.Fprint(w, rparen)
+		}
+	}
 }
 
 // structFieldType returns the type of a struct field by name.
