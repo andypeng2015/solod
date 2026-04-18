@@ -10,6 +10,7 @@ Solod provides a growing set of high-level packages similar to Go's stdlib, and 
 [errors](#soerrors) •
 [fmt](#sofmt) •
 [io](#soio) •
+[log/slog](#sologslog) •
 [maps](#somaps) •
 [math](#somath) •
 [math/bits](#somathbits) •
@@ -132,6 +133,25 @@ Types:
 - `Reader`, `Writer`, and `Closer` are basic concepts for anything that does I/O.
 - `LimitedReader` and `SectionReader` implement specialized readerss.
 - `Discard` is a no-op writer.
+
+## [so/log/slog](https://pkg.go.dev/solod.dev/so/log/slog)
+
+Simplified structured logging, inspired by Go's `log/slog` package. Provides leveled, key-value logging with zero-allocation formatting.
+
+Functions:
+
+- `New` creates a Logger from a Handler.
+- `SetDefault` and `Default` manage the default logger.
+- `Debug`, `Info`, `Warn`, `Error` log at the corresponding level using the default logger.
+- `String`, `Int`, `Float64`, `Bool`, `Time` and `Duration` create key-value attributes.
+
+Types:
+
+- `Logger` logs messages through a `Handler`.
+- `TextHandler` formats log records as `timestamp LEVEL message key=value ...` lines.
+- `Record` holds a log event (time, level, message, attributes).
+- `Attr` is a key-value pair. `Value` is a tagged union holding the value.
+- `Level` represents severity.
 
 ## [so/maps](https://pkg.go.dev/solod.dev/so/maps)
 
