@@ -2,6 +2,7 @@
 
 Solod provides a growing set of high-level packages similar to Go's stdlib, and a low-level package to help with C interop. For full API details, see the [package documentation](https://pkg.go.dev/solod.dev/so).
 
+[bufio](#sobufio) •
 [bytes](#sobytes) •
 [c](#soc) •
 [cmp](#socmp) •
@@ -24,6 +25,25 @@ Solod provides a growing set of high-level packages similar to Go's stdlib, and 
 [time](#sotime) •
 [unicode](#sounicode) •
 [unicode/utf8](#sounicodeutf8)
+
+## [so/bufio](https://pkg.go.dev/solod.dev/so/bufio)
+
+Buffered I/O. Wraps an `io.Reader` or `io.Writer` with buffering and helpers for textual I/O. Based on Go's `bufio` package.
+
+Functions:
+
+- `NewReader` and `NewReaderSize` create a buffered reader.
+- `NewWriter` and `NewWriterSize` create a buffered writer.
+- `NewReadWriter` combines a Reader and Writer into a single `io.ReadWriter`.
+- `NewScanner` creates a scanner for token-based reading (lines, words, bytes, or custom split functions).
+- `ScanLines`, `ScanWords`, `ScanBytes` and `ScanRunes` are built-in split functions for `Scanner`.
+
+Types:
+
+- `Reader` wraps an `io.Reader` with buffering.
+- `Writer` wraps an `io.Writer` with buffering.
+- `ReadWriter` combines a Reader and Writer.
+- `Scanner` reads tokens from an `io.Reader` using a `SplitFunc`.
 
 ## [so/bytes](https://pkg.go.dev/solod.dev/so/bytes)
 

@@ -75,4 +75,23 @@ int main(void) {
         bufio_Writer_Free(&w);
         bytes_Buffer_Free(&buf);
     }
+    {
+        // Scanner.
+        strings_Reader sr = strings_NewReader(so_str("line1\nline2\n"));
+        bufio_Scanner s = bufio_NewScanner((mem_Allocator){0}, (io_Reader){.self = &sr, .Read = strings_Reader_Read});
+        so_int count = 0;
+        for (; bufio_Scanner_Scan(&s);) {
+            if (count == 0 && so_string_ne(bufio_Scanner_Text(&s), so_str("line1"))) {
+                so_panic("Scanner: expected line1");
+            }
+            if (count == 1 && so_string_ne(bufio_Scanner_Text(&s), so_str("line2"))) {
+                so_panic("Scanner: expected line2");
+            }
+            count++;
+        }
+        if (count != 2) {
+            so_panic("Scanner: expected 2 lines");
+        }
+        bufio_Scanner_Free(&s);
+    }
 }

@@ -72,3 +72,52 @@ func ExampleWriter_ReadFrom() {
 	// Buffer contents: Hello, world!
 	// This is a ReadFrom example.
 }
+
+// The simplest use of a Scanner, to read standard input as a set of lines.
+func ExampleScanner_lines() {
+	scanner := bufio.NewScanner(nil, os.Stdin)
+	defer scanner.Free()
+	for scanner.Scan() {
+		fmt.Println(scanner.Text()) // Println will add back the final '\n'
+	}
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+}
+
+// Return the most recent call to Scan as a []byte.
+func ExampleScanner_Bytes() {
+	sr := strings.NewReader("gopher")
+	scanner := bufio.NewScanner(nil, &sr)
+	defer scanner.Free()
+	for scanner.Scan() {
+		fmt.Printf("%t\n", len(scanner.Bytes()) == 6)
+	}
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+	// Output:
+	// true
+}
+
+// Use a Scanner to implement a simple word-count utility by scanning the
+// input as a sequence of space-delimited tokens.
+func ExampleScanner_words() {
+	// An artificial input source.
+	const input = "Now is the winter of our discontent,\nMade glorious summer by this sun of York.\n"
+	sr := strings.NewReader(input)
+	scanner := bufio.NewScanner(nil, &sr)
+	defer scanner.Free()
+	// Set the split function for the scanning operation.
+	scanner.Split(bufio.ScanWords)
+	// Count the words.
+	count := 0
+	for scanner.Scan() {
+		count++
+	}
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+	fmt.Printf("%d\n", count)
+	// Output: 15
+}

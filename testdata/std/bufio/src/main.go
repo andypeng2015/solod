@@ -73,4 +73,23 @@ func main() {
 		w.Free()
 		buf.Free()
 	}
+	{
+		// Scanner.
+		sr := strings.NewReader("line1\nline2\n")
+		s := bufio.NewScanner(nil, &sr)
+		count := 0
+		for s.Scan() {
+			if count == 0 && s.Text() != "line1" {
+				panic("Scanner: expected line1")
+			}
+			if count == 1 && s.Text() != "line2" {
+				panic("Scanner: expected line2")
+			}
+			count++
+		}
+		if count != 2 {
+			panic("Scanner: expected 2 lines")
+		}
+		s.Free()
+	}
 }
