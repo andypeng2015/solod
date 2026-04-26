@@ -9,6 +9,7 @@ Solod provides a growing set of high-level packages similar to Go's stdlib, and 
 [crypto/crand](#socryptocrand) •
 [encoding/binary](#soencodingbinary) •
 [errors](#soerrors) •
+[flag](#soflag) •
 [fmt](#sofmt) •
 [io](#soio) •
 [log/slog](#sologslog) •
@@ -124,6 +125,23 @@ Error creation from text messages.
 - `New(text string) error` - create a new error with the given message.
 
 So only supports sentinel errors, which are defined at the package level using `New`.
+
+## [so/flag](https://pkg.go.dev/solod.dev/so/flag)
+
+Command-line flag parsing. Based on Go's `flag` package.
+
+Functions:
+
+- `BoolVar`, `IntVar`, `UintVar`, `Float64Var` and `StringVar` define typed flags.
+- `Var` defines a flag with a custom `Value` implementation.
+- `Parse` parses command-line flags from `os.Args`.
+- `Args` returns the non-flag command-line arguments after parsing.
+
+Types:
+
+- `FlagSet` represents a set of defined flags with its own error handling and output.
+- `Flag` represents a single flag.
+- `Value` is the interface for custom flag values.
 
 ## [so/fmt](https://pkg.go.dev/solod.dev/so/fmt)
 
