@@ -15,11 +15,8 @@ So supports structs, methods, interfaces, slices, maps, multiple returns, and de
 So is for Go developers who want systems-level control without learning a new language. And for C programmers who like Go's safety, structure, and tooling.
 
 [Example](#example) •
-[Installation and usage](#installation-and-usage) •
-[Language tour](doc/spec.md) •
-[Standard library](doc/stdlib.md) •
-[Playground](https://codapi.org/so/) •
-[So by example](example/README.md) •
+[Installation](#installation-and-usage) •
+[Documentation](#documentation-and-examples) •
 [Testing](#testing) •
 [Benchmarks](bench/README.md) •
 [Compatibility](#compatibility) •
@@ -155,21 +152,15 @@ All commands work with Go modules, not individual files (`so run .`, not `so run
 
 Keep in mind that So is new, so it's still a bit rough around the edges.
 
-## Language tour
+## Documentation and examples
 
-To learn about So's features and limitations, check out the brief [overview of the language](./doc/spec.md).
+**[Language tour](./doc/spec.md)**. To learn about So's features and limitations, check out the brief overview of the language.
 
-## Standard library
+**[Standard library](./doc/stdlib.md)**. So provides a growing set of packages similar to Go's stdlib.
 
-So provides a growing set of [packages](./doc/stdlib.md) similar to Go's stdlib.
+**[Playground](https://codapi.org/so/)**. Try So online without installing anything. You can run the code or view the translated C output.
 
-## Playground
-
-[Try So online](https://codapi.org/so/) without installing anything. You can run the code or view the translated C output.
-
-## So by example
-
-If you like learning by doing, try a [hands-on introduction](./example/README.md) to So with annotated example programs.
+**[So by example](./example/README.md)**. If you like learning by doing, try a hands-on introduction to So with annotated example programs.
 
 ## Testing
 
