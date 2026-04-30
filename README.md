@@ -96,7 +96,7 @@ int main(void) {
 }
 ```
 
-Check out more examples in [So by example](example/README.md) and learn about the supported language features in the [language tour](doc/spec.md).
+Check out more examples in [So by example](https://github.com/solod-dev/example) and learn about the supported language features in the [language tour](doc/spec.md).
 
 ## Installation and usage
 
@@ -158,7 +158,7 @@ Keep in mind that So is new, so it's still a bit rough around the edges.
 
 **[Playground](https://codapi.org/so/)**. Try So online without installing anything. You can run the code or view the translated C output.
 
-**[So by example](./example/README.md)**. If you like learning by doing, try a hands-on introduction to So with annotated example programs.
+**[So by example](https://github.com/solod-dev/example)**. If you like learning by doing, try a hands-on introduction to So with annotated example programs.
 
 ## Testing and benchmarks
 

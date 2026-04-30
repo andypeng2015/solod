@@ -90,12 +90,6 @@ run-case:
 	@go run ./cmd/so translate -o generated/$(name) testdata/$(name)/src
 	@make run-c path=generated/$(name)
 
-run-example:
-	@mkdir -p example/$(name)/generated
-	@rm -rf example/$(name)/generated/*
-	@go run ./cmd/so translate -o example/$(name)/generated example/$(name)
-	@rm -rf example/$(name)/generated/so
-
 run-c:
 	@mkdir -p build
 	@$(CC) $(CFLAGS) \
