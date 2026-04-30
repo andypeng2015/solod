@@ -160,6 +160,8 @@ Keep in mind that So is new, so it's still a bit rough around the edges.
 
 **[So by example](https://github.com/solod-dev/example)**. If you like learning by doing, try a hands-on introduction to So with annotated example programs.
 
+**[AI skill](https://github.com/solod-dev/ai)**. You can have a clanker write So code for you. But where's the fun in that?
+
 ## Testing and benchmarks
 
 **Testing**. So doesn't have its own testing framework. Since So code is valid Go code, you can just use `go test` like you normally would. Plus, your tests can use all Go features because they're never transpiled.
