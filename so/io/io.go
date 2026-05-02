@@ -19,6 +19,7 @@ package io
 import (
 	"solod.dev/so/errors"
 	"solod.dev/so/mem"
+	"solod.dev/so/slices"
 )
 
 // Seek whence values.
@@ -125,48 +126,50 @@ func CopyN(dst Writer, src Reader, n int64) (int64, error) {
 func ReadAll(a mem.Allocator, r Reader) ([]byte, error) {
 	// Build slices of exponentially growing size,
 	// then copy into a perfectly-sized slice at the end.
-	b := mem.AllocSlice[byte](a, 0, 512)
+	buf := mem.AllocSlice[byte](a, 0, 512)
 	// Starting with next equal to 256 (instead of say 512 or 1024)
 	// allows less memory usage for small inputs that finish in the
 	// early growth stages, but we grow the read sizes quickly such that
 	// it does not materially impact medium or large inputs.
 	next := 256
-	chunks := make([][]byte, 0, 4)
+	chunks := mem.AllocSlice[[]byte](a, 0, 4)
 	// Invariant: finalSize = sum(len(c) for c in chunks)
 	var finalSize int
 	for {
-		n, err := r.Read(b[len(b):cap(b)])
-		b = b[:len(b)+n]
+		n, err := r.Read(buf[len(buf):cap(buf)])
+		buf = buf[:len(buf)+n]
 		if err != nil {
 			if err == EOF {
 				err = nil
 			}
 			if len(chunks) == 0 {
-				return b, err
+				mem.FreeSlice(a, chunks)
+				return buf, err
 			}
 
 			// Build our final right-sized slice.
-			finalSize += len(b)
+			finalSize += len(buf)
 			final := mem.AllocSlice[byte](a, 0, finalSize)
 			for _, chunk := range chunks {
 				final = append(final, chunk...)
 			}
-			final = append(final, b...)
+			final = append(final, buf...)
 
 			// Free the intermediate slices.
 			for _, chunk := range chunks {
 				mem.FreeSlice(a, chunk)
 			}
-			mem.FreeSlice(a, b)
+			mem.FreeSlice(a, chunks)
+			mem.FreeSlice(a, buf)
 
 			return final, err
 		}
 
-		if cap(b)-len(b) < cap(b)/16 {
+		if cap(buf)-len(buf) < cap(buf)/16 {
 			// Move to the next intermediate slice.
-			chunks = append(chunks, b)
-			finalSize += len(b)
-			b = mem.AllocSlice[byte](a, 0, next)
+			chunks = slices.Append(a, chunks, buf)
+			finalSize += len(buf)
+			buf = mem.AllocSlice[byte](a, 0, next)
 			next += next / 2
 		}
 	}
