@@ -29,6 +29,7 @@ func main() {
 		acceptAny(n)
 		acceptAny(any(n))
 		acceptByte(any(n).(*byte))
+		acceptAny(42)
 	}
 	{
 		// Integer pointer.
@@ -44,6 +45,7 @@ func main() {
 		acceptAny(s)
 		acceptAny(any(s))
 		acceptByte(any(s).(*byte))
+		acceptAny("hello")
 	}
 	{
 		// String pointer.
@@ -59,6 +61,7 @@ func main() {
 		acceptAny(s)
 		acceptAny(any(s))
 		acceptByte(any(s).(*byte))
+		acceptAny([]int{1, 2, 3})
 	}
 	{
 		// Slice pointer.
@@ -74,6 +77,7 @@ func main() {
 		acceptAny(p)
 		acceptAny(any(p))
 		acceptPoint(any(p).(*point))
+		acceptAny(point{1, 2})
 	}
 	{
 		// Struct pointer.

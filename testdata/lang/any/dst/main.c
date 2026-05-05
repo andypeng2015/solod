@@ -41,6 +41,7 @@ int main(void) {
         acceptAny(&n);
         acceptAny(&n);
         acceptByte((so_byte*)&n);
+        acceptAny(&(so_int){42});
     }
     {
         // Integer pointer.
@@ -56,6 +57,7 @@ int main(void) {
         acceptAny(&s);
         acceptAny(&s);
         acceptByte((so_byte*)&s);
+        acceptAny(&so_str("hello"));
     }
     {
         // String pointer.
@@ -71,6 +73,7 @@ int main(void) {
         acceptAny(&s);
         acceptAny(&s);
         acceptByte((so_byte*)&s);
+        acceptAny(&(so_Slice){(so_int[3]){1, 2, 3}, 3, 3});
     }
     {
         // Slice pointer.
@@ -86,6 +89,7 @@ int main(void) {
         acceptAny(&p);
         acceptAny(&p);
         acceptPoint((point*)&p);
+        acceptAny(&(point){1, 2});
     }
     {
         // Struct pointer.

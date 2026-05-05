@@ -141,14 +141,26 @@ func (g *Generator) emitAnyValue(node ast.Node, expr ast.Expr) {
 		return
 	}
 
-	if _, isIdent := expr.(*ast.Ident); isIdent {
-		// Addressable value types (identifiers) use &ident.
+	// Value types must be passed by reference for void* storage.
+	// Identifiers, composite literals, and string literals emit as
+	// addressable C expressions - just prepend &.
+	// Other expressions need wrapping in a compound literal: &(Type){val}.
+	addressable := false
+	switch e := expr.(type) {
+	case *ast.Ident:
+		addressable = true
+	case *ast.CompositeLit:
+		addressable = true
+	case *ast.BasicLit:
+		addressable = e.Kind == token.STRING
+	}
+
+	if addressable {
 		fmt.Fprintf(g.state.writer, "&")
 		g.emitExpr(expr)
 		return
 	}
 
-	// Non-addressable value types use a compound literal: &(Type){val}.
 	cType := g.mapType(node, valType)
 	fmt.Fprintf(g.state.writer, "&(%s){", cType)
 	g.emitExpr(expr)
