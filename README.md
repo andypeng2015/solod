@@ -204,11 +204,13 @@ Supported platforms: amd64, arm64, and riscv64. 32-bit targets are not supported
 ✓ fmt      ✓ os      ✓ slog      ✓ unicode
 ```
 
-⏳ v0.1 is feature-ready, and I'm currently working on example applications before releasing it.
+⏳ I'm currently gathering feedback and defining the scope for the v0.2 release.
 
 ⬜ Networking (v0.2).
 
 ⬜ Concurrency (v0.3).
+
+🤔 32-bit targets.
 
 🤔 Full Windows support.
 
