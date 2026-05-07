@@ -134,7 +134,7 @@ so translate -o generated .
 
 The translated C code will be saved in the `generated` directory.
 
-You can also transpile to C and compile the code to a binary in one step. This uses the C compiler set by the `CC` environment variable:
+You can also transpile to C and compile the code to a binary in one step. This uses the C compiler set by the `CC` environment variable (default `cc`):
 
 ```
 so build -o main .
@@ -147,6 +147,18 @@ so run .
 ```
 
 All commands work with Go modules, not individual files (`so run .`, not `so run main.go`).
+
+You can pass additional compiler and linker flags via `CFLAGS` and `LDFLAGS`:
+
+```
+CFLAGS="-O2" LDFLAGS="-lm" so build -o main .
+```
+
+On Linux (and some BSDs), the math library is not linked by default. If your program imports `so/math` — directly or through other packages like `so/io` — you'll need to add `-lm`:
+
+```
+LDFLAGS="-lm" so build -o main .
+```
 
 Keep in mind that So is new, so it's still a bit rough around the edges.
 
