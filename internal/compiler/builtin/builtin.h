@@ -432,6 +432,7 @@ typedef struct { double val; double val2; } so_R_f64_f64;
 typedef struct { double val; so_int val2; } so_R_f64_int;
 typedef struct { float val; bool val2; } so_R_f32_bool;
 typedef struct { int64_t val; int32_t val2; } so_R_i64_i32;
+typedef struct { so_byte val; so_int val2; } so_R_byte_int;
 typedef struct { so_int val; bool val2; } so_R_int_bool;
 typedef struct { so_int val; so_int val2; } so_R_int_int;
 typedef struct { so_int val; uint64_t val2; } so_R_int_u64;
