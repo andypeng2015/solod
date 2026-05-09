@@ -216,7 +216,7 @@ Supported platforms: amd64, arm64, riscv64, and i386.
 ✓ fmt      ✓ os      ✓ slog      ✓ unicode
 ```
 
-⏳ I'm currently gathering feedback and defining the scope for the v0.2 release.
+⏳ I'm currently gathering feedback and defining the scope for the [v0.2 release](doc/changelog.md).
 
 ⬜ Networking (v0.2).
 
