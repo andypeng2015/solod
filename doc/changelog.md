@@ -7,4 +7,7 @@ New directives: `so:volatile`, `so:thread_local`, `so:attr`.<br>
 
 32-bit target support.<br>
 [deac815](https://github.com/solod-dev/solod/commit/deac815a5100f119765ffcf8b5961ef579c7a766)
-[de30cde](https://github.com/solod-dev/solod/commit/deac815a5100f119765ffcf8b5961ef579c7a766)
+[de30cde](https://github.com/solod-dev/solod/commit/de30cdec169be0f7f8835853ccde5f78e3e4c233)
+
+WebAssembly support.<br>
+[3d0791b](https://github.com/solod-dev/solod/commit/3d0791b69e8fd5053fd508dbbb8c9cebfb0b3ff7)

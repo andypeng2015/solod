@@ -33,7 +33,7 @@
 #define so_build_openbsd
 #elif defined(__DragonFly__)
 #define so_build_dragonfly
-#elif defined(__EMSCRIPTEN__)
+#elif defined(__wasm__)
 #define so_build_wasm
 #elif defined(_WIN32)
 #define so_build_windows
