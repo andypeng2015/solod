@@ -18,6 +18,7 @@ Solod provides a growing set of high-level packages similar to Go's stdlib, and 
 [math/bits](#somathbits) •
 [math/rand](#somathrand) •
 [mem](#somem) •
+[net/netip](#sonetnetip) •
 [os](#soos) •
 [path](#sopath) •
 [runtime](#soruntime) •
@@ -255,6 +256,26 @@ Types:
 - `Allocator` interface - custom allocator support (`Alloc`, `Realloc`, `Free`).
 - `SystemAllocator` - default allocator backed by C `calloc`/`realloc`/`free`.
 - `Arena` - bump allocator backed by a fixed buffer (`Alloc`, `Realloc`, `Reset`).
+
+## [so/net/netip](https://pkg.go.dev/solod.dev/so/net/netip)
+
+Small value types for IP addresses, address-port pairs, and CIDR prefixes. IPv6 zones are stored as numeric scope IDs, not as strings.
+
+Functions:
+
+- `AddrFrom4` and `AddrFrom16` create an `Addr` from a fixed-size byte array.
+- `AddrFromSlice` creates an `Addr` from a 4- or 16-byte slice.
+- `ParseAddr` and `MustParseAddr` parse an IP address from a string.
+- `AddrPortFrom` creates an `AddrPort` from an `Addr` and port.
+- `ParseAddrPort` and `MustParseAddrPort` parse an address-port pair from a string.
+- `PrefixFrom` creates a `Prefix` from an `Addr` and bit length.
+- `ParsePrefix` and `MustParsePrefix` parse a CIDR prefix from a string.
+
+Types:
+
+- `Addr` is an IPv4 or IPv6 address.
+- `AddrPort` is an IP address and port number.
+- `Prefix` is a CIDR prefix.
 
 ## [so/os](https://pkg.go.dev/solod.dev/so/os)
 
