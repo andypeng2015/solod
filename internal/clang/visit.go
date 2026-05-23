@@ -394,14 +394,21 @@ func (g *Generator) emitTypeSpec(w io.Writer, spec *ast.TypeSpec, dirs directive
 	case *ast.FuncType:
 		g.emitFuncTypeSpec(w, spec)
 
-	case *ast.Ident, *ast.ArrayType, *ast.StarExpr, *ast.MapType:
+	case *ast.Ident, *ast.SelectorExpr, *ast.ArrayType, *ast.StarExpr, *ast.MapType:
 		typ := g.types.Defs[spec.Name].Type()
 		resolved := typ.Underlying()
 		// When the underlying type is a struct and the spec references
 		// a named type, preserve the name instead of emitting "so_auto".
 		if _, isStruct := resolved.(*types.Struct); isStruct {
-			if ident, ok := spec.Type.(*ast.Ident); ok {
-				if obj := g.types.Uses[ident]; obj != nil {
+			var refIdent *ast.Ident
+			switch t := spec.Type.(type) {
+			case *ast.Ident:
+				refIdent = t
+			case *ast.SelectorExpr:
+				refIdent = t.Sel
+			}
+			if refIdent != nil {
+				if obj := g.types.Uses[refIdent]; obj != nil {
 					resolved = types.Unalias(obj.Type())
 				}
 			}

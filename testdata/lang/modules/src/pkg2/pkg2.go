@@ -1,3 +1,5 @@
 package pkg2
 
-type T2 struct{ Val int }
+import "pkg1"
+
+type T2 pkg1.T1
