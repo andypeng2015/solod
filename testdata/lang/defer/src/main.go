@@ -28,6 +28,25 @@ func funcWithReturn() int {
 	return 42
 }
 
+func funcReturnCall() (int, error) {
+	xopen(&state)
+	defer xclose(&state)
+	return funcCalc()
+}
+
+func funcReturnVar() int {
+	xopen(&state)
+	defer xclose(&state)
+	return state
+}
+
+func funcCalc() (int, error) {
+	if state != 1 {
+		panic("unexpected state")
+	}
+	return 42, nil
+}
+
 func blockScope() {
 	{
 		xopen(&state)
@@ -57,6 +76,16 @@ func main() {
 		panic("unexpected state")
 	}
 	funcWithReturn()
+	if state != 0 {
+		panic("unexpected state")
+	}
+	funcReturnCall()
+	if state != 0 {
+		panic("unexpected state")
+	}
+	if funcReturnVar() != 1 {
+		panic("unexpected return value")
+	}
 	if state != 0 {
 		panic("unexpected state")
 	}

@@ -945,7 +945,7 @@ func example() {
 }
 ```
 
-Deferred calls are emitted inline (before returns, panics, and scope end) in LIFO order.
+Deferred calls are emitted inline (before returns, panics, and scope end) in LIFO order. The return value is evaluated before the deferred calls run.
 
 Defer is not supported inside other scopes like `for` or `if`.
 

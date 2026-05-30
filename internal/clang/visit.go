@@ -554,6 +554,21 @@ func (g *Generator) emitReturnStmt(w io.Writer, stmt *ast.ReturnStmt) {
 		return
 	}
 
+	// When defers are active and the return value is non-constant, evaluate it
+	// into a temp before running the deferred calls, so the value is captured
+	// before the defers (matching Go, which evaluates the return value first).
+	if len(stmt.Results) > 0 && len(g.state.defers) > 0 && g.returnIsNotConst(stmt) {
+		g.state.tempCount++
+		tmp := fmt.Sprintf("_res%d", g.state.tempCount)
+		retType := g.returnType(stmt, g.state.funcSig)
+		fmt.Fprintf(w, "%s%s %s = ", g.indent(), retType, tmp)
+		g.emitReturnExpr(w, stmt)
+		fmt.Fprint(w, ";\n")
+		g.emitDeferredCalls(w)
+		fmt.Fprintf(w, "%sreturn %s;\n", g.indent(), tmp)
+		return
+	}
+
 	g.emitDeferredCalls(w)
 
 	if len(stmt.Results) == 0 {

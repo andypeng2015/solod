@@ -199,6 +199,18 @@ func (g *Generator) multiReturnFields(node ast.Node, sig *types.Signature) multi
 	return multiReturn{suffix1: s1, suffix2: s2}
 }
 
+// returnIsNotConst reports whether any return value
+// in the statement is not a compile-time constant.
+func (g *Generator) returnIsNotConst(stmt *ast.ReturnStmt) bool {
+	for _, r := range stmt.Results {
+		if tv, ok := g.types.Types[r]; ok && tv.Value != nil {
+			continue // compile-time constant
+		}
+		return true // non-constant
+	}
+	return false
+}
+
 // resultTypeSuffix maps a Go type to the corresponding result type suffix.
 func resultTypeSuffix(g *Generator, node ast.Node, typ types.Type) string {
 	typ = types.Unalias(typ)
