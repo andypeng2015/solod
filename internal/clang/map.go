@@ -52,7 +52,7 @@ func (g *Generator) emitMapIndexExpr(w io.Writer, n *ast.IndexExpr) {
 	fmt.Fprintf(w, "so_map_get(%s, %s, ", keyType, valType)
 	g.emitExpr(w, n.X)
 	fmt.Fprint(w, ", ")
-	g.emitExpr(w, n.Index)
+	g.emitMacroArg(w, n.Index)
 	fmt.Fprint(w, ")")
 }
 
@@ -65,9 +65,9 @@ func (g *Generator) emitMapIndexAssign(w io.Writer, node ast.Node, idx *ast.Inde
 	fmt.Fprintf(w, "%sso_map_set(%s, %s, ", g.indent(), keyType, valType)
 	g.emitExpr(w, idx.X)
 	fmt.Fprint(w, ", ")
-	g.emitExpr(w, idx.Index)
+	g.emitMacroArg(w, idx.Index)
 	fmt.Fprint(w, ", ")
-	g.emitExpr(w, rhs)
+	g.emitMacroArg(w, rhs)
 	fmt.Fprint(w, ");\n")
 }
 
@@ -90,7 +90,7 @@ func (g *Generator) emitMapCommaOk(w io.Writer, stmt *ast.AssignStmt, idx *ast.I
 		fmt.Fprintf(w, "%s%s%s = so_map_get(%s, %s, ", g.indent(), vDecl, vIdent.Name, keyType, valType)
 		g.emitExpr(w, idx.X)
 		fmt.Fprint(w, ", ")
-		g.emitExpr(w, idx.Index)
+		g.emitMacroArg(w, idx.Index)
 		fmt.Fprint(w, ");\n")
 	}
 
@@ -103,7 +103,7 @@ func (g *Generator) emitMapCommaOk(w io.Writer, stmt *ast.AssignStmt, idx *ast.I
 		fmt.Fprintf(w, "%s%s%s = so_map_has(%s, ", g.indent(), okDecl, okIdent.Name, keyType)
 		g.emitExpr(w, idx.X)
 		fmt.Fprint(w, ", ")
-		g.emitExpr(w, idx.Index)
+		g.emitMacroArg(w, idx.Index)
 		fmt.Fprint(w, ");\n")
 	}
 }

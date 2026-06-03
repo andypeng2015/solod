@@ -380,15 +380,15 @@ func (g *Generator) emitCArg(w io.Writer, arg ast.Expr) {
 		fmt.Fprint(w, rawStringValue(lit))
 	} else if g.hasStringType(arg) {
 		fmt.Fprint(w, "so_cstr(")
-		g.emitExpr(w, arg)
+		g.emitMacroArg(w, arg)
 		fmt.Fprint(w, ")")
 	} else if _, ok := g.types.TypeOf(arg).Underlying().(*types.Slice); ok {
 		fmt.Fprint(w, "so_decay(")
-		g.emitExpr(w, arg)
+		g.emitMacroArg(w, arg)
 		fmt.Fprint(w, ")")
 	} else if isErrorType(g.types.TypeOf(arg)) {
 		fmt.Fprint(w, "so_error_cstr(")
-		g.emitExpr(w, arg)
+		g.emitMacroArg(w, arg)
 		fmt.Fprint(w, ")")
 	} else {
 		g.emitExpr(w, arg)

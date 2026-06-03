@@ -169,7 +169,7 @@ func (g *Generator) emitSliceExpr(w io.Writer, n *ast.SliceExpr) {
 		} else {
 			fmt.Fprintf(w, "so_slice(%s, ", elemType)
 		}
-		g.emitExpr(w, n.X)
+		g.emitMacroArg(w, n.X)
 		fmt.Fprint(w, ", ")
 		if n.Low != nil {
 			g.emitExpr(w, n.Low)
@@ -180,7 +180,7 @@ func (g *Generator) emitSliceExpr(w io.Writer, n *ast.SliceExpr) {
 		if n.High != nil {
 			g.emitExpr(w, n.High)
 		} else {
-			g.emitExpr(w, n.X)
+			g.emitMacroArg(w, n.X)
 			fmt.Fprint(w, ".len")
 		}
 		if n.Slice3 {

@@ -295,7 +295,7 @@ func (g *Generator) emitCallExpr(w io.Writer, n *ast.CallExpr) {
 			argType := g.types.TypeOf(n.Args[0])
 			if _, ok := argType.Underlying().(*types.Slice); ok {
 				fmt.Fprint(w, "so_slice_array(")
-				g.emitExpr(w, n.Args[0])
+				g.emitMacroArg(w, n.Args[0])
 				fmt.Fprintf(w, ", %d)", arrType.Len())
 				return
 			}
@@ -355,11 +355,11 @@ func (g *Generator) emitSliceCast(w io.Writer, call *ast.CallExpr, sl *types.Sli
 	switch elem.Kind() {
 	case types.Byte:
 		fmt.Fprint(w, "so_string_bytes(")
-		g.emitExpr(w, call.Args[0])
+		g.emitMacroArg(w, call.Args[0])
 		fmt.Fprint(w, ")")
 	case types.Int32:
 		fmt.Fprint(w, "so_string_runes(")
-		g.emitExpr(w, call.Args[0])
+		g.emitMacroArg(w, call.Args[0])
 		fmt.Fprint(w, ")")
 	}
 }
@@ -370,11 +370,11 @@ func (g *Generator) emitStringCast(w io.Writer, call *ast.CallExpr, sl *types.Sl
 	switch elem.Kind() {
 	case types.Byte:
 		fmt.Fprint(w, "so_bytes_string(")
-		g.emitExpr(w, call.Args[0])
+		g.emitMacroArg(w, call.Args[0])
 		fmt.Fprint(w, ")")
 	case types.Int32:
 		fmt.Fprint(w, "so_runes_string(")
-		g.emitExpr(w, call.Args[0])
+		g.emitMacroArg(w, call.Args[0])
 		fmt.Fprint(w, ")")
 	default:
 		g.fail(call, "unsupported slice-to-string conversion: %s", elem)
@@ -543,7 +543,7 @@ func (g *Generator) emitIndexExpr(w io.Writer, n *ast.IndexExpr) {
 	}
 
 	fmt.Fprintf(w, "so_at(%s, ", elemType)
-	g.emitExpr(w, n.X)
+	g.emitMacroArg(w, n.X)
 	fmt.Fprint(w, ", ")
 	g.emitExpr(w, n.Index)
 	fmt.Fprint(w, ")")
@@ -624,9 +624,27 @@ func (g *Generator) emitNotNil(w io.Writer, expr ast.Expr, suffixes ...string) {
 		return
 	}
 	fmt.Fprint(w, "so_notnil(")
-	g.emitExpr(w, expr)
+	g.emitMacroArg(w, expr)
 	fmt.Fprint(w, suffix)
 	fmt.Fprint(w, ")")
+}
+
+// emitMacroArg emits an argument to a function-like macro, wrapping
+// it in parentheses when the expression is a composite literal.
+//
+// All emitted macro calls must use emitMacroArg for their arguments
+// to avoid preprocessor parsing issues.
+func (g *Generator) emitMacroArg(w io.Writer, arg ast.Expr) {
+	if isCompositeLit(arg) {
+		// A composite literal emits a braced initializer (e.g. (so_Slice){p, n, n})
+		// whose commas would otherwise be misread by the preprocessor as macro
+		// argument separators.
+		fmt.Fprint(w, "(")
+		g.emitExpr(w, arg)
+		fmt.Fprint(w, ")")
+		return
+	}
+	g.emitExpr(w, arg)
 }
 
 // needsVoidParens reports whether expr needs parentheses in a (void) cast.
@@ -663,6 +681,20 @@ func (g *Generator) isArrayParam(ident *ast.Ident) bool {
 		if param == obj {
 			return true
 		}
+	}
+	return false
+}
+
+// isCompositeLit reports whether expr emits a braced composite-literal
+// initializer at the top level.
+func isCompositeLit(expr ast.Expr) bool {
+	switch e := expr.(type) {
+	case *ast.CompositeLit:
+		// E.g., Point{1, 2} or []int{1, 2, 3}.
+		return true
+	case *ast.UnaryExpr:
+		// E.g. &Point{1, 2} or &[]int{1, 2, 3}.
+		return isCompositeLit(e.X)
 	}
 	return false
 }

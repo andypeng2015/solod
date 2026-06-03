@@ -60,8 +60,15 @@ func (g *Generator) emitBuiltin(w io.Writer, call *ast.CallExpr, ident *ast.Iden
 		}
 	}
 
-	// Other builtins are emitted as regular calls
-	// with a so_ prefix (e.g. so_len(slice)).
+	// len/cap on slices (and len on strings) emit so_len/so_cap macros.
+	if bi.Name() == "len" || bi.Name() == "cap" {
+		fmt.Fprintf(w, "so_%s(", ident.Name)
+		g.emitMacroArg(w, call.Args[0])
+		fmt.Fprint(w, ")")
+		return true
+	}
+
+	// Other builtins are emitted as regular calls with a so_ prefix.
 	fmt.Fprintf(w, "so_%s", ident.Name)
 	return false
 }
@@ -75,14 +82,14 @@ func (g *Generator) emitAppendCall(w io.Writer, call *ast.CallExpr) {
 		if basic, ok := srcType.(*types.Basic); ok && basic.Info()&types.IsString != 0 {
 			// Appending a string to a byte slice (e.g. append(dst, str...)).
 			fmt.Fprintf(w, "so_extend(%s, ", elemType)
-			g.emitExpr(w, call.Args[0])
+			g.emitMacroArg(w, call.Args[0])
 			fmt.Fprint(w, ", so_string_bytes(")
 			g.emitExpr(w, call.Args[1])
 			fmt.Fprint(w, "))")
 		} else {
 			// Appending a slice (e.g. append(dst, src...)).
 			fmt.Fprintf(w, "so_extend(%s, ", elemType)
-			g.emitExpr(w, call.Args[0])
+			g.emitMacroArg(w, call.Args[0])
 			fmt.Fprint(w, ", (")
 			g.emitExpr(w, call.Args[1])
 			fmt.Fprint(w, "))")
@@ -90,10 +97,10 @@ func (g *Generator) emitAppendCall(w io.Writer, call *ast.CallExpr) {
 	} else {
 		// Appending individual values (e.g. append(dst, v1, v2, v3)).
 		fmt.Fprintf(w, "so_append(%s, ", elemType)
-		g.emitExpr(w, call.Args[0])
+		g.emitMacroArg(w, call.Args[0])
 		for _, arg := range call.Args[1:] {
 			fmt.Fprint(w, ", ")
-			g.emitExpr(w, arg)
+			g.emitMacroArg(w, arg)
 		}
 		fmt.Fprint(w, ")")
 	}
@@ -108,7 +115,7 @@ func (g *Generator) emitClearCall(w io.Writer, call *ast.CallExpr) {
 	sliceType := typ.(*types.Slice)
 	elemType := g.mapType(call, sliceType.Elem())
 	fmt.Fprintf(w, "so_clear(%s, ", elemType)
-	g.emitExpr(w, call.Args[0])
+	g.emitMacroArg(w, call.Args[0])
 	fmt.Fprint(w, ")")
 }
 
@@ -118,9 +125,9 @@ func (g *Generator) emitCopyCall(w io.Writer, call *ast.CallExpr) {
 	if basic, ok := srcType.(*types.Basic); ok && basic.Info()&types.IsString != 0 {
 		// copy([]byte, string) - copy bytes directly from string.
 		fmt.Fprint(w, "so_copy_string(")
-		g.emitExpr(w, call.Args[0])
+		g.emitMacroArg(w, call.Args[0])
 		fmt.Fprint(w, ", ")
-		g.emitExpr(w, call.Args[1])
+		g.emitMacroArg(w, call.Args[1])
 		fmt.Fprint(w, ")")
 		return
 	}
@@ -128,9 +135,9 @@ func (g *Generator) emitCopyCall(w io.Writer, call *ast.CallExpr) {
 	dstType := g.types.TypeOf(call.Args[0]).Underlying().(*types.Slice)
 	elemType := g.mapType(call, dstType.Elem())
 	fmt.Fprintf(w, "so_copy(%s, ", elemType)
-	g.emitExpr(w, call.Args[0])
+	g.emitMacroArg(w, call.Args[0])
 	fmt.Fprint(w, ", ")
-	g.emitExpr(w, call.Args[1])
+	g.emitMacroArg(w, call.Args[1])
 	fmt.Fprint(w, ")")
 }
 
