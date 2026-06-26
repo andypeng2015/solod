@@ -61,6 +61,21 @@ func main() {
 		_ = d
 	}
 	{
+		// Multi-variable array declaration.
+		var a1, a2 [2]byte
+		_ = a1
+		_ = a2
+		var b1, b2 = [2]byte{'1', '2'}, [2]byte{'3', '4'}
+		_ = b1
+		_ = b2
+		var c1, c2 [2]byte = [2]byte{'1', '2'}, [2]byte{'3', '4'}
+		_ = c1
+		_ = c2
+		d1, d2 := [2]byte{'1', '2'}, [2]byte{'3', '4'}
+		_ = d1
+		_ = d2
+	}
+	{
 		// Array length is fixed and part of the type.
 		var a = [3]int{1, 2, 3}
 		if len(a) != 3 {

@@ -307,6 +307,14 @@ func (g *Generator) emitVarSpec(w io.Writer, spec *ast.ValueSpec, dirs directive
 	// but emit separate declarations for different types
 	// (e.g. `int a = 1, b = 2; float c = 3.14;`).
 	if g.state.indent > 0 && len(spec.Names) > 1 {
+		// emitInit emits the i-th initializer, or the zero value if absent.
+		emitInit := func(i int, typ types.Type) {
+			if len(spec.Values) > i {
+				g.emitExprAsType(w, spec, spec.Values[i], typ)
+			} else {
+				fmt.Fprint(w, g.zeroValue(spec, typ))
+			}
+		}
 		i := 0
 		for i < len(spec.Names) {
 			name := spec.Names[i]
@@ -315,36 +323,35 @@ func (g *Generator) emitVarSpec(w io.Writer, spec *ast.ValueSpec, dirs directive
 				continue
 			}
 			typ := g.types.Defs[name].Type()
-			cType := g.mapType(spec, typ)
-			fmt.Fprintf(w, "%s%s %s = ", g.indent(), cType, name.Name)
-			if len(spec.Values) > i {
-				g.emitExprAsType(w, spec, spec.Values[i], typ)
-			} else {
-				fmt.Fprint(w, g.zeroValue(spec, typ))
-			}
+			ct := g.mapCType(spec, typ)
+
+			// Emit the leading declarator: "T name = init".
+			fmt.Fprintf(w, "%s%s = ", g.indent(), ct.Decl(name.Name))
+			emitInit(i, typ)
 			i++
-			// Pointer types can't be grouped: in C, `T* a, b` declares
-			// a as T* but b as T.
-			if _, isPtr := typ.(*types.Pointer); isPtr {
+
+			// Arrays and pointers can't share a declarator group: an array
+			// carries its dimension after the name (so_byte a[8]), and in C
+			// `T* a, b` would declare b as T rather than T*.
+			_, isPtr := typ.(*types.Pointer)
+			if ct.IsArray() || isPtr {
 				fmt.Fprint(w, ";\n")
 				continue
 			}
+
+			// Group following variables of the same scalar type.
 			for i < len(spec.Names) {
 				nextName := spec.Names[i]
 				if nextName.Name == "_" {
 					break
 				}
 				nextTyp := g.types.Defs[nextName].Type()
-				nextCType := g.mapType(spec, nextTyp)
-				if nextCType != cType {
+				nextCt := g.mapCType(spec, nextTyp)
+				if nextCt.IsArray() || nextCt.Base != ct.Base {
 					break
 				}
 				fmt.Fprintf(w, ", %s = ", nextName.Name)
-				if len(spec.Values) > i {
-					g.emitExprAsType(w, spec, spec.Values[i], nextTyp)
-				} else {
-					fmt.Fprint(w, g.zeroValue(spec, nextTyp))
-				}
+				emitInit(i, nextTyp)
 				i++
 			}
 			fmt.Fprint(w, ";\n")

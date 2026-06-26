@@ -63,6 +63,25 @@ int main(void) {
         (void)d;
     }
     {
+        // Multi-variable array declaration.
+        so_byte a1[2] = {0};
+        so_byte a2[2] = {0};
+        (void)a1;
+        (void)a2;
+        so_byte b1[2] = {'1', '2'};
+        so_byte b2[2] = {'3', '4'};
+        (void)b1;
+        (void)b2;
+        so_byte c1[2] = {'1', '2'};
+        so_byte c2[2] = {'3', '4'};
+        (void)c1;
+        (void)c2;
+        so_byte d1[2] = {'1', '2'};
+        so_byte d2[2] = {'3', '4'};
+        (void)d1;
+        (void)d2;
+    }
+    {
         // Array length is fixed and part of the type.
         so_int a[3] = {1, 2, 3};
         if (3 != 3) {
