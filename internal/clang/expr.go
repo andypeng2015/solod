@@ -464,6 +464,11 @@ func (g *Generator) emitSelectorExpr(w io.Writer, n *ast.SelectorExpr) {
 		return
 	}
 
+	// Method values are not supported, because they are essentially closures.
+	if selection, ok := g.types.Selections[n]; ok && selection.Kind() == types.MethodVal {
+		g.fail(n, "method values are not supported")
+	}
+
 	// Struct/interface field access.
 	xType := g.types.TypeOf(n.X)
 	_, isPtr := xType.Underlying().(*types.Pointer)
