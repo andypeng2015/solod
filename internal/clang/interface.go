@@ -102,9 +102,10 @@ func (g *Generator) emitTypeAssertExpr(w io.Writer, n *ast.TypeAssertExpr) {
 			fmt.Fprintf(w, "(%s)", cType)
 			g.emitExpr(w, n.X)
 		} else {
-			// Value assertion: any.(Type) -> *(Type*)expr
-			fmt.Fprintf(w, "*(%s*)", cType)
+			// Value assertion: any.(Type) -> (*(Type*)expr)
+			fmt.Fprintf(w, "(*(%s*)", cType)
 			g.emitExpr(w, n.X)
+			fmt.Fprint(w, ")")
 		}
 		return
 	}
@@ -143,13 +144,16 @@ func (g *Generator) emitAnyValue(w io.Writer, node ast.Node, expr ast.Expr) {
 	}
 
 	_, isPtr := valType.Underlying().(*types.Pointer)
-	_, isIface := valType.Underlying().(*types.Interface)
-	if isPtr || isIface {
-		// Interface values pass through as-is (already void*).
+	iface, isIface := valType.Underlying().(*types.Interface)
+	if isPtr || (isIface && iface.Empty()) {
 		// Pointer values pass through as-is (implicitly convertible to void*).
+		// Empty interface (any) values pass through as-is (already void*).
 		g.emitExpr(w, expr)
 		return
 	}
+
+	// A non-empty interface is a fat struct, so it is boxed like a value type
+	// below: its address is stored in the void*.
 
 	// Value types must be passed by reference for void* storage.
 	// Identifiers, composite literals, and string literals emit as

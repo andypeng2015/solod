@@ -3,6 +3,7 @@
 // -- Types --
 
 typedef struct point point;
+typedef struct rect rect;
 typedef so_int number;
 
 typedef struct point {
@@ -10,12 +11,29 @@ typedef struct point {
     so_int y;
 } point;
 
+typedef struct shape {
+    void* self;
+    so_int (*area)(void* self);
+} shape;
+
+typedef struct rect {
+    so_int width;
+    so_int height;
+} rect;
+
 // -- Forward declarations --
+static so_int rect_area(void* self);
 static void acceptAny(void* v);
 static void acceptByte(so_byte* v);
 static void acceptPoint(point* v);
+static void acceptShape(shape v);
 
 // -- Implementation --
+
+static so_int rect_area(void* self) {
+    rect* r = self;
+    return r->width * r->height;
+}
 
 static void acceptAny(void* v) {
     (void)v;
@@ -26,6 +44,10 @@ static void acceptByte(so_byte* v) {
 }
 
 static void acceptPoint(point* v) {
+    (void)v;
+}
+
+static void acceptShape(shape v) {
     (void)v;
 }
 
@@ -101,25 +123,32 @@ int main(void) {
         acceptPoint((point*)p);
     }
     {
+        // Interface value.
+        shape s = (shape){.self = &(rect){.width = 10, .height = 5}, .area = rect_area};
+        acceptAny(&s);
+        acceptAny(&s);
+        acceptShape((*(shape*)&s));
+    }
+    {
         // Any value casts.
         so_int i = 42;
         void* a = &i;
-        if (*(so_int*)a != 42) {
+        if ((*(so_int*)a) != 42) {
             so_panic("want a.(int) == 42");
         }
         number n = 42;
         a = &n;
-        if (*(number*)a != 42) {
+        if ((*(number*)a) != 42) {
             so_panic("want a.(number) == 42");
         }
         so_String s = so_str("hello");
         a = &s;
-        if (so_string_ne(*(so_String*)a, so_str("hello"))) {
+        if (so_string_ne((*(so_String*)a), so_str("hello"))) {
             so_panic("want a.(string) == \"hello\"");
         }
         point p = (point){1, 2};
         a = &p;
-        point ap = *(point*)a;
+        point ap = (*(point*)a);
         if (ap.x != 1 || ap.y != 2) {
             so_panic("want a.(point) == point{1, 2}");
         }
@@ -145,6 +174,17 @@ int main(void) {
         a = &p1;
         if ((point*)a != &p1) {
             so_panic("want a.(*point) == &p1");
+        }
+    }
+    {
+        // Any interface casts.
+        void* a = NULL;
+        rect r = (rect){.width = 10, .height = 5};
+        shape sh = (shape){.self = &r, .area = rect_area};
+        a = &sh;
+        shape ashape = (*(shape*)a);
+        if (ashape.area(ashape.self) != rect_area(&r)) {
+            so_panic("want a.(shape) == shape(&r)");
         }
     }
     return 0;

@@ -18,6 +18,7 @@ Solod (So) is a strict subset of Go that transpiles to regular C. This document 
 [Structs](#structs) •
 [Methods](#methods) •
 [Interfaces](#interfaces) •
+[Any](#any) •
 [Enums](#enums) •
 [Errors](#errors) •
 [Panic](#panic) •
@@ -803,7 +804,49 @@ r := s.(*Rect)        // direct assertion
 
 Empty interfaces (`interface{}` and `any`) are translated to `void*`.
 
-Converting between interfaces is not supported: no type assertions like `iface.(AnotherIface)` and no type switches.
+Converting between named interfaces is not supported: no type assertions like `iface.(AnotherIface)` and no type switches.
+
+## Any
+
+`any` is not implemented as a regular interface. Instead, it's translated to `void*`.
+
+An `any` can hold any value:
+
+```go
+var a any // in C: void* a = NULL
+
+// Primitive value.
+var n int = 42
+a = n // in C: a = &n
+
+// String or slice.
+var s string = "hello"
+a = s // in C: a = &s
+
+// Struct value.
+var r Rect = Rect{5, 10}
+a = r // in C: a = &r
+
+// Pointer.
+var rp *Rect = &Rect{5, 10}
+a = rp // in C: a = rp
+
+// Named interface value.
+var sh Shape = &r
+a = sh // in C: a = &sh
+```
+
+If an `any` holds a named interface value, it can be asserted back to that interface:
+
+```go
+var r1 *Rect = &Rect{5, 10}
+var sh1 Shape = r1
+a = sh1
+sh2 := a.(Shape) // works fine
+r2 := a.(*Rect)  // DO NOT do this
+```
+
+Because `any` carries no runtime type information, the assertion `a.(Shape)` is unchecked — it trusts that `a` holds a `Shape`. Unlike Go, you should never assert `a.(*Rect)`; doing so will give you an incorrectly typed pointer. Once an interface is boxed into an `any`, you have to assert it back to the interface type (`Shape`), not the concrete pointer type inside it (`*Rect`).
 
 ## Enums
 

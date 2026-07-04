@@ -6,6 +6,18 @@ type point struct {
 	x, y int
 }
 
+type shape interface {
+	area() int
+}
+
+type rect struct {
+	width, height int
+}
+
+func (r *rect) area() int {
+	return r.width * r.height
+}
+
 func acceptAny(v any) {
 	_ = v
 }
@@ -15,6 +27,10 @@ func acceptByte(v *byte) {
 }
 
 func acceptPoint(v *point) {
+	_ = v
+}
+
+func acceptShape(v shape) {
 	_ = v
 }
 
@@ -90,6 +106,13 @@ func main() {
 		acceptPoint(any(p).(*point))
 	}
 	{
+		// Interface value.
+		var s shape = &rect{width: 10, height: 5}
+		acceptAny(s)
+		acceptAny(any(s))
+		acceptShape(any(s).(shape))
+	}
+	{
 		// Any value casts.
 		var i int = 42
 		var a any = i
@@ -134,6 +157,17 @@ func main() {
 		a = &p1
 		if a.(*point) != &p1 {
 			panic("want a.(*point) == &p1")
+		}
+	}
+	{
+		// Any interface casts.
+		var a any
+		var r rect = rect{width: 10, height: 5}
+		sh := shape(&r)
+		a = sh
+		ashape := a.(shape)
+		if ashape.area() != r.area() {
+			panic("want a.(shape) == shape(&r)")
 		}
 	}
 }
