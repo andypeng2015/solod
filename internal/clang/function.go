@@ -342,6 +342,12 @@ func (g *Generator) emitVariadicArgs(w io.Writer, call *ast.CallExpr, sig *types
 	elemType := g.mapType(call, variadicParam.Type().(*types.Slice).Elem())
 	count := len(variadicArgs)
 
+	if count == 0 {
+		// No variadic args: emit a nil slice.
+		fmt.Fprint(w, "(so_Slice){0}")
+		return
+	}
+
 	fmt.Fprintf(w, "(so_Slice){(%s[%d]){", elemType, count)
 	targetType := variadicParam.Type().(*types.Slice).Elem()
 	for i, arg := range variadicArgs {

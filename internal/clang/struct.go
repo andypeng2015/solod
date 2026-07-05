@@ -296,6 +296,11 @@ func (g *Generator) emitMethodCallArgs(w io.Writer, sel *ast.SelectorExpr, call 
 		elemType := g.mapType(sel, variadicParam.Type().(*types.Slice).Elem())
 		count := len(variadicArgs)
 		targetType := variadicParam.Type().(*types.Slice).Elem()
+		if count == 0 {
+			// No variadic args: emit a nil slice.
+			fmt.Fprintf(w, ", %s(so_Slice){0}%s", lparen, rparen)
+			return
+		}
 		fmt.Fprintf(w, ", %s(so_Slice){(%s[%d]){", lparen, elemType, count)
 		for i, arg := range variadicArgs {
 			if i > 0 {
