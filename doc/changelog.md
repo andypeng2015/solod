@@ -18,6 +18,8 @@ This document outlines the main changes in different So versions.
 
 [22e7e78](https://github.com/solod-dev/solod/commit/22e7e782cb3edc56789c08306e08e6f71739fddf)
 
+`testing` package and the `so test` command: minimal testing support that mirrors Go's `testing`. Tests live in a package's `test` subdirectory; `so test` discovers `TestXxx(t *testing.T)` functions, generates a runner, and runs them. See the [testing guide](testing.md).
+
 You can now use anonymous functions as variable types and function parameters:
 
 ```go

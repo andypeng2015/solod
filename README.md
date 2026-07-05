@@ -154,7 +154,7 @@ You can pass additional compiler and linker flags via `CFLAGS` and `LDFLAGS`:
 CFLAGS="-O2" LDFLAGS="-lm" so build -o main .
 ```
 
-On Linux (and some BSDs), the math library is not linked by default. If your program imports `so/math` — directly or through other packages like `so/io` — you'll need to add `-lm`:
+On Linux (and some BSDs), the math library is not linked by default. If your program imports `so/math` — directly or through other packages like `so/log/slog` — you'll need to add `-lm`:
 
 ```
 LDFLAGS="-lm" so build -o main .
@@ -176,7 +176,7 @@ Keep in mind that So is new, so it's still a bit rough around the edges.
 
 ## Testing and benchmarks
 
-**Testing**. So doesn't have its own testing framework. Since So code is valid Go code, you can just use `go test` like you normally would. Plus, your tests can use all Go features because they're never transpiled.
+**[Testing](doc/testing.md)**. Write tests with the `so test` command and the `so/testing` package. Since So code is also valid Go code, you can still use `go test` where it fits — those tests are never transpiled, so they can use all Go features.
 
 **[Benchmarks](bench/README.md)**. So truly shines when it comes to C interop, but it's also quite fast on regular Go code — typically on par with or faster than Go.
 

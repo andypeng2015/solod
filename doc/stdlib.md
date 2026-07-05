@@ -29,6 +29,7 @@ Solod provides a growing set of high-level packages similar to Go's stdlib, and 
 [strconv](#sostrconv) •
 [strings](#sostrings) •
 [sync](#sosync) •
+[testing](#sotesting) •
 [time](#sotime) •
 [unicode](#sounicode) •
 [unicode/utf8](#sounicodeutf8) •
@@ -478,6 +479,19 @@ Basic synchronization primitives, backed by pthreads.
 - `Once.Init` prepares the once for use.
 - `Once.Do` runs the given function on the first call only.
 - `Once.Free` releases the once's resources.
+
+## [so/testing](https://pkg.go.dev/solod.dev/so/testing)
+
+Minimal testing support, mirroring Go's `testing` package. Tests live in a package's `test` subdirectory and are run with the `so test` command. See the [testing guide](testing.md) for details.
+
+Functions:
+
+- `RunTests` runs a list of tests, prints per-test results, and exits non-zero on failure. It is called from the generated test runner.
+
+Types:
+
+- `T` is passed to each test to record failure and skip state.
+- `Test` pairs a test name with its function.
 
 ## [so/time](https://pkg.go.dev/solod.dev/so/time)
 

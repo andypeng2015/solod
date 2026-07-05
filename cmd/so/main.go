@@ -28,6 +28,8 @@ func main() {
 		err = build(args)
 	case "run":
 		err = run(args)
+	case "test":
+		err = test(args)
 	case "version":
 		fmt.Printf("so version %s\n", compiler.Version())
 		return
@@ -37,10 +39,13 @@ func main() {
 	}
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "so %s: %s\n", cmd, err)
+		// A non-zero exit from the compiled program (e.g. a failing `so test`
+		// run, or a program that calls os.Exit) is not a tool error: the
+		// program already wrote its own output. Propagate the code silently.
 		if exitErr, ok := errors.AsType[*exec.ExitError](err); ok {
 			os.Exit(exitErr.ExitCode())
 		}
+		fmt.Fprintf(os.Stderr, "so %s: %s\n", cmd, err)
 		os.Exit(1)
 	}
 }
@@ -53,6 +58,7 @@ Usage: so <command> [arguments]
 Commands:
     build        compile package to executable
     run          compile and run a package
+    test         run tests in a package's test subdirectory
     translate    translate package to C
     version      print compiler version
 
@@ -114,6 +120,26 @@ func build(args []string) error {
 		TrackSource: *trackSource,
 	}
 	return compiler.Build(pkg, out, opts)
+}
+
+func test(args []string) error {
+	flags := flag.NewFlagSet("test", flag.ContinueOnError)
+	checkNil := flags.Bool("check-nil", false, "check for nil pointer dereference")
+	trackSource := flags.Bool("track-source", false, "track source locations for panics")
+	if err := flags.Parse(args); err != nil {
+		return err
+	}
+
+	pkg := "."
+	if flags.NArg() > 0 {
+		pkg = flags.Arg(0)
+	}
+
+	opts := compiler.Options{
+		CheckNil:    *checkNil,
+		TrackSource: *trackSource,
+	}
+	return compiler.Test(pkg, opts)
 }
 
 func run(args []string) error {
