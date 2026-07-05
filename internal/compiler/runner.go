@@ -1,0 +1,178 @@
+package compiler
+
+import (
+	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"unicode"
+	"unicode/utf8"
+)
+
+// runnerName is the file name of the runner emitted into the sources dir.
+// It carries a DO NOT EDIT header and is regenerated on every run.
+const runnerName = "main.go"
+
+// kind describes a category of generated runner: tests or benchmarks. The two
+// differ only in the sources subdirectory, the discovered function prefix, the
+// expected *testing parameter, and how the runner body is emitted.
+type kind struct {
+	subdir  string // sources subdirectory, e.g. "test"
+	command string // generating command, for the DO NOT EDIT header, e.g. "so test"
+	noun    string // human-readable name used in errors, e.g. "test"
+	prefix  string // discovered function name prefix, e.g. "Test"
+	param   string // expected *testing.<param> argument, e.g. "T"
+
+	// emit writes the runner body for package pkg
+	// dispatching the given function names.
+	emit func(b *strings.Builder, pkg string, names []string)
+}
+
+// run discovers the kind's functions in the subdir of srcDir, generates a
+// deterministic main.go runner there, and runs it via Run.
+func (k kind) run(srcDir string, opts Options) error {
+	dir := filepath.Join(srcDir, k.subdir)
+	info, err := os.Stat(dir)
+	if err != nil || !info.IsDir() {
+		return fmt.Errorf("no %s directory: %s", k.subdir, dir)
+	}
+
+	names, err := k.find(dir)
+	if err != nil {
+		return err
+	}
+	if len(names) == 0 {
+		return fmt.Errorf("no %sXxx functions found in %s", k.prefix, dir)
+	}
+
+	if err := k.writeRunner(dir, packageName(srcDir), names); err != nil {
+		return err
+	}
+
+	return Run(dir, nil, opts)
+}
+
+// find parses every non-generated .go file in dir and returns the sorted names
+// of functions matching the kind's `func <Prefix>Xxx(x *testing.<Param>)` shape.
+func (k kind) find(dir string) ([]string, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	fset := token.NewFileSet()
+	var names []string
+	for _, e := range entries {
+		name := e.Name()
+		if e.IsDir() || !strings.HasSuffix(name, ".go") || name == runnerName {
+			continue
+		}
+		// Skip Go test files (_test.go). They let a package keep native
+		// Go tests and benchmarks next to the So ones (for A/B comparison).
+		if strings.HasSuffix(name, "_test.go") {
+			continue
+		}
+		path := filepath.Join(dir, name)
+		file, err := parser.ParseFile(fset, path, nil, 0)
+		if err != nil {
+			return nil, fmt.Errorf("parse %s: %w", path, err)
+		}
+		for _, decl := range file.Decls {
+			fn, ok := decl.(*ast.FuncDecl)
+			if !ok || fn.Recv != nil || !k.isName(fn.Name.Name) {
+				// Non-matching function, silently skip it.
+				continue
+			}
+			// A function that looks like one of ours but has the wrong
+			// signature is almost always a mistake, so reject it loudly
+			// rather than skipping it.
+			if err := k.checkSig(fn); err != nil {
+				return nil, fmt.Errorf("%s: %w", path, err)
+			}
+			names = append(names, fn.Name.Name)
+		}
+	}
+
+	sort.Strings(names)
+	return names, nil
+}
+
+// isName reports whether name is a valid discovered name: the kind's prefix
+// optionally followed by a suffix that does not start with a lowercase letter.
+// This mirrors Go's own rule, so a helper like "Testhelper" is not run.
+func (k kind) isName(name string) bool {
+	if !strings.HasPrefix(name, k.prefix) {
+		return false
+	}
+	if len(name) == len(k.prefix) {
+		return true
+	}
+	r, _ := utf8.DecodeRuneInString(name[len(k.prefix):])
+	return !unicode.IsLower(r)
+}
+
+// checkSig verifies that fn, whose name already qualifies for the kind, has the
+// signature `func(x *testing.<Param>)`.
+func (k kind) checkSig(fn *ast.FuncDecl) error {
+	arg := strings.ToLower(k.param)
+	want := fmt.Sprintf("%s %s must have signature func(%s *testing.%s)",
+		k.noun, fn.Name.Name, arg, k.param)
+	if fn.Type.TypeParams != nil {
+		return fmt.Errorf("%s: it must not be generic", want)
+	}
+	if fn.Type.Results != nil {
+		return fmt.Errorf("%s: it must not return a value", want)
+	}
+	if !k.isTestingParam(fn.Type.Params.List) {
+		return fmt.Errorf("%s", want)
+	}
+	return nil
+}
+
+// isTestingParam reports whether params is a single parameter of type
+// *testing.<Param> for the kind.
+func (k kind) isTestingParam(params []*ast.Field) bool {
+	// A single field may still declare multiple names, e.g. func(a, b *T).
+	if len(params) != 1 || len(params[0].Names) > 1 {
+		return false
+	}
+	star, ok := params[0].Type.(*ast.StarExpr)
+	if !ok {
+		return false
+	}
+	sel, ok := star.X.(*ast.SelectorExpr)
+	if !ok {
+		return false
+	}
+	pkg, ok := sel.X.(*ast.Ident)
+	return ok && pkg.Name == "testing" && sel.Sel.Name == k.param
+}
+
+// writeRunner emits the generated main.go that dispatches the given functions
+// for package pkg.
+func (k kind) writeRunner(dir, pkg string, names []string) error {
+	var b strings.Builder
+	fmt.Fprintf(&b, "// Code generated by %q. DO NOT EDIT.\n\n", k.command)
+	b.WriteString("package main\n\n")
+	k.emit(&b, pkg, names)
+
+	path := filepath.Join(dir, runnerName)
+	return os.WriteFile(path, []byte(b.String()), 0o644)
+}
+
+// packageName returns a human-readable name for the package under test,
+// used in the test summary line. It is the cleaned source path (e.g.
+// "so/sync"), falling back to the current directory's base name for ".".
+func packageName(srcDir string) string {
+	pkg := filepath.ToSlash(filepath.Clean(srcDir))
+	if pkg == "." {
+		if abs, err := filepath.Abs(srcDir); err == nil {
+			pkg = filepath.Base(abs)
+		}
+	}
+	return pkg
+}

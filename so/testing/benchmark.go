@@ -469,7 +469,7 @@ func RunBenchmarks(a mem.Allocator, benchmarks []Benchmark) {
 		var buf [1024]byte
 		resStr := b.result.String(buf[:])
 		memStr := b.result.MemString(buf[len(resStr):])
-		fmt.Fprintf(b.w, "Benchmark_%s  %s  %s\n", b.name, resStr, memStr)
+		fmt.Fprintf(b.w, "%s  %s  %s\n", b.name, resStr, memStr)
 	}
 }
 

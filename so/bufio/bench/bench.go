@@ -3,7 +3,6 @@ package main
 import (
 	"solod.dev/so/bufio"
 	"solod.dev/so/bytes"
-	"solod.dev/so/mem"
 	"solod.dev/so/slices"
 	"solod.dev/so/strings"
 	"solod.dev/so/testing"
@@ -15,7 +14,7 @@ var sinkStr string
 //so:volatile
 var sinkInt int64
 
-func ReaderBuf(b *testing.B) {
+func BenchmarkReaderBuf_So(b *testing.B) {
 	a := b.Allocator()
 	data := slices.Make[byte](nil, 16<<10)
 	defer slices.Free(nil, data)
@@ -31,7 +30,7 @@ func ReaderBuf(b *testing.B) {
 	}
 }
 
-func ReaderUnbuf(b *testing.B) {
+func BenchmarkReaderUnbuf_So(b *testing.B) {
 	a := b.Allocator()
 	data := slices.Make[byte](nil, 16<<10)
 	defer slices.Free(nil, data)
@@ -45,7 +44,7 @@ func ReaderUnbuf(b *testing.B) {
 	}
 }
 
-func WriterBuf(b *testing.B) {
+func BenchmarkWriterBuf_So(b *testing.B) {
 	a := b.Allocator()
 	data := slices.Make[byte](nil, 16<<10)
 	defer slices.Free(nil, data)
@@ -61,7 +60,7 @@ func WriterBuf(b *testing.B) {
 	}
 }
 
-func WriterUnbuf(b *testing.B) {
+func BenchmarkWriterUnbuf_So(b *testing.B) {
 	a := b.Allocator()
 	data := slices.Make[byte](nil, 16<<10)
 	defer slices.Free(nil, data)
@@ -75,7 +74,7 @@ func WriterUnbuf(b *testing.B) {
 	}
 }
 
-func Scanner(b *testing.B) {
+func BenchmarkScanner_So(b *testing.B) {
 	const text = "Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit,\nsed do eiusmod tempor incididunt ut labore\net dolore magna aliqua."
 	a := b.Allocator()
 	for b.Loop() {
@@ -89,15 +88,4 @@ func Scanner(b *testing.B) {
 		}
 		sc.Free()
 	}
-}
-
-func main() {
-	benchs := []testing.Benchmark{
-		{Name: "ReaderBuf", F: ReaderBuf},
-		{Name: "ReaderUnbuf", F: ReaderUnbuf},
-		{Name: "WriterBuf", F: WriterBuf},
-		{Name: "WriterUnbuf", F: WriterUnbuf},
-		{Name: "Scanner", F: Scanner},
-	}
-	testing.RunBenchmarks(mem.System, benchs)
 }

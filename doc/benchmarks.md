@@ -2,28 +2,21 @@
 
 Here are some benchmarks that show how So performs on common tasks compared to Go.
 
-[Bufio](#buffered-io) •
-[Bytes](#byte-functions) •
-[Maps](#maps) •
-[Strings](#string-conversion) •
-[Time](#time)
-
-See the benchmarks for individual packages in the nested folders:
-
-[bufio](./bufio/README.md) •
-[bytes](./bytes/README.md) •
-[encoding/binary](./encoding-binary/README.md) •
-[encoding/hex](./encoding-hex/README.md) •
-[io](./io/README.md) •
-[log/slog](./log-slog/README.md) •
-[maps](./maps/README.md) •
-[math/rand](./math-rand/README.md) •
-[net/netip](./net-netip/README.md) •
-[path](./path/README.md) •
-[strconv](./strconv/README.md) •
-[strings](./strings/README.md) •
-[time](./time/README.md) •
-[uuid](./uuid/README.md)
+[bufio](#buffered-io) •
+[bytes](#byte-functions) •
+[crypto/crand](#cryptographic-random) •
+[encoding/binary](#binary-encoding) •
+[encoding/hex](#hex-encoding) •
+[io](#stream-copying) •
+[log/slog](#structured-logging) •
+[maps](#maps) •
+[math/rand](#pseudorandom-numbers) •
+[net/netip](#ip-addresses) •
+[path](#path-manipulation) •
+[strconv](#string-conversion) •
+[strings](#string-functions) •
+[time](#time) •
+[uuid](#uuid)
 
 ## Buffered I/O
 
@@ -37,7 +30,7 @@ So is ~3x faster than Go for reading and writing, and ~4x faster for scanning.
 | Writer (unbuffered) | 4928ns | 1537ns | **So** - 3.2x |
 | Scanner             |  443ns |  112ns | **So** - 4.0x |
 
-Apple M1 • Go 1.26.1 • [details](./bufio/README.md)
+Apple M1 • Go 1.26.1
 
 ## Byte functions
 
@@ -57,7 +50,7 @@ Memory usage is the same for both.
 | Trim       |  47ns |          44ns |       44ns | **So** - 1.1x |
 | TrimSuffix |   4ns |           2ns |        2ns | **So** - 1.8x |
 
-Apple M1 • Go 1.26.1 • [details](./bytes/README.md#functions)
+Apple M1 • Go 1.26.1
 
 ## Byte buffer
 
@@ -71,7 +64,68 @@ Memory usage is the same for both.
 | WriteRune  | 15110ns |        3902ns |     3956ns | **So** - 3.8x |
 | WriteBlock | 17238ns |        7830ns |     7510ns | **So** - 2.2x |
 
-Apple M1 • Go 1.26.1 • [details](./bytes/README.md#buffer)
+Apple M1 • Go 1.26.1
+
+## Cryptographic random
+
+So is faster than Go for small reads and random text, and about the same for large reads.
+
+| Benchmark |     Go |     So | Winner        |
+| --------- | -----: | -----: | ------------- |
+| Read 4B   |   69ns |   40ns | **So** - 1.7x |
+| Read 32B  |  242ns |  211ns | **So** - 1.1x |
+| Read 4KB  | 1215ns | 1184ns | ~same         |
+| Text      |  264ns |  213ns | **So** - 1.2x |
+
+Apple M1 • Go 1.26.1
+
+## Binary encoding
+
+So encodes fixed-size integers about 2x faster than Go.
+
+| Benchmark       |     Go |     So | Winner        |
+| --------------- | -----: | -----: | ------------- |
+| BE PutUint64    | 0.63ns | 0.32ns | **So** - 2.0x |
+| BE AppendUint64 | 1.77ns | 0.95ns | **So** - 1.9x |
+| LE PutUint64    | 0.63ns | 0.31ns | **So** - 2.0x |
+| LE AppendUint64 | 1.73ns | 0.95ns | **So** - 1.8x |
+
+Apple M1 • Go 1.26.1
+
+## Hex encoding
+
+So encodes ~1.1x and decodes ~1.4x faster than Go. The ratios hold across buffer sizes from 256B to 16KB; representative figures:
+
+| Benchmark   |     Go |     So | Winner        |
+| ----------- | -----: | -----: | ------------- |
+| Encode 256B |  193ns |  171ns | **So** - 1.1x |
+| Encode 4KB  | 2940ns | 2607ns | **So** - 1.1x |
+| Decode 256B |  127ns |   96ns | **So** - 1.3x |
+| Decode 4KB  | 1963ns | 1422ns | **So** - 1.4x |
+
+Apple M1 • Go 1.26.1
+
+## Stream copying
+
+So's `io.CopyN` is ~1.2-1.3x faster than Go and, routed through an allocator, reports no per-op allocations. So uses mimalloc.
+
+| Benchmark   |      Go |      So | Winner        |
+| ----------- | ------: | ------: | ------------- |
+| CopyN small |   487ns |   419ns | **So** - 1.2x |
+| CopyN large | 21419ns | 16004ns | **So** - 1.3x |
+
+Apple M1 • Go 1.26.1
+
+## Structured logging
+
+So is 4-7x faster than Go, and logging with attributes allocates nothing in So versus three allocations in Go.
+
+| Benchmark       |    Go |   So | Winner        |
+| --------------- | ----: | ---: | ------------- |
+| No attributes   | 166ns | 39ns | **So** - 4.3x |
+| With attributes | 259ns | 38ns | **So** - 6.8x |
+
+Apple M1 • Go 1.26.1
 
 ## Maps
 
@@ -99,7 +153,59 @@ So modifications are ~1.4x faster than Go, while lookups are slightly slower.
 | Get       |  9216ns |       10170ns |     9907ns |       10531ns | Go - 0.9x     |
 | Delete    | 33819ns |       24227ns |    24392ns |           n/a | **So** - 1.4x |
 
-Apple M1 • Go 1.26.1 • [details](./maps/README.md)
+Apple M1 • Go 1.26.1
+
+## Pseudorandom numbers
+
+So's raw source generator is ~1.6x faster, but the package-level helpers (global source, bounded ints, floats) are about 2x slower than Go.
+
+| Benchmark     |    Go |    So | Winner        |
+| ------------- | ----: | ----: | ------------- |
+| Source Uint64 | 4.7ns | 2.8ns | **So** - 1.6x |
+| Global Uint64 | 4.8ns | 8.8ns | Go - 0.5x     |
+| Uint64        | 4.5ns | 8.8ns | Go - 0.5x     |
+| Int64N (1e9)  | 4.6ns | 9.1ns | Go - 0.5x     |
+| Int64N (4e18) | 9.1ns |  12ns | Go - 0.8x     |
+| Float64       | 4.4ns | 9.3ns | Go - 0.5x     |
+
+Apple M1 • Go 1.26.1
+
+## IP addresses
+
+So parses IPv6 ~1.4-1.5x faster and formats addresses 2-4x faster than Go, allocating nothing. The exception is parsing a zoned IPv6 address, which makes an `if_nametoindex` syscall and is far slower.
+
+Parsing:
+
+| Benchmark     |   Go |      So | Winner        |
+| ------------- | ---: | ------: | ------------- |
+| Parse v4      | 18ns |    16ns | **So** - 1.1x |
+| Parse v6      | 81ns |    55ns | **So** - 1.5x |
+| Parse v6e     | 47ns |    33ns | **So** - 1.4x |
+| Parse v6+v4   | 48ns |    40ns | **So** - 1.2x |
+| Parse v6+zone | 64ns | 19087ns | Go - syscall  |
+
+Formatting:
+
+| Benchmark      |   Go |   So | Winner        |
+| -------------- | ---: | ---: | ------------- |
+| String v4      | 20ns |  9ns | **So** - 2.3x |
+| String v6      | 53ns | 17ns | **So** - 3.1x |
+| String v6+v4   | 23ns | 11ns | **So** - 2.0x |
+| String v6+zone | 60ns | 14ns | **So** - 4.3x |
+
+Apple M1 • Go 1.26.1
+
+## Path manipulation
+
+Slash paths are roughly on par with Go. Matching is marginally slower in So; Join is slower with mimalloc but faster with an arena.
+
+| Benchmark   |    Go | So (mimalloc) | So (arena) | Winner    |
+| ----------- | ----: | ------------: | ---------: | --------- |
+| Join        |  61ns |          73ns |       58ns | Go - 0.8x |
+| Match true  | 105ns |         113ns |        n/a | Go - 0.9x |
+| Match false | 106ns |         114ns |        n/a | Go - 0.9x |
+
+Apple M1 • Go 1.26.1
 
 ## String conversion
 
@@ -135,7 +241,7 @@ So formats floats ~1.2x faster and ints ~2x faster than Go.
 | FormatInt 56-bit    | 24ns | 12ns | **So** - 2.0x |
 | FormatInt 62-bit    | 26ns | 13ns | **So** - 2.0x |
 
-Apple M1 • Go 1.26.1 • [details](./strconv/README.md)
+Apple M1 • Go 1.26.1
 
 ## String functions
 
@@ -155,7 +261,7 @@ Memory usage is the same for both.
 | ToUpper    | 2066ns |        1602ns |     1622ns | **So** - 1.3x |
 | Trim       |  501ns |         373ns |      375ns | **So** - 1.3x |
 
-Apple M1 • Go 1.26.1 • [details](./strings/README.md#functions)
+Apple M1 • Go 1.26.1
 
 ## String builder
 
@@ -168,7 +274,7 @@ So is 2-4x faster than Go and uses 10%-20% less memory.
 | Write string (auto-grow) | 224ns |         116ns |       57ns | **So** - 1.9x |
 | Write string (pre-grow)  | 113ns |          29ns |       26ns | **So** - 3.9x |
 
-Apple M1 • Go 1.26.1 • [details](./strings/README.md#builder)
+Apple M1 • Go 1.26.1
 
 ## Time
 
@@ -189,7 +295,21 @@ about the same for custom parsing, and 5x slower for custom formatting (due to s
 | Parse        | 27ns |   6ns | **So** - 4.9x |
 | ParseCustom  | 55ns |  45ns | **So** - 1.2x |
 
-Apple M1 • Go 1.26.1 • [details](./time/README.md)
+Apple M1 • Go 1.26.1
+
+## UUID
+
+So generates v4 UUIDs a bit faster and formats them ~4x faster; v7 generation and parsing are on par with Go.
+
+| Benchmark     |    Go |    So | Winner        |
+| ------------- | ----: | ----: | ------------- |
+| NewV4         | 251ns | 212ns | **So** - 1.2x |
+| NewV7         |  72ns |  79ns | Go - 0.9x     |
+| String        |  34ns |   9ns | **So** - 3.9x |
+| Parse (ok)    |  29ns |  29ns | ~same         |
+| Parse (error) |  26ns |  29ns | Go - 0.9x     |
+
+Apple M1 • Go 1.27
 
 ## Methodology
 

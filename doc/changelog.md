@@ -4,6 +4,8 @@ This document outlines the main changes in different So versions.
 
 ## v0.3 (in progress)
 
+`so bench` command: runs benchmarks from a package's `bench` subdirectory, mirroring `so test`. It discovers `BenchmarkXxx(b *testing.B)` functions, generates a runner that dispatches them via `testing.RunBenchmarks` with the system allocator, and runs them. See the [testing guide](testing.md).
+
 `conc` package: basic primitives for concurrent programming, backed by pthreads.
 
 - `Chan[T]` — a thread-safe FIFO channel (buffered) or rendezvous (unbuffered).

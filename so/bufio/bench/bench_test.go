@@ -20,7 +20,7 @@ type onlyWriter struct {
 	io.Writer
 }
 
-func Benchmark_ReaderBuf(b *testing.B) {
+func BenchmarkReaderBuf_Go(b *testing.B) {
 	data := make([]byte, 16<<10)
 	r := bytes.NewReader(data)
 	b.ReportAllocs()
@@ -33,7 +33,7 @@ func Benchmark_ReaderBuf(b *testing.B) {
 	}
 }
 
-func Benchmark_ReaderUnbuf(b *testing.B) {
+func BenchmarkReaderUnbuf_Go(b *testing.B) {
 	data := make([]byte, 16<<10)
 	src := bytes.NewReader(data)
 	b.ReportAllocs()
@@ -45,7 +45,7 @@ func Benchmark_ReaderUnbuf(b *testing.B) {
 	}
 }
 
-func Benchmark_WriterBuf(b *testing.B) {
+func BenchmarkWriterBuf_Go(b *testing.B) {
 	data := make([]byte, 16<<10)
 	r := bytes.NewReader(data)
 	b.ReportAllocs()
@@ -59,7 +59,7 @@ func Benchmark_WriterBuf(b *testing.B) {
 	}
 }
 
-func Benchmark_WriterUnbuf(b *testing.B) {
+func BenchmarkWriterUnbuf_Go(b *testing.B) {
 	data := make([]byte, 16<<10)
 	r := bytes.NewReader(data)
 	b.ReportAllocs()
@@ -71,7 +71,7 @@ func Benchmark_WriterUnbuf(b *testing.B) {
 	}
 }
 
-func Benchmark_Scanner(b *testing.B) {
+func BenchmarkScanner_Go(b *testing.B) {
 	const text = "Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit,\nsed do eiusmod tempor incididunt ut labore\net dolore magna aliqua."
 	b.ReportAllocs()
 	for b.Loop() {

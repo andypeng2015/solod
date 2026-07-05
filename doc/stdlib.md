@@ -482,7 +482,7 @@ Basic synchronization primitives, backed by pthreads.
 
 ## [so/testing](https://pkg.go.dev/solod.dev/so/testing)
 
-Minimal testing support, mirroring Go's `testing` package. Tests live in a package's `test` subdirectory and are run with the `so test` command. See the [testing guide](testing.md) for details.
+Minimal testing support, mirroring Go's `testing` package. Tests live in a package's `test` subdirectory and are run with the `so test` command; benchmarks live in a `bench` subdirectory and are run with `so bench`. See the [testing guide](testing.md) for details.
 
 Functions:
 

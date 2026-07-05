@@ -30,6 +30,8 @@ func main() {
 		err = run(args)
 	case "test":
 		err = test(args)
+	case "bench":
+		err = bench(args)
 	case "version":
 		fmt.Printf("so version %s\n", compiler.Version())
 		return
@@ -57,6 +59,7 @@ Usage: so <command> [arguments]
 
 Commands:
     build        compile package to executable
+    bench        run benchmarks in a package's bench subdirectory
     run          compile and run a package
     test         run tests in a package's test subdirectory
     translate    translate package to C
@@ -140,6 +143,26 @@ func test(args []string) error {
 		TrackSource: *trackSource,
 	}
 	return compiler.Test(pkg, opts)
+}
+
+func bench(args []string) error {
+	flags := flag.NewFlagSet("bench", flag.ContinueOnError)
+	checkNil := flags.Bool("check-nil", false, "check for nil pointer dereference")
+	trackSource := flags.Bool("track-source", false, "track source locations for panics")
+	if err := flags.Parse(args); err != nil {
+		return err
+	}
+
+	pkg := "."
+	if flags.NArg() > 0 {
+		pkg = flags.Arg(0)
+	}
+
+	opts := compiler.Options{
+		CheckNil:    *checkNil,
+		TrackSource: *trackSource,
+	}
+	return compiler.Bench(pkg, opts)
 }
 
 func run(args []string) error {

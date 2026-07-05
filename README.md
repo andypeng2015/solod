@@ -178,7 +178,7 @@ Keep in mind that So is new, so it's still a bit rough around the edges.
 
 **[Testing](doc/testing.md)**. Write tests with the `so test` command and the `so/testing` package. Since So code is also valid Go code, you can still use `go test` where it fits — those tests are never transpiled, so they can use all Go features.
 
-**[Benchmarks](bench/README.md)**. So truly shines when it comes to C interop, but it's also quite fast on regular Go code — typically on par with or faster than Go.
+**[Benchmarks](doc/benchmarks.md)**. So truly shines when it comes to C interop, but it's also quite fast on regular Go code — typically on par with or faster than Go.
 
 ## Compatibility
 
