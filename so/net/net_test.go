@@ -10,7 +10,7 @@ import (
 // syscall: network validation, port parsing, and the IP literal path. The
 // host-name (getaddrinfo) path needs a real resolver, and family matching
 // ("tcp4" vs "tcp6") needs the AF_* externs, which are all 0 on the host; both
-// are exercised by the std/net integration test instead.
+// are exercised by the So functional tests in so/net/test instead.
 func TestResolveTCPAddr(t *testing.T) {
 	// IP literal: resolved directly, no DNS.
 	addr, err := ResolveTCPAddr("tcp", "127.0.0.1:80")

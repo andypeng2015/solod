@@ -81,18 +81,10 @@ update-dst:
 	cp generated/$(name)/main.* testdata/$(name)/dst
 	go test -run TestTranslate/$(name) ./internal/compiler
 
-run-cases:
-	@make run-cases-by pattern="testdata/lang/*/ testdata/std/*/"
-
-run-cases-bare:
-	@make run-cases-by compiler=bare pattern="testdata/lang/*/ std/bufio std/bytealg std/bytes std/c std/cmp std/encoding-binary std/io std/maps std/math-bits std/math-rand std/mem std/path std/runtime std/slices std/strconv std/strings std/stringslite std/unicode std/unicode-utf8 std/unsafe"
-
-run-cases-windows:
-	@make run-cases-by CFLAGS="$(CFLAGS_CORE)" pattern="testdata/lang/*/"
-
-run-cases-by:
+# Runs tests in every testdata/lang/* subdirectory.
+test-lang:
 	@failed=0; \
-	for dir in $(pattern); do \
+	for dir in $$(ls -d testdata/lang/*/); do \
 		name=$${dir#testdata/}; \
 		name=$${name%/}; \
 		if make run-case name=$$name > /tmp/so_test_out.txt 2>&1; then \
@@ -111,12 +103,45 @@ run-cases-by:
 		exit 1; \
 	fi
 
+# Runs tests in every stdlib package's "test" subdirectory.
+test-std:
+	@failed=0; \
+	for dir in $$(find so -type d -name test | sort); do \
+		name=$${dir%/test}; \
+		if make run-test name=$$name > /tmp/so_test_out.txt 2>&1; then \
+			echo "PASS $$name"; \
+		else \
+			echo "FAIL $$name"; \
+			cat /tmp/so_test_out.txt; \
+			failed=1; \
+		fi; \
+	done; \
+	rm -f /tmp/so_test_out.txt; \
+	if [ $$failed -eq 0 ]; then \
+		echo "PASS"; \
+	else \
+		echo "FAIL"; \
+		exit 1; \
+	fi
+
+# Transpiles, compiles and runs a single test case in testdata/$(name),
+# leaving the generated C in generated/$(name) for inspection.
 run-case:
 	@rm -rf generated/$(name)
 	@mkdir -p generated/$(name)
 	@cp testdata/$(name)/dst/*.ext.[ch] generated/$(name)/ 2>/dev/null || true
 	@go run ./cmd/so translate -o generated/$(name) testdata/$(name)/src
 	@make run-c path=generated/$(name)
+
+# Transpiles, compiles and runs the tests in a package's "test" subdirectory
+# (e.g. name=so/sync runs so/sync/test), leaving the generated C in
+# generated/$(name)/test for inspection. It relies on the committed test
+# runner (test/main.go); regenerate that with `so test` when tests change.
+run-test:
+	@rm -rf generated/$(name)/test
+	@mkdir -p generated/$(name)/test
+	@go run ./cmd/so translate -o generated/$(name)/test $(name)/test
+	@make run-c path=generated/$(name)/test
 
 run-c:
 	@mkdir -p build
