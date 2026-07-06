@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/path", []testing.Benchmark{
 		{Name: "BenchmarkJoin_So", F: BenchmarkJoin_So},
 		{Name: "BenchmarkMatchTrue_So", F: BenchmarkMatchTrue_So},
 		{Name: "BenchmarkMatchFalse_So", F: BenchmarkMatchFalse_So},

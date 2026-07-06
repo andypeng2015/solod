@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/encoding/binary", []testing.Benchmark{
 		{Name: "BenchmarkBE_PutUint64_So", F: BenchmarkBE_PutUint64_So},
 		{Name: "BenchmarkBE_AppendUint64_So", F: BenchmarkBE_AppendUint64_So},
 		{Name: "BenchmarkLE_PutUint64_So", F: BenchmarkLE_PutUint64_So},

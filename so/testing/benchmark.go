@@ -10,6 +10,7 @@ import (
 	"solod.dev/so/math"
 	"solod.dev/so/mem"
 	"solod.dev/so/os"
+	"solod.dev/so/runtime"
 	"solod.dev/so/strings"
 	"solod.dev/so/time"
 )
@@ -449,8 +450,14 @@ type Benchmark struct {
 // BenchmarkFunc is a function that benchmarks a piece of code.
 type BenchmarkFunc func(b *B)
 
-// RunBenchmarks runs the given benchmarks and prints the results to stdout.
-func RunBenchmarks(a mem.Allocator, benchmarks []Benchmark) {
+// RunBenchmarks runs the given benchmarks for package pkg, prints the results
+// to stdout, and exits with a non-zero status if any benchmark failed.
+func RunBenchmarks(a mem.Allocator, pkg string, benchmarks []Benchmark) {
+	fmt.Fprintf(os.Stdout, "goos: %s\n", runtime.GOOS)
+	fmt.Fprintf(os.Stdout, "goarch: %s\n", runtime.GOARCH)
+	fmt.Fprintf(os.Stdout, "pkg: %s\n", pkg)
+
+	failed := 0
 	for _, bench := range benchmarks {
 		b := &B{
 			name:      bench.Name,
@@ -464,6 +471,7 @@ func RunBenchmarks(a mem.Allocator, benchmarks []Benchmark) {
 		}
 		if b.failed {
 			fmt.Fprintf(b.w, "--- FAIL: %s\n", b.name)
+			failed++
 			continue
 		}
 		var buf [1024]byte
@@ -471,6 +479,12 @@ func RunBenchmarks(a mem.Allocator, benchmarks []Benchmark) {
 		memStr := b.result.MemString(buf[len(resStr):])
 		fmt.Fprintf(b.w, "%s  %s  %s\n", b.name, resStr, memStr)
 	}
+
+	if failed > 0 {
+		fmt.Fprintf(os.Stdout, "FAIL\t%s\t%d of %d failed\n", pkg, failed, len(benchmarks))
+		os.Exit(1)
+	}
+	fmt.Fprintf(os.Stdout, "ok\t%s\t%d benchmarks\n", pkg, len(benchmarks))
 }
 
 // RunBenchmark benchmarks a single function and returns the results.

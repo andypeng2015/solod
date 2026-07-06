@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/io", []testing.Benchmark{
 		{Name: "BenchmarkCopyNSmall_So", F: BenchmarkCopyNSmall_So},
 		{Name: "BenchmarkCopyNLarge_So", F: BenchmarkCopyNLarge_So},
 	})

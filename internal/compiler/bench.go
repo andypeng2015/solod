@@ -31,7 +31,7 @@ func emitBenchmarks(b *strings.Builder, pkg string, names []string) {
 	b.WriteString("\t\"solod.dev/so/testing\"\n")
 	b.WriteString(")\n\n")
 	b.WriteString("func main() {\n")
-	b.WriteString("\ttesting.RunBenchmarks(mem.System, []testing.Benchmark{\n")
+	fmt.Fprintf(b, "\ttesting.RunBenchmarks(mem.System, %q, []testing.Benchmark{\n", pkg)
 	for _, name := range names {
 		fmt.Fprintf(b, "\t\t{Name: %q, F: %s},\n", name, name)
 	}

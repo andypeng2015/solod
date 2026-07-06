@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/log/slog", []testing.Benchmark{
 		{Name: "BenchmarkNoAttr_So", F: BenchmarkNoAttr_So},
 		{Name: "BenchmarkAttr_So", F: BenchmarkAttr_So},
 	})

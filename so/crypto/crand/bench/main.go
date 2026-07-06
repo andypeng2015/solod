@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/crypto/crand", []testing.Benchmark{
 		{Name: "BenchmarkRead_4_So", F: BenchmarkRead_4_So},
 		{Name: "BenchmarkRead_32_So", F: BenchmarkRead_32_So},
 		{Name: "BenchmarkRead_4K_So", F: BenchmarkRead_4K_So},

@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/bufio", []testing.Benchmark{
 		{Name: "BenchmarkReaderBuf_So", F: BenchmarkReaderBuf_So},
 		{Name: "BenchmarkReaderUnbuf_So", F: BenchmarkReaderUnbuf_So},
 		{Name: "BenchmarkWriterBuf_So", F: BenchmarkWriterBuf_So},

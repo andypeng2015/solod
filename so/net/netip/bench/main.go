@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/net/netip", []testing.Benchmark{
 		{Name: "BenchmarkParse_v4_So", F: BenchmarkParse_v4_So},
 		{Name: "BenchmarkParse_v6_So", F: BenchmarkParse_v6_So},
 		{Name: "BenchmarkParse_v6e_So", F: BenchmarkParse_v6e_So},

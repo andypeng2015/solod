@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/strconv", []testing.Benchmark{
 		{Name: "BenchmarkAtof64_Decimal_So", F: BenchmarkAtof64_Decimal_So},
 		{Name: "BenchmarkAtof64_Float_So", F: BenchmarkAtof64_Float_So},
 		{Name: "BenchmarkAtof64_Exp_So", F: BenchmarkAtof64_Exp_So},

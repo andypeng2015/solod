@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/math/rand", []testing.Benchmark{
 		{Name: "BenchmarkSourceUint64_So", F: BenchmarkSourceUint64_So},
 		{Name: "BenchmarkGlobalUint64_So", F: BenchmarkGlobalUint64_So},
 		{Name: "BenchmarkUint64_So", F: BenchmarkUint64_So},

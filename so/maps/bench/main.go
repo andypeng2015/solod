@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/maps", []testing.Benchmark{
 		{Name: "BenchmarkIntSet_So", F: BenchmarkIntSet_So},
 		{Name: "BenchmarkIntPre_So", F: BenchmarkIntPre_So},
 		{Name: "BenchmarkIntGet_So", F: BenchmarkIntGet_So},
