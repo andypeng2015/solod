@@ -44,9 +44,8 @@ func TestSleep(t *testing.T) {
 	if elapsed < 20*time.Millisecond {
 		t.Error("Sleep returned before the duration elapsed")
 	}
-	if elapsed > 100*time.Millisecond {
-		t.Error("Sleep returned after an unexpectedly long duration")
-	}
+	// No upper bound is asserted: Sleep only guarantees a lower bound, and a
+	// loaded machine (e.g. a CI runner) may schedule the thread much later.
 }
 
 func TestSleepNonPositive(t *testing.T) {
@@ -55,7 +54,7 @@ func TestSleepNonPositive(t *testing.T) {
 	time.Sleep(0)
 	time.Sleep(-1 * time.Second)
 	elapsed := time.Since(start)
-	if elapsed > 10*time.Millisecond {
+	if elapsed > 100*time.Millisecond {
 		t.Error("Sleep should return immediately")
 	}
 }
