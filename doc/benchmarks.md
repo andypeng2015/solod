@@ -4,6 +4,7 @@ Here are some benchmarks that show how So performs on common tasks compared to G
 
 [bufio](#buffered-io) •
 [bytes](#byte-functions) •
+[conc](#concurrency) •
 [crypto/crand](#cryptographic-random) •
 [encoding/binary](#binary-encoding) •
 [encoding/hex](#hex-encoding) •
@@ -64,6 +65,30 @@ Memory usage is the same for both.
 | WriteByte  |  8858ns |        2608ns |     2643ns | **So** - 3.4x |
 | WriteRune  | 15110ns |        3902ns |     3956ns | **So** - 3.8x |
 | WriteBlock | 17238ns |        7830ns |     7510ns | **So** - 2.2x |
+
+Apple M1 • Go 1.26.1
+
+## Concurrency
+
+`conc.Pool` is a fixed set of worker threads draining a shared task queue, built
+on So's `Mutex` and `Cond`. Each dispatch crosses into the kernel to wake a
+worker (see [Cond](#cond)), so the pool suits coarse-grained tasks: on realistic
+workloads that per-task cost is amortized and So stays within ~1.1x of Go.
+
+The benchmarks run 8 workers on both sides - So's `conc.Pool` against an
+equivalent Go pool of persistent goroutines draining a buffered channel. Each
+CPU-bound task runs computations of ~40µs; each IO-bound task blocks for 1ms,
+standing in for a network or disk round-trip.
+
+| Benchmark        |  Go |   So | Winner    |
+| ---------------- | --: | ---: | --------- |
+| Work (CPU-bound) | 7ms |  8ms | Go - 0.9x |
+| IO (IO-bound)    | 9ms | 10ms | Go - 0.9x |
+
+For CPU-bound work So's faster compute nearly offsets its heavier dispatch; for
+IO-bound work the dispatch cost hides behind the blocking waits. Note the pool
+is capped at `NumThreads` OS threads, so unlike Go's goroutines it cannot fan a
+single batch out to thousands of concurrent IO waits.
 
 Apple M1 • Go 1.26.1
 
