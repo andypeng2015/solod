@@ -15,6 +15,7 @@ Here are some benchmarks that show how So performs on common tasks compared to G
 [path](#path-manipulation) •
 [strconv](#string-conversion) •
 [strings](#string-functions) •
+[sync](#synchronization) •
 [time](#time) •
 [uuid](#uuid)
 
@@ -273,6 +274,58 @@ So is 2-4x faster than Go and uses 10%-20% less memory.
 | Write bytes (pre-grow)   | 109ns |          29ns |       25ns | **So** - 3.8x |
 | Write string (auto-grow) | 224ns |         116ns |       57ns | **So** - 1.9x |
 | Write string (pre-grow)  | 113ns |          29ns |       26ns | **So** - 3.9x |
+
+Apple M1 • Go 1.26.1
+
+## Synchronization
+
+So's synchronization primitives are built on POSIX threads: `Mutex` and `Cond`
+wrap a pthread mutex and condition variable. The mutex is faster than Go's, but
+`Cond` and `Once` are slower - `Cond` because it parks threads in the kernel
+instead of a user-space scheduler, and `Once` because `Do` locks the mutex on
+every call (there is no lock-free fast path yet).
+
+The contended benchmarks run 8 worker threads that share one primitive, using a
+persistent thread pool on the So side and an equivalent persistent goroutine pool
+on the Go side.
+
+### Mutex
+
+Uncontended lock/unlock is ~1.6x faster than Go, and under contention So is ~2.8x faster.
+
+| Benchmark             |    Go |    So | Winner        |
+| --------------------- | ----: | ----: | ------------- |
+| Uncontended           |  14ns |   9ns | **So** - 1.6x |
+| TryLock               |  15ns |   9ns | **So** - 1.7x |
+| Contended (8 threads) | 600µs | 213µs | **So** - 2.8x |
+
+### Cond
+
+So's condition variable is ~7-10x slower than Go across waiter counts: each
+wakeup crosses into the kernel, while Go wakes goroutines in user space. Figures
+are per 1000 rendezvous rounds.
+
+| Benchmark  |     Go |    So | Winner     |
+| ---------- | -----: | ----: | ---------- |
+| 1 waiter   | 0.15ms | 1.5ms | Go - 0.10x |
+| 2 waiters  | 0.39ms | 2.9ms | Go - 0.13x |
+| 4 waiters  | 0.87ms | 7.3ms | Go - 0.12x |
+| 8 waiters  |  2.0ms |  14ms | Go - 0.15x |
+| 16 waiters |  3.9ms |  28ms | Go - 0.14x |
+| 32 waiters |  9.0ms |  60ms | Go - 0.15x |
+
+### Once
+
+Uncontended, So's `Do` is ~4x slower than Go because it takes the mutex every
+time instead of a lock-free atomic check. Under contention the gap widens
+sharply: the workers serialize on the mutex (the So figure matches the plain
+contended mutex), while Go's fast path stays lock-free and scales. Both will
+improve once So gains atomics.
+
+| Benchmark             |    Go |    So | Winner     |
+| --------------------- | ----: | ----: | ---------- |
+| Uncontended           | 2.1ns | 8.6ns | Go - 0.24x |
+| Contended (8 threads) | 5.9µs | 205µs | Go - 0.03x |
 
 Apple M1 • Go 1.26.1
 
