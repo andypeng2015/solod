@@ -352,6 +352,22 @@ improve once So gains atomics.
 | Uncontended           | 2.1ns | 8.6ns | Go - 0.24x |
 | Contended (8 threads) | 5.9µs | 205µs | Go - 0.03x |
 
+### Atomic
+
+So's atomic types map directly to the compiler's `__atomic` builtins - the same
+hardware instructions Go emits - so performance is on par with Go across the board.
+
+Single-value ops use `Uint64`; the contended row runs 8 threads adding to one counter.
+
+| Benchmark       |    Go |    So | Winner |
+| --------------- | ----: | ----: | ------ |
+| Load            |   2ns |   2ns | ~same  |
+| Store           |   2ns |   2ns | ~same  |
+| Add             |   7ns |   7ns | ~same  |
+| Swap            |   7ns |   6ns | ~same  |
+| CompareAndSwap  |  13ns |  13ns | ~same  |
+| Add (8 threads) | 180µs | 180µs | ~same  |
+
 Apple M1 • Go 1.26.1
 
 ## Time

@@ -29,6 +29,7 @@ Solod provides a growing set of high-level packages similar to Go's stdlib, and 
 [strconv](#sostrconv) •
 [strings](#sostrings) •
 [sync](#sosync) •
+[sync/atomic](#sosyncatomic) •
 [testing](#sotesting) •
 [time](#sotime) •
 [unicode](#sounicode) •
@@ -479,6 +480,18 @@ Basic synchronization primitives, backed by pthreads.
 - `Once.Init` prepares the once for use.
 - `Once.Do` runs the given function on the first call only.
 - `Once.Free` releases the once's resources.
+
+## [so/sync/atomic](https://pkg.go.dev/solod.dev/so/sync/atomic)
+
+Lock-free atomic operations. Each type's zero value is ready to use,
+and must not be copied after first use.
+
+`Int32`, `Int64`, `Uint32`, `Uint64`, `Bool`, and `Pointer[T]` wrap a single value:
+
+- `Load` and `Store` atomically read and write the value.
+- `Swap` stores a new value and returns the previous one.
+- `CompareAndSwap` sets a new value only if the current one matches, reporting whether it did.
+- `Add` (numeric types only) adds a delta and returns the new value.
 
 ## [so/testing](https://pkg.go.dev/solod.dev/so/testing)
 
