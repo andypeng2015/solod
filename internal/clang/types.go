@@ -60,6 +60,13 @@ func (g *Generator) mapCType(node ast.Node, typ types.Type) CType {
 			FuncParams: params,
 		}
 	}
+	// Anonymous struct is only valid as a local variable with an initializer:
+	// `s := struct{ v int }{42}` translates to `so_auto s = (struct{ so_int v; }){42}`.
+	// Value contexts (slice/array elements, params, returns) go through
+	// mapType instead, which fails because there is no C type name.
+	if _, ok := types.Unalias(typ).(*types.Struct); ok {
+		return CType{Base: "so_auto"}
+	}
 	// Regular type (including arrays and named function types).
 	return CType{
 		Base: g.mapType(node, typ),
@@ -136,7 +143,9 @@ func (g *Generator) mapType(node ast.Node, typ types.Type) string {
 		g.fail(node, "no matching function type for signature")
 
 	case *types.Struct:
-		return "so_auto"
+		// Anonymous structs have no C type name, so they are unusable
+		// in value contexts (slice/array elements, params, returns).
+		g.fail(node, "use a named struct type instead of an anonymous struct")
 
 	case *types.TypeParam:
 		return t.Obj().Name()
@@ -289,6 +298,13 @@ func (g *Generator) isUnexportedType(typ types.Type) bool {
 		return false
 	}
 	return !ast.IsExported(obj.Name())
+}
+
+// isAnonStruct reports whether typ is an anonymous struct type.
+func isAnonStruct(typ types.Type) bool {
+	// Named struct types are *types.Named, not *types.Struct.
+	_, ok := types.Unalias(typ).(*types.Struct)
+	return ok
 }
 
 // isErrorType checks if a type is the built-in error interface.

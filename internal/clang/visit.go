@@ -330,11 +330,12 @@ func (g *Generator) emitVarSpec(w io.Writer, spec *ast.ValueSpec, dirs directive
 			emitInit(i, typ)
 			i++
 
-			// Arrays and pointers can't share a declarator group: an array
-			// carries its dimension after the name (so_byte a[8]), and in C
-			// `T* a, b` would declare b as T rather than T*.
+			// Arrays, pointers and anonymous structs can't be grouped:
+			//  - an array carries its dimension after the name (so_byte a[8])
+			//  - `T* a, b` declares a as T* but b as T
+			//  - __auto_type allows only one declarator per statement
 			_, isPtr := typ.(*types.Pointer)
-			if ct.IsArray() || isPtr || ct.FuncPtr {
+			if ct.IsArray() || isPtr || ct.FuncPtr || isAnonStruct(typ) {
 				fmt.Fprint(w, ";\n")
 				continue
 			}

@@ -141,15 +141,18 @@ func (g *Generator) emitDefine(w io.Writer, stmt *ast.AssignStmt) {
 
 		// Emit a variable declaration for this variable
 		// (grouped with subsequent variables of the same type).
-		// Pointer types can't be grouped: in C, `T* a, b` declares
-		// a as T* but b as T.
 		fmt.Fprintf(w, "%s%s = ", g.indent(), ct.Decl(ident.Name))
 		g.emitExpr(w, stmt.Rhs[i])
 		i++
-		if _, isPtr := typ.(*types.Pointer); isPtr {
+
+		// Pointer types and anonymous structs can't be grouped:
+		//  - `T* a, b` declares a as T* but b as T
+		//  - __auto_type allows only one declarator per statement
+		if _, isPtr := typ.(*types.Pointer); isPtr || isAnonStruct(typ) {
 			fmt.Fprint(w, ";\n")
 			continue
 		}
+
 		for i < len(stmt.Lhs) {
 			nextIdent := stmt.Lhs[i].(*ast.Ident)
 			if nextIdent.Name == "_" {

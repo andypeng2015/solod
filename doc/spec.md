@@ -702,6 +702,8 @@ b := Benchmark{name: "Test", loop: struct{ n, i int }{n: 200, i: 10}}
 b.loop.n = 100
 ```
 
+Anonymous structs are only supported as local variables (the `dog` example) and as inner struct fields (the `Benchmark` example). In other cases — slice/array elements, params, returns — use a named type instead.
+
 Struct comparison (`==`, `!=`) is not supported.
 
 `new()` works with types and values:
