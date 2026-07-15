@@ -179,12 +179,11 @@ func decodeRuneSlow(p []byte) (rune, int) {
 	p0 := p[0]
 	x := first[p0]
 	if x >= as {
-		// The following code simulates an additional check for x == xx and
-		// handling the ASCII and invalid cases accordingly. This mask-and-or
-		// approach prevents an additional branch.
-		mask := rune(x) << 31 >> 31 // Create 0x0000 or 0xFFFF.
-		r := (rune(p[0]) &^ mask) | (RuneError & mask)
-		return r, 1
+		// x is as (ASCII) or xx (invalid); both are size 1.
+		if x == xx {
+			return RuneError, 1
+		}
+		return rune(p0), 1
 	}
 	sz := int(x & 7)
 	accept := acceptRanges[x>>4]
@@ -242,12 +241,11 @@ func decodeRuneInStringSlow(s string) (rune, int) {
 	s0 := s[0]
 	x := first[s0]
 	if x >= as {
-		// The following code simulates an additional check for x == xx and
-		// handling the ASCII and invalid cases accordingly. This mask-and-or
-		// approach prevents an additional branch.
-		mask := rune(x) << 31 >> 31 // Create 0x0000 or 0xFFFF.
-		r := (rune(s[0]) &^ mask) | (RuneError & mask)
-		return r, 1
+		// x is as (ASCII) or xx (invalid); both are size 1.
+		if x == xx {
+			return RuneError, 1
+		}
+		return rune(s0), 1
 	}
 	sz := int(x & 7)
 	accept := acceptRanges[x>>4]

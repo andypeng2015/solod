@@ -158,7 +158,7 @@ run-c:
 
 .PHONY: bench
 bench:
-	@cd $(name)/bench && go test -bench=.
+	@cd $(name)/bench && go test -bench=. -benchmem
 	@CFLAGS="-Ofast -march=native -flto -funroll-loops -DNDEBUG" \
 	$(MIMALLOC_PRELOAD) \
 	go run ./cmd/so bench ./$(name)

@@ -10,6 +10,7 @@ Solod provides a growing set of high-level packages similar to Go's stdlib, and 
 [crypto/crand](#socryptocrand) •
 [encoding/binary](#soencodingbinary) •
 [encoding/hex](#soencodinghex) •
+[encoding/json](#soencodingjson) •
 [errors](#soerrors) •
 [flag](#soflag) •
 [fmt](#sofmt) •
@@ -182,6 +183,18 @@ Types:
 - `Encoder` writes hexadecimal characters to an underlying `io.Writer`.
 - `Decoder` reads and decodes hexadecimal characters from an underlying `io.Reader`.
 - `Dumper` writes a hex dump of all data written to it.
+
+## [so/encoding/json](https://pkg.go.dev/solod.dev/so/encoding/json)
+
+Token-level JSON encoding and decoding. With no reflection, there is no
+`Marshal`/`Unmarshal`; you read and write one token at a time.
+
+Types:
+
+- `Decoder` walks a document with `Next`/`Kind` and pulls values through typed
+  getters (`Str`, `Int`, `Float`, `Bool`).
+- `Encoder` writes a document with `BeginObject`/`EndObject`, `BeginArray`/`EndArray`,
+  and the value tokens, streaming to an `io.Writer`.
 
 ## [so/errors](https://pkg.go.dev/solod.dev/so/errors)
 

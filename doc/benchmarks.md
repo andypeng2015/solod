@@ -8,6 +8,7 @@ Here are some benchmarks that show how So performs on common tasks compared to G
 [crypto/crand](#cryptographic-random) •
 [encoding/binary](#binary-encoding) •
 [encoding/hex](#hex-encoding) •
+[encoding/json](#json-encoding) •
 [io](#stream-copying) •
 [log/slog](#structured-logging) •
 [maps](#maps) •
@@ -144,6 +145,37 @@ So encodes ~1.1x and decodes ~1.4x faster than Go. The ratios hold across buffer
 | Encode 4KB  | 2940ns | 2607ns | **So** - 1.1x |
 | Decode 256B |  127ns |   96ns | **So** - 1.3x |
 | Decode 4KB  | 1963ns | 1422ns | **So** - 1.4x |
+
+## JSON encoding
+
+So's JSON API is token-level, with no reflection. Decoding is a fair comparison
+against Go's `Decoder.Token` stream: So is ~13x faster and allocates once per
+document (the scratch buffer for an escaped string) rather than boxing every
+token. Encoding is not like-for-like: Go has no token-level encoder, so its
+`Encoder` marshals a whole value by reflection, and that cached fast path stays
+ahead of So's individual token calls on a small document.
+
+| Benchmark      |     Go |    So | Winner        |
+| -------------- | -----: | ----: | ------------- |
+| Decode         | 6836ns | 528ns | **So** - 13x  |
+| Decode Unicode |  461ns |  47ns | **So** - 9.8x |
+| Encode         |  345ns | 435ns | Go - 1.3x     |
+
+Benchmarks:
+
+- Decode walks a small document that carries every token kind, pulling each value.
+- Decode Unicode decodes a string spelled as a UTF-16 surrogate pair.
+- Encode builds an equivalent document.
+
+As for allocations, Go's `Token` boxes every value in an `any`, so its cost
+scales with the document. So returns values through typed getters and touches
+the heap at most once per call.
+
+| Benchmark      | Go allocs | So allocs | Go bytes | So bytes |
+| -------------- | --------: | --------: | -------: | -------: |
+| Decode         |       187 |         1 |   4128 B |      7 B |
+| Decode Unicode |         8 |         1 |   2476 B |     12 B |
+| Encode         |         1 |         0 |    112 B |      0 B |
 
 ## Stream copying
 

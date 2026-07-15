@@ -24,6 +24,9 @@ func lower(c byte) byte {
 const IntSize = 32 << (uint64(^uint(0)) >> 63)
 
 // ParseUint is like [ParseInt] but for unsigned numbers.
+// Returns [ErrSyntax] if s is empty or contains invalid digits;
+// [ErrRange] if the value cannot be represented by a uint64;
+// [ErrBase] if base is invalid; and [ErrBitSize] if bitSize is invalid.
 //
 // A sign prefix is not permitted.
 func ParseUint(s string, base int, bitSize int) (uint64, error) {
@@ -139,13 +142,10 @@ func ParseUint(s string, base int, bitSize int) (uint64, error) {
 // correspond to int, int8, int16, int32, and int64.
 // If bitSize is below 0 or above 64, an error is returned.
 //
-// The errors that ParseInt returns have concrete type [*NumError]
-// and include err.Num = s. If s is empty or contains invalid
-// digits, err.Err = [ErrSyntax] and the returned value is 0;
-// if the value corresponding to s cannot be represented by a
-// signed integer of the given size, err.Err = [ErrRange] and the
-// returned value is the maximum magnitude integer of the
-// appropriate bitSize and sign.
+// If s is empty or contains invalid digits, ParseInt returns 0
+// and [ErrSyntax]; if the value corresponding to s cannot be represented
+// by a signed integer of the given size, ParseInt returns the maximum
+// magnitude integer of the appropriate bitSize and sign, and [ErrRange].
 //
 // [integer literals]: https://go.dev/ref/spec#Integer_literals
 func ParseInt(s string, base int, bitSize int) (int64, error) {
