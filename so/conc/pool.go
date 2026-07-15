@@ -3,6 +3,7 @@ package conc
 import (
 	"solod.dev/so/c"
 	"solod.dev/so/mem"
+	"solod.dev/so/runtime"
 	"solod.dev/so/sync"
 )
 
@@ -49,15 +50,16 @@ type Pool struct {
 	stopped bool // true if the pool is shutting down
 }
 
-// PoolOptions holds the Pool settings.
+// PoolOptions holds the Pool settings. A zero PoolOptions selects defaults.
 type PoolOptions struct {
-	NumThreads int // number of worker threads; must be >= 1
+	NumThreads int // number of worker threads; 0 = runtime.NumCPU
 	QueueSize  int // task queue size; 0 = same as NumThreads
 	StackSize  int // thread stack size in bytes; 0 = system default
 }
 
 // NewPool creates a pool with a given number of worker threads
-// and starts them. Call [Pool.Free] exactly once when done:
+// and starts them. A zero PoolOptions is valid and runs one worker per CPU.
+// Call [Pool.Free] exactly once when done:
 //
 //	opts := conc.PoolOptions{NumThreads: 4}
 //	p := conc.NewPool(mem.System, opts)
@@ -66,8 +68,11 @@ type PoolOptions struct {
 //	p.Go(work, &job2)
 //	p.Wait()
 func NewPool(alloc mem.Allocator, opts PoolOptions) *Pool {
+	c.Assert(opts.NumThreads >= 0, "conc: NumThreads must be >= 0")
 	numThreads := opts.NumThreads
-	c.Assert(numThreads >= 1, "conc: NumThreads must be >= 1")
+	if numThreads == 0 {
+		numThreads = runtime.NumCPU()
+	}
 
 	queueSize := numThreads
 	if opts.QueueSize > 0 {

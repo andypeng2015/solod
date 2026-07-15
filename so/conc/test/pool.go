@@ -19,8 +19,8 @@ func square(arg any) {
 	task.out = task.in * task.in
 }
 
-// Squares 0..99 in parallel and checks every result.
 func TestPool_ParallelMap(t *testing.T) {
+	// Squares 0..99 in parallel and checks every result.
 	const n = 100
 	tasks := make([]Task, n)
 	opts := conc.PoolOptions{NumThreads: 8}
@@ -40,8 +40,28 @@ func TestPool_ParallelMap(t *testing.T) {
 	}
 }
 
-// Submits far more tasks than workers, exercising the queue-full wait.
+func TestPool_DefaultOptions(t *testing.T) {
+	// A zero PoolOptions must produce a working pool with a CPU-count default.
+	const n = 100
+	tasks := make([]Task, n)
+	p := conc.NewPool(mem.System, conc.PoolOptions{})
+	defer p.Free()
+	for i := range tasks {
+		tasks[i].in = i
+		p.Go(square, &tasks[i])
+	}
+	p.Wait()
+
+	for i := range tasks {
+		if tasks[i].out != i*i {
+			t.Fatal("wrong square result")
+			return
+		}
+	}
+}
+
 func TestPool_BackPressure(t *testing.T) {
+	// Submits far more tasks than workers, exercising the queue-full wait.
 	const n = 1000
 	tasks := make([]Task, n)
 	opts := conc.PoolOptions{NumThreads: 2}
@@ -63,9 +83,9 @@ func TestPool_BackPressure(t *testing.T) {
 	}
 }
 
-// Uses a queue far larger than the worker limit, so most submissions
-// enqueue without blocking. All results must still be correct.
 func TestPool_QueueLarge(t *testing.T) {
+	// Uses a queue far larger than the worker limit, so most submissions
+	// enqueue without blocking. All results must still be correct.
 	const n = 200
 	tasks := make([]Task, n)
 	opts := conc.PoolOptions{NumThreads: 2, QueueSize: 128}
@@ -85,10 +105,10 @@ func TestPool_QueueLarge(t *testing.T) {
 	}
 }
 
-// Uses the smallest possible queue, so each submission past the first must
-// wait for a worker to drain a slot. This stresses the queue-full
-// back-pressure path with an explicit queue size.
 func TestPool_QueueOne(t *testing.T) {
+	// Uses the smallest possible queue, so each submission past the first must
+	// wait for a worker to drain a slot. This stresses the queue-full
+	// back-pressure path with an explicit queue size.
 	const n = 50
 	tasks := make([]Task, n)
 	opts := conc.PoolOptions{NumThreads: 4, QueueSize: 1}
@@ -119,8 +139,8 @@ func checkEven(arg any) {
 	task.out = task.in
 }
 
-// Checks that a task can report an error through its argument struct.
 func TestPool_Error(t *testing.T) {
+	// Checks that a task can report an error through its argument struct.
 	const n = 10
 	tasks := make([]Task, n)
 	opts := conc.PoolOptions{NumThreads: 4}

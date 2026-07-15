@@ -19,6 +19,7 @@ func main() {
 		{Name: "TestChan_TimeoutHandoff", F: TestChan_TimeoutHandoff},
 		{Name: "TestChan_TimeoutSend", F: TestChan_TimeoutSend},
 		{Name: "TestPool_ParallelMap", F: TestPool_ParallelMap},
+		{Name: "TestPool_DefaultOptions", F: TestPool_DefaultOptions},
 		{Name: "TestPool_BackPressure", F: TestPool_BackPressure},
 		{Name: "TestPool_QueueLarge", F: TestPool_QueueLarge},
 		{Name: "TestPool_QueueOne", F: TestPool_QueueOne},
