@@ -87,15 +87,15 @@ test-lang:
 	for dir in $$(ls -d testdata/*/); do \
 		name=$${dir#testdata/}; \
 		name=$${name%/}; \
-		if make run-case name=$$name > /tmp/so_test_out.txt 2>&1; then \
+		if make run-case name=$$name > generated/so_test_out.txt 2>&1; then \
 			echo "PASS $$name"; \
 		else \
 			echo "FAIL $$name"; \
-			cat /tmp/so_test_out.txt; \
+			cat generated/so_test_out.txt; \
 			failed=1; \
 		fi; \
 	done; \
-	rm -f /tmp/so_test_out.txt; \
+	rm -f generated/so_test_out.txt; \
 	if [ $$failed -eq 0 ]; then \
 		echo "PASS"; \
 	else \
@@ -108,15 +108,15 @@ test-std:
 	@failed=0; \
 	for dir in $$(find so -type d -name test | sort); do \
 		name=$${dir%/test}; \
-		if make run-test name=$$name > /tmp/so_test_out.txt 2>&1; then \
+		if make run-test name=$$name > generated/so_test_out.txt 2>&1; then \
 			echo "PASS $$name"; \
 		else \
 			echo "FAIL $$name"; \
-			cat /tmp/so_test_out.txt; \
+			cat generated/so_test_out.txt; \
 			failed=1; \
 		fi; \
 	done; \
-	rm -f /tmp/so_test_out.txt; \
+	rm -f generated/so_test_out.txt; \
 	if [ $$failed -eq 0 ]; then \
 		echo "PASS"; \
 	else \
