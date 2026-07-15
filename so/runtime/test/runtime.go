@@ -25,3 +25,9 @@ func TestGOARCH(t *testing.T) {
 		t.Error("Unexpected GOARCH")
 	}
 }
+
+func TestNumCPU(t *testing.T) {
+	if runtime.NumCPU() < 1 {
+		t.Error("NumCPU must be >= 1")
+	}
+}

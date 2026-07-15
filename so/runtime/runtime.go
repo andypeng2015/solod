@@ -40,6 +40,16 @@ func Version() string {
 	return buildVersion
 }
 
+// NumCPU returns the number of logical CPUs usable by the program.
+// The result is always >= 1. It reports the number of online CPUs and does
+// not account for GOMAXPROCS or scheduler affinity. On freestanding targets
+// and platforms without a CPU count query it returns 1.
+//
+//so:extern
+func NumCPU() int {
+	return 1
+}
+
 // Seed returns a random 64-bit seed.
 // It's cryptographically secure on macOS/Linux (arc4random_buf/getrandom)
 // and falls back to a time-based seed on other platforms.

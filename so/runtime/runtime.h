@@ -4,8 +4,10 @@
 
 #if defined(so_build_darwin) || defined(so_build_netbsd) || defined(so_build_openbsd)
 #include <stdlib.h>
+#include <unistd.h>
 #elif defined(so_build_linux) || defined(so_build_freebsd) || defined(so_build_dragonfly)
 #include <sys/random.h>
+#include <unistd.h>
 #elif defined(so_build_wasm)
 #include <unistd.h>
 #endif
@@ -30,7 +32,24 @@ static inline uint64_t runtime_Seed(void) {
     return seed;
 }
 
+// NumCPU returns the number of online logical CPUs, always >= 1.
+// _SC_NPROCESSORS_ONLN is not POSIX but is widely available.
+// Other hosted targets fall back to 1.
+static inline so_int runtime_NumCPU(void) {
+#if defined(so_build_darwin) || defined(so_build_linux) || defined(so_build_freebsd) || defined(so_build_netbsd) || defined(so_build_openbsd) || defined(so_build_dragonfly)
+    long n = sysconf(_SC_NPROCESSORS_ONLN);
+    return n > 0 ? (so_int)n : 1;
 #else
+    return 1;
+#endif
+}
+
+#else
+
+// NumCPU is fixed at 1 in freestanding environments.
+static inline so_int runtime_NumCPU(void) {
+    return 1;
+}
 
 // Deterministic xorshift64 fallback for freestanding environments.
 static inline uint64_t runtime_Seed(void) {

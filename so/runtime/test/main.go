@@ -12,5 +12,6 @@ func main() {
 		{Name: "TestVersion", F: TestVersion},
 		{Name: "TestGOOS", F: TestGOOS},
 		{Name: "TestGOARCH", F: TestGOARCH},
+		{Name: "TestNumCPU", F: TestNumCPU},
 	})
 }
