@@ -63,6 +63,7 @@ inspect:
 	go run ./cmd/inspect -- $(path)
 
 test:
+	@mkdir -p generated
 	@go test ./so/...
 	@go test ./internal/...
 
@@ -83,6 +84,7 @@ update-dst:
 
 # Runs tests in every testdata/* subdirectory.
 test-lang:
+	@mkdir -p generated
 	@failed=0; \
 	for dir in $$(ls -d testdata/*/); do \
 		name=$${dir#testdata/}; \
@@ -105,6 +107,7 @@ test-lang:
 
 # Runs tests in every stdlib package's "test" subdirectory.
 test-std:
+	@mkdir -p generated
 	@failed=0; \
 	for dir in $$(find so -type d -name test | sort); do \
 		name=$${dir%/test}; \
