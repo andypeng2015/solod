@@ -4,11 +4,12 @@ package main
 
 import (
 	"solod.dev/so/mem"
+	"solod.dev/so/os"
 	"solod.dev/so/testing"
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, "so/sync/atomic", []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/sync/atomic", os.Args, []testing.Benchmark{
 		{Name: "BenchmarkAtomicLoad64_So", F: BenchmarkAtomicLoad64_So},
 		{Name: "BenchmarkAtomicStore64_So", F: BenchmarkAtomicStore64_So},
 		{Name: "BenchmarkAtomicAdd64_So", F: BenchmarkAtomicAdd64_So},

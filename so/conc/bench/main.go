@@ -4,11 +4,12 @@ package main
 
 import (
 	"solod.dev/so/mem"
+	"solod.dev/so/os"
 	"solod.dev/so/testing"
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, "so/conc", []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/conc", os.Args, []testing.Benchmark{
 		{Name: "BenchmarkChanUncontended_So", F: BenchmarkChanUncontended_So},
 		{Name: "BenchmarkChanProdCons0_So", F: BenchmarkChanProdCons0_So},
 		{Name: "BenchmarkChanProdCons10_So", F: BenchmarkChanProdCons10_So},

@@ -4,11 +4,12 @@ package main
 
 import (
 	"solod.dev/so/mem"
+	"solod.dev/so/os"
 	"solod.dev/so/testing"
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, "so/encoding/hex", []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/encoding/hex", os.Args, []testing.Benchmark{
 		{Name: "BenchmarkEncode_256_So", F: BenchmarkEncode_256_So},
 		{Name: "BenchmarkEncode_1024_So", F: BenchmarkEncode_1024_So},
 		{Name: "BenchmarkEncode_4096_So", F: BenchmarkEncode_4096_So},

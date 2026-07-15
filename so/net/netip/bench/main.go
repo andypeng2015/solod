@@ -4,11 +4,12 @@ package main
 
 import (
 	"solod.dev/so/mem"
+	"solod.dev/so/os"
 	"solod.dev/so/testing"
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, "so/net/netip", []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/net/netip", os.Args, []testing.Benchmark{
 		{Name: "BenchmarkParse_v4_So", F: BenchmarkParse_v4_So},
 		{Name: "BenchmarkParse_v6_So", F: BenchmarkParse_v6_So},
 		{Name: "BenchmarkParse_v6e_So", F: BenchmarkParse_v6e_So},

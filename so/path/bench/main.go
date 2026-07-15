@@ -4,11 +4,12 @@ package main
 
 import (
 	"solod.dev/so/mem"
+	"solod.dev/so/os"
 	"solod.dev/so/testing"
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, "so/path", []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/path", os.Args, []testing.Benchmark{
 		{Name: "BenchmarkJoin_So", F: BenchmarkJoin_So},
 		{Name: "BenchmarkMatchTrue_So", F: BenchmarkMatchTrue_So},
 		{Name: "BenchmarkMatchFalse_So", F: BenchmarkMatchFalse_So},

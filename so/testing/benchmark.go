@@ -5,6 +5,7 @@
 package testing
 
 import (
+	"solod.dev/so/flag"
 	"solod.dev/so/fmt"
 	"solod.dev/so/io"
 	"solod.dev/so/math"
@@ -455,13 +456,27 @@ type BenchmarkFunc func(b *B)
 
 // RunBenchmarks runs the given benchmarks for package pkg, prints the results
 // to stdout, and exits with a non-zero status if any benchmark failed.
-func RunBenchmarks(a mem.Allocator, pkg string, benchmarks []Benchmark) {
+// args is the runner's os.Args; RunBenchmarks parses flags from it.
+func RunBenchmarks(a mem.Allocator, pkg string, args []string, benchmarks []Benchmark) {
+	var run string
+	fs := flag.NewFlagSet("so bench", flag.ContinueOnError)
+	fs.StringVar(&run, "run", "", "run only benchmarks whose names start with this prefix")
+	if err := fs.Parse(args[1:]); err != nil {
+		os.Exit(2)
+	}
+
 	fmt.Fprintf(os.Stdout, "goos: %s\n", runtime.GOOS)
 	fmt.Fprintf(os.Stdout, "goarch: %s\n", runtime.GOARCH)
 	fmt.Fprintf(os.Stdout, "pkg: %s\n", pkg)
 
 	failed := 0
+	total := 0
 	for _, bench := range benchmarks {
+		if !strings.HasPrefix(bench.Name, run) {
+			continue
+		}
+		total++
+
 		b := &B{
 			name:      bench.Name,
 			a:         mem.Tracker{Allocator: a},
@@ -483,11 +498,15 @@ func RunBenchmarks(a mem.Allocator, pkg string, benchmarks []Benchmark) {
 		fmt.Fprintf(b.w, "%s  %s  %s\n", b.name, resStr, memStr)
 	}
 
+	if total == 0 {
+		fmt.Fprintf(os.Stdout, "ok\t%s\t%d benchmarks [no benchmarks to run]\n", pkg, total)
+		return
+	}
 	if failed > 0 {
-		fmt.Fprintf(os.Stdout, "FAIL\t%s\t%d of %d failed\n", pkg, failed, len(benchmarks))
+		fmt.Fprintf(os.Stdout, "FAIL\t%s\t%d of %d failed\n", pkg, failed, total)
 		os.Exit(1)
 	}
-	fmt.Fprintf(os.Stdout, "ok\t%s\t%d benchmarks\n", pkg, len(benchmarks))
+	fmt.Fprintf(os.Stdout, "ok\t%s\t%d benchmarks\n", pkg, total)
 }
 
 // RunBenchmark benchmarks a single function and returns the results.

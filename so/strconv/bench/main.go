@@ -4,11 +4,12 @@ package main
 
 import (
 	"solod.dev/so/mem"
+	"solod.dev/so/os"
 	"solod.dev/so/testing"
 )
 
 func main() {
-	testing.RunBenchmarks(mem.System, "so/strconv", []testing.Benchmark{
+	testing.RunBenchmarks(mem.System, "so/strconv", os.Args, []testing.Benchmark{
 		{Name: "BenchmarkAtof64_Decimal_So", F: BenchmarkAtof64_Decimal_So},
 		{Name: "BenchmarkAtof64_Float_So", F: BenchmarkAtof64_Float_So},
 		{Name: "BenchmarkAtof64_Exp_So", F: BenchmarkAtof64_Exp_So},

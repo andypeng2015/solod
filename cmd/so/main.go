@@ -154,6 +154,7 @@ func test(args []string) error {
 
 func bench(args []string) error {
 	flags := flag.NewFlagSet("bench", flag.ContinueOnError)
+	run := flags.String("run", "", "run only benchmarks whose names start with this prefix")
 	checkNil := flags.Bool("check-nil", false, "check for nil pointer dereference")
 	trackSource := flags.Bool("track-source", false, "track source locations for panics")
 	if err := flags.Parse(args); err != nil {
@@ -165,11 +166,17 @@ func bench(args []string) error {
 		pkg = flags.Arg(0)
 	}
 
+	// Forward the bench-related options to the compiled runner.
+	var runArgs []string
+	if *run != "" {
+		runArgs = []string{"-run=" + *run}
+	}
+
 	opts := compiler.Options{
 		CheckNil:    *checkNil,
 		TrackSource: *trackSource,
 	}
-	return compiler.Bench(pkg, opts)
+	return compiler.Bench(pkg, runArgs, opts)
 }
 
 func run(args []string) error {
