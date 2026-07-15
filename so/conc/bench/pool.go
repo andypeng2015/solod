@@ -35,7 +35,7 @@ var ioSink int
 func BenchmarkPoolCPU_So(b *testing.B) {
 	// Measures pool throughput on CPU-bound work: numCPUTasks
 	// compute tasks run across numWorkers workers.
-	opts := conc.PoolOpts{NumThreads: numWorkers}
+	opts := conc.PoolOptions{NumThreads: numWorkers}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 
@@ -55,7 +55,7 @@ func BenchmarkPoolCPU_So(b *testing.B) {
 func BenchmarkPoolIO_So(b *testing.B) {
 	// Measures pool throughput on IO-bound work: numIOTasks tasks
 	// that each block for ioLatency run across numWorkers workers.
-	opts := conc.PoolOpts{NumThreads: numWorkers}
+	opts := conc.PoolOptions{NumThreads: numWorkers}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 

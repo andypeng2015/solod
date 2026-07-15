@@ -65,7 +65,7 @@ func BenchmarkAtomicAddContended_So(b *testing.B) {
 	// counter, the canonical lock-free-counter workload.
 	var x atomic.Uint64
 
-	opts := conc.PoolOpts{NumThreads: numWorkers}
+	opts := conc.PoolOptions{NumThreads: numWorkers}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 

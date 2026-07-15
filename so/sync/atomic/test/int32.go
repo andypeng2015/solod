@@ -17,7 +17,7 @@ func TestInt32_Concurrent(t *testing.T) {
 	// increment a shared atomic counter without a mutex.
 	const n = 1000
 	var cnt atomic.Int32
-	opts := conc.PoolOpts{NumThreads: 8}
+	opts := conc.PoolOptions{NumThreads: 8}
 	p := conc.NewPool(mem.System, opts)
 	for range n {
 		p.Go(addOne32, &cnt)

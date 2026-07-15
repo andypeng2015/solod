@@ -134,7 +134,7 @@ Meant to be used in place of language-level concurrency features.
 
 `Thread` is a handle to a single OS thread running a `func(any) any`:
 
-- `Go` launches a thread and returns a handle to it.
+- `Go` and `GoWith` launch a thread and return a handle to it.
 - `Thread.Wait` blocks until the thread terminates.
 - `Thread.Detach` hands the thread's resources to the runtime.
 

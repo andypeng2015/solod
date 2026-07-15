@@ -45,7 +45,7 @@ func TestOnce(t *testing.T) {
 
 	tasks := make([]onceTask, n)
 	seen := make([]int, n)
-	opts := conc.PoolOpts{NumThreads: 8}
+	opts := conc.PoolOptions{NumThreads: 8}
 	p := conc.NewPool(mem.System, opts)
 	for i := range tasks {
 		tasks[i].once = &once

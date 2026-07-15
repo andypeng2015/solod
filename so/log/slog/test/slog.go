@@ -65,7 +65,7 @@ func TestDefaultConcurrentInit(t *testing.T) {
 	const n = 8
 	var threads [n]conc.Thread
 	for i := range n {
-		threads[i] = conc.Go(getDefault, nil, nil)
+		threads[i] = conc.Go(getDefault, nil)
 	}
 
 	var first *slog.Logger

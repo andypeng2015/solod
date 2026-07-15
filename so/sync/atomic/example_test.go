@@ -15,7 +15,7 @@ func ExampleInt64() {
 	// A shared counter incremented by many threads without a mutex.
 	var cnt atomic.Int64
 
-	opts := conc.PoolOpts{NumThreads: 4}
+	opts := conc.PoolOptions{NumThreads: 4}
 	pool := conc.NewPool(mem.System, opts)
 	defer pool.Free()
 	for range 100 {

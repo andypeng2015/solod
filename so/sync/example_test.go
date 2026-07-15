@@ -24,7 +24,7 @@ func ExampleMutex() {
 	defer mu.Free()
 
 	cnt := counter{mu: &mu, val: 0}
-	opts := conc.PoolOpts{NumThreads: 4}
+	opts := conc.PoolOptions{NumThreads: 4}
 	pool := conc.NewPool(mem.System, opts)
 	defer pool.Free()
 	for range 100 {
@@ -60,7 +60,7 @@ func ExampleCond() {
 	defer g.mu.Free()
 	defer g.cond.Free()
 
-	thr := conc.Go(await, &g, nil)
+	thr := conc.Go(await, &g)
 	defer thr.Wait()
 
 	g.mu.Lock()
@@ -84,7 +84,7 @@ func ExampleOnce() {
 	once.Init()
 	defer once.Free()
 
-	opts := conc.PoolOpts{NumThreads: 4}
+	opts := conc.PoolOptions{NumThreads: 4}
 	pool := conc.NewPool(mem.System, opts)
 	for range 10 {
 		pool.Go(onceHello, &once)

@@ -49,23 +49,23 @@ type Pool struct {
 	stopped bool // true if the pool is shutting down
 }
 
-// PoolOpts holds the Pool settings.
-type PoolOpts struct {
+// PoolOptions holds the Pool settings.
+type PoolOptions struct {
 	NumThreads int // number of worker threads; must be >= 1
 	QueueSize  int // task queue size; 0 = same as NumThreads
 	StackSize  int // thread stack size in bytes; 0 = system default
 }
 
-// NewPool creates a pool with limit worker threads and starts them.
-// limit must be >= 1. opts may be nil for default settings.
-// Call [Pool.Free] exactly once when done:
+// NewPool creates a pool with a given number of worker threads
+// and starts them. Call [Pool.Free] exactly once when done:
 //
-//	p := conc.NewPool[Job](mem.System, 4, nil)
+//	opts := conc.PoolOptions{NumThreads: 4}
+//	p := conc.NewPool(mem.System, opts)
 //	defer p.Free()
 //	p.Go(work, &job1)
 //	p.Go(work, &job2)
 //	p.Wait()
-func NewPool(alloc mem.Allocator, opts PoolOpts) *Pool {
+func NewPool(alloc mem.Allocator, opts PoolOptions) *Pool {
 	numThreads := opts.NumThreads
 	c.Assert(numThreads >= 1, "conc: NumThreads must be >= 1")
 
@@ -87,9 +87,9 @@ func NewPool(alloc mem.Allocator, opts PoolOpts) *Pool {
 	p.notFull.Init(&p.mu)
 	p.allDone.Init(&p.mu)
 
-	topts := ThreadOpts{StackSize: opts.StackSize}
+	topts := ThreadOptions{StackSize: opts.StackSize}
 	for i := range p.workers {
-		p.workers[i] = Go(workerMain, any(p), &topts)
+		p.workers[i] = GoWith(workerMain, any(p), topts)
 	}
 	return p
 }

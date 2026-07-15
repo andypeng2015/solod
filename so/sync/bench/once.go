@@ -29,7 +29,7 @@ func BenchmarkOnceContended_So(b *testing.B) {
 	defer once.Free()
 	once.Do(noop) // mark done, so the workers exercise the fast path
 
-	opts := conc.PoolOpts{NumThreads: numWorkers}
+	opts := conc.PoolOptions{NumThreads: numWorkers}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 

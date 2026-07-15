@@ -62,7 +62,7 @@ func BenchmarkMutexContendedSpin_So(b *testing.B) {
 	mu.Init()
 	defer mu.Free()
 
-	opts := conc.PoolOpts{NumThreads: numWorkers}
+	opts := conc.PoolOptions{NumThreads: numWorkers}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 
@@ -83,7 +83,7 @@ func BenchmarkMutexContendedWork_So(b *testing.B) {
 	mu.Init()
 	defer mu.Free()
 
-	opts := conc.PoolOpts{NumThreads: numWorkers}
+	opts := conc.PoolOptions{NumThreads: numWorkers}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 

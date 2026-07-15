@@ -9,18 +9,19 @@ type Thread struct {
 	t pthread_t
 }
 
-// ThreadOpts holds optional Thread settings. A nil *ThreadOpts selects defaults.
-type ThreadOpts struct {
+// ThreadOptions holds optional Thread settings.
+// A zero ThreadOptions selects defaults.
+type ThreadOptions struct {
 	StackSize int // thread stack size in bytes; 0 = system default
 }
 
-// Go launches an OS thread that runs fn(arg) and returns a handle to it.
+// Go launches an OS thread that runs fn(arg) and returns a handle to it,
+// using default settings. Use [GoWith] to pass options.
 // fn is a named function and arg must point to storage that outlives the
 // thread: until Wait returns, or until fn returns for a detached thread.
-// opts may be nil for default settings.
 //
 //	var job Job
-//	t := conc.Go(work, &job, nil)
+//	t := conc.Go(work, &job)
 //	// ... do other work concurrently ...
 //	t.Wait() // job is complete once Wait returns
 //
@@ -30,12 +31,14 @@ type ThreadOpts struct {
 // Unlike Go's goroutines, OS threads are not cheap to start. Prefer [Pool] for
 // short-lived or numerous tasks; reserve Go for long-lived threads or a small,
 // fixed number of threads you manage (join or detach) directly.
-func Go(entry func(any) any, arg any, opts *ThreadOpts) Thread {
-	stackSize := 0
-	if opts != nil {
-		c.Assert(opts.StackSize >= 0, "conc: stack size must be >= 0")
-		stackSize = opts.StackSize
-	}
+func Go(entry func(any) any, arg any) Thread {
+	return GoWith(entry, arg, ThreadOptions{})
+}
+
+// GoWith is like [Go] but applies the given options.
+func GoWith(entry func(any) any, arg any, opts ThreadOptions) Thread {
+	c.Assert(opts.StackSize >= 0, "conc: stack size must be >= 0")
+	stackSize := opts.StackSize
 
 	var ap *pthread_attr_t = nil
 	var attr pthread_attr_t

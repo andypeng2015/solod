@@ -36,7 +36,7 @@ func benchmarkCond(b *testing.B, waiters int) {
 	st.c.Init(&st.mu)
 	defer st.c.Free()
 
-	opts := conc.PoolOpts{NumThreads: waiters + 1}
+	opts := conc.PoolOptions{NumThreads: waiters + 1}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 

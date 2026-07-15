@@ -41,7 +41,7 @@ func TestCond(t *testing.T) {
 	woke := false
 
 	g := gate{mu: &mu, cond: &cond, ready: &ready, woke: &woke}
-	thr := conc.Go(waiter, &g, nil)
+	thr := conc.Go(waiter, &g)
 
 	mu.Lock()
 	ready = true

@@ -24,7 +24,7 @@ func ExamplePool() {
 	tasks := make([]Task, n)
 
 	// Process tasks in parallel with a pool of two workers.
-	opts := conc.PoolOpts{NumThreads: 2}
+	opts := conc.PoolOptions{NumThreads: 2}
 	pool := conc.NewPool(mem.System, opts)
 	defer pool.Free()
 	for i := range tasks {
@@ -64,7 +64,7 @@ func ExampleChan() {
 	// Run the producer on a single worker: it sends n
 	// values into the channel, then closes it.
 	prod := producer{ch: ch, n: n}
-	thr := conc.Go(produce, &prod, nil)
+	thr := conc.Go(produce, &prod)
 	defer thr.Wait()
 
 	// Consume in the main thread until the channel is closed and drained.

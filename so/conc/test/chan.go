@@ -48,7 +48,7 @@ func TestChan_ProducerConsumer(t *testing.T) {
 	task := sumTask{ch: conc.NewChan[int](mem.System, 8), sum: 0}
 	defer task.ch.Free()
 
-	thr := conc.Go(consume, &task, nil)
+	thr := conc.Go(consume, &task)
 	for i := range n {
 		task.ch.Send(i)
 	}
@@ -83,7 +83,7 @@ func TestChan_Unbuffered(t *testing.T) {
 	task := seqTask{ch: conc.NewChan[int](mem.System, 0), n: 10}
 	defer task.ch.Free()
 
-	thr := conc.Go(produceSeq, &task, nil)
+	thr := conc.Go(produceSeq, &task)
 	want := 0
 	ordered := true
 	var v int
@@ -129,7 +129,7 @@ func TestChan_UnbufferedMultiProducer(t *testing.T) {
 
 	ch := conc.NewChan[int](mem.System, 0)
 	defer ch.Free()
-	opts := conc.PoolOpts{NumThreads: producers}
+	opts := conc.PoolOptions{NumThreads: producers}
 	p := conc.NewPool(mem.System, opts)
 
 	tasks := make([]rangeTask, producers)
@@ -247,7 +247,7 @@ func TestChan_TimeoutHandoff(t *testing.T) {
 	task := seqTask{ch: conc.NewChan[int](mem.System, 0), n: 10}
 	defer task.ch.Free()
 
-	thr := conc.Go(produceSeq, &task, nil)
+	thr := conc.Go(produceSeq, &task)
 	want := 0
 	ordered := true
 	var v int
@@ -281,7 +281,7 @@ func TestChan_TimeoutSend(t *testing.T) {
 	task := sumTask{ch: conc.NewChan[int](mem.System, 0), sum: 0}
 	defer task.ch.Free()
 
-	thr := conc.Go(consume, &task, nil)
+	thr := conc.Go(consume, &task)
 	for i := range n {
 		for task.ch.SendTimeout(i, 50*time.Millisecond) != conc.Ok {
 			// No receiver ready yet; keep retrying.

@@ -23,7 +23,7 @@ func square(arg any) {
 func TestPool_ParallelMap(t *testing.T) {
 	const n = 100
 	tasks := make([]Task, n)
-	opts := conc.PoolOpts{NumThreads: 8}
+	opts := conc.PoolOptions{NumThreads: 8}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 	for i := range tasks {
@@ -44,7 +44,7 @@ func TestPool_ParallelMap(t *testing.T) {
 func TestPool_BackPressure(t *testing.T) {
 	const n = 1000
 	tasks := make([]Task, n)
-	opts := conc.PoolOpts{NumThreads: 2}
+	opts := conc.PoolOptions{NumThreads: 2}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 	for i := range tasks {
@@ -68,7 +68,7 @@ func TestPool_BackPressure(t *testing.T) {
 func TestPool_QueueLarge(t *testing.T) {
 	const n = 200
 	tasks := make([]Task, n)
-	opts := conc.PoolOpts{NumThreads: 2, QueueSize: 128}
+	opts := conc.PoolOptions{NumThreads: 2, QueueSize: 128}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 	for i := range tasks {
@@ -91,7 +91,7 @@ func TestPool_QueueLarge(t *testing.T) {
 func TestPool_QueueOne(t *testing.T) {
 	const n = 50
 	tasks := make([]Task, n)
-	opts := conc.PoolOpts{NumThreads: 4, QueueSize: 1}
+	opts := conc.PoolOptions{NumThreads: 4, QueueSize: 1}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 	for i := range tasks {
@@ -123,7 +123,7 @@ func checkEven(arg any) {
 func TestPool_Error(t *testing.T) {
 	const n = 10
 	tasks := make([]Task, n)
-	opts := conc.PoolOpts{NumThreads: 4}
+	opts := conc.PoolOptions{NumThreads: 4}
 	p := conc.NewPool(mem.System, opts)
 	defer p.Free()
 	for i := range tasks {

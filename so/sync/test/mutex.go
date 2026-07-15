@@ -30,7 +30,7 @@ func TestMutex_LockUnlock(t *testing.T) {
 
 	val := 0
 	jobs := make([]counter, n)
-	opts := conc.PoolOpts{NumThreads: 8}
+	opts := conc.PoolOptions{NumThreads: 8}
 	p := conc.NewPool(mem.System, opts)
 	for i := range jobs {
 		jobs[i].mu = &mu

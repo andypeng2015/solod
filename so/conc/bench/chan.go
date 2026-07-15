@@ -58,7 +58,7 @@ func benchChanProdCons_So(b *testing.B, size int) {
 	// One consumer thread is started once and drains the channel for the whole run;
 	// each timed iteration pushes chanBatch values through it.
 	task := chanTask{ch: conc.NewChan[int](mem.System, size)}
-	thr := conc.Go(chanDrain, &task, nil)
+	thr := conc.Go(chanDrain, &task)
 
 	for b.Loop() {
 		for i := range chanBatch {

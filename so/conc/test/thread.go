@@ -19,7 +19,7 @@ func TestThread_Wait(t *testing.T) {
 	threads := make([]conc.Thread, n)
 	for i := range nums {
 		nums[i] = i
-		threads[i] = conc.Go(increment, &nums[i], nil)
+		threads[i] = conc.Go(increment, &nums[i])
 	}
 
 	ok := true
@@ -67,7 +67,7 @@ func TestThread_Detach(t *testing.T) {
 	defer l.cond.Free()
 	l.out = 9
 
-	th := conc.Go(squareLatch, &l, nil)
+	th := conc.Go(squareLatch, &l)
 	th.Detach()
 
 	l.mu.Lock()
