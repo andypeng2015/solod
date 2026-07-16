@@ -13,8 +13,9 @@ import (
 
 // Options holds the options for the compiler pipeline.
 type Options struct {
-	CheckNil    bool // check for nil pointer dereference
-	TrackSource bool // track source locations for panics
+	CheckNil    bool   // check for nil pointer dereference
+	PanicMode   string // panic termination mode: "exit" (default), "abort", or "trace"
+	TrackSource bool   // track source locations for panics
 }
 
 // Translate loads all Go packages from srcDir (including So stdlib dependencies),

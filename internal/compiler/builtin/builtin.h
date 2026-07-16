@@ -492,20 +492,53 @@ static inline so_String so_error_error(void* self) {
 })
 
 // panic aborts the program with the given message.
+//
+// SO_PANIC_MODE selects how a hosted build terminates
+// after printing the message (default SO_PANIC_EXIT):
+//   - SO_PANIC_EXIT:  exit(1). Clean, deterministic exit code.
+//   - SO_PANIC_ABORT: abort(). Raises SIGABRT for a core dump or debugger.
+//   - SO_PANIC_TRACE: print a backtrace, then exit(1).
+// Freestanding builds ignore the mode and always trap.
+#define SO_PANIC_EXIT 0
+#define SO_PANIC_ABORT 1
+#define SO_PANIC_TRACE 2
+#ifndef SO_PANIC_MODE
+#define SO_PANIC_MODE SO_PANIC_EXIT
+#endif
+
 #ifdef so_build_hosted
+
+#if SO_PANIC_MODE == SO_PANIC_TRACE
+// print_trace writes a symbolized backtrace of the current call stack
+// to stderr. Enabled only in trace panic mode.
+void so_print_trace(void);
+#define so_panic_tail()   \
+    do {                  \
+        so_print_trace(); \
+        exit(1);          \
+    } while (0)
+#elif SO_PANIC_MODE == SO_PANIC_ABORT
+#define so_panic_tail() abort()
+#else
+#define so_panic_tail() exit(1)
+#endif
+
 #define so_panic(msg)                                     \
     do {                                                  \
         fprintf(stderr, "panic: %s\n  %s:%d (func %s)\n", \
                 msg, __FILE__, __LINE__, __func__);       \
-        exit(1);                                          \
+        so_panic_tail();                                  \
     } while (0)
+
 #else
+
 #define so_panic(msg)     \
     do {                  \
         (void)msg;        \
         __builtin_trap(); \
     } while (0)
-#endif
+
+#endif  // so_build_hosted
 
 // --- Result types ---
 

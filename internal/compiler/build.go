@@ -12,6 +12,11 @@ import (
 // Build translates the Go package in srcDir to C and compiles it into outFile.
 // Uses CC (default "cc"), CFLAGS, and LDFLAGS environment variables.
 func Build(srcDir, outFile string, opts Options) error {
+	copts, err := newCompileOptions(opts)
+	if err != nil {
+		return err
+	}
+
 	tmpDir, err := os.MkdirTemp("", "solod_build")
 	if err != nil {
 		return fmt.Errorf("create temp dir: %w", err)
@@ -27,7 +32,7 @@ func Build(srcDir, outFile string, opts Options) error {
 		return err
 	}
 
-	return compileC(tmpDir, cFiles, outFile)
+	return compileC(tmpDir, cFiles, outFile, copts)
 }
 
 // Run translates and compiles the Go package in srcDir, then executes it.
@@ -85,8 +90,27 @@ func findCFiles(dir string) ([]string, error) {
 	return files, nil
 }
 
+// compileOptions holds the extra C preprocessor defines and
+// compiler flags derived from the compiler Options.
+type compileOptions struct {
+	defines []string // preprocessor -D flags
+	flags   []string // additional C compiler flags
+}
+
+// newCompileOptions derives the C defines and flags from opts.
+func newCompileOptions(opts Options) (compileOptions, error) {
+	panicDef, panicFlags, err := panicMode(opts.PanicMode)
+	if err != nil {
+		return compileOptions{}, err
+	}
+	return compileOptions{
+		defines: []string{panicDef},
+		flags:   panicFlags,
+	}, nil
+}
+
 // compileC invokes the C compiler to produce an executable.
-func compileC(includeDir string, cFiles []string, outFile string) error {
+func compileC(includeDir string, cFiles []string, outFile string, copts compileOptions) error {
 	cc := os.Getenv("CC")
 	if cc == "" {
 		cc = "cc"
@@ -94,6 +118,8 @@ func compileC(includeDir string, cFiles []string, outFile string) error {
 
 	args := []string{"-I" + includeDir}
 	args = append(args, fmt.Sprintf(`-Dso_version="%s"`, Version()))
+	args = append(args, copts.defines...)
+	args = append(args, copts.flags...)
 	args = append(args, splitFlags(os.Getenv("CFLAGS"))...)
 	args = append(args, cFiles...)
 	args = append(args, "-o", outFile)
@@ -106,6 +132,23 @@ func compileC(includeDir string, cFiles []string, outFile string) error {
 		return fmt.Errorf("C compiler: %w", err)
 	}
 	return nil
+}
+
+// panicMode maps a panic mode name to the -DSO_PANIC_MODE define and any
+// extra C compiler flags the mode needs. An empty mode defaults to "exit".
+// Trace mode needs -rdynamic for symbol names and frame pointers to unwind.
+func panicMode(mode string) (define string, flags []string, err error) {
+	switch mode {
+	case "", "exit":
+		return "-DSO_PANIC_MODE=SO_PANIC_EXIT", nil, nil
+	case "abort":
+		return "-DSO_PANIC_MODE=SO_PANIC_ABORT", nil, nil
+	case "trace":
+		return "-DSO_PANIC_MODE=SO_PANIC_TRACE",
+			[]string{"-rdynamic", "-fno-omit-frame-pointer"}, nil
+	default:
+		return "", nil, fmt.Errorf("invalid panic mode %q (want exit, abort, or trace)", mode)
+	}
 }
 
 // splitFlags splits a space-separated flags string into individual args.

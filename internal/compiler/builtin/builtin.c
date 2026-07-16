@@ -5,6 +5,24 @@
 #include <stdio.h>
 #endif
 
+#if defined(so_build_hosted) && SO_PANIC_MODE == SO_PANIC_TRACE
+#include <execinfo.h>
+#include <unistd.h>
+
+// print_trace writes a symbolized backtrace of the current call stack to
+// stderr. The top frame (this function itself) is dropped so the panic site
+// appears first. Needs -rdynamic for symbol names; frames-only otherwise.
+void so_print_trace(void) {
+    void* frames[64];
+    int n = backtrace(frames, (int)(sizeof(frames) / sizeof(frames[0])));
+    if (n > 1) {
+        backtrace_symbols_fd(frames + 1, n - 1, STDERR_FILENO);
+    } else {
+        backtrace_symbols_fd(frames, n, STDERR_FILENO);
+    }
+}
+#endif
+
 // Command-line arguments, populated by main().
 so_Slice os_Args = {0};
 
@@ -147,9 +165,9 @@ void so_map_find(const so_Map* m, const void* key, size_t key_size,
 // map_set_impl inserts or updates a key-value pair in the map.
 // Panics if the map is full and the key is not found.
 void so_map_set_impl(so_Map* m, const void* key, size_t key_size,
-                                   const void* val, size_t val_size,
-                                   uint64_t hash,
-                                   bool (*eq)(const void*, const void*, size_t)) {
+                     const void* val, size_t val_size,
+                     uint64_t hash,
+                     bool (*eq)(const void*, const void*, size_t)) {
     size_t mask = m->cap - 1;
     size_t step = (size_t)(hash >> 32) | 1;
     size_t idx = (size_t)hash & mask;

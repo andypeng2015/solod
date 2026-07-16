@@ -1019,6 +1019,18 @@ so run --track-source .
 
 When `--track-source` is enabled, the reported source location may be off by a few lines for panics that occur inside complex statements (e.g., multi-line expressions or nested calls).
 
+The `--panic` flag selects how a panic terminates the program after printing its message (`build`, `run`, `test`, and `bench`):
+
+```
+so run --panic=trace .
+```
+
+- `exit` (default): call `exit(1)`. Clean, deterministic exit code.
+- `abort`: call `abort()`, raising `SIGABRT` so a debugger, AddressSanitizer, or core dump can report the stack.
+- `trace`: print a symbolized backtrace, then `exit(1)`.
+
+Trace mode is hosted-only and adds `-rdynamic -fno-omit-frame-pointer` to the C build so frames can be unwound and named. The trace shows C symbols (`package_Func`), which map directly onto So functions; combine it with `--track-source` to relate the panic site back to So source. On some libcs (e.g. musl) `backtrace` is a stub and the trace may be empty. Freestanding builds ignore the mode and always trap.
+
 `recover` is not supported.
 
 ## Defer
