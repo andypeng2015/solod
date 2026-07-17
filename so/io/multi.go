@@ -76,10 +76,10 @@ func (mr *MultiReader) writeToWithBuffer(w Writer, buf []byte) (int64, error) {
 // the provided input readers. They're read sequentially. Once all
 // inputs have returned EOF, Read will return EOF.  If any of the readers
 // return a non-nil, non-EOF error, Read will return that error.
+//
+// NewMultiReader wraps the provided readers without copying.
 func NewMultiReader(readers ...Reader) MultiReader {
-	r := make([]Reader, len(readers))
-	copy(r, readers)
-	return MultiReader{r}
+	return MultiReader{readers}
 }
 
 type MultiWriter struct {
@@ -127,15 +127,9 @@ func (t *MultiWriter) WriteString(s string) (int, error) {
 // Each write is written to each listed writer, one at a time.
 // If a listed writer returns an error, that overall write operation
 // stops and returns the error; it does not continue down the list.
+//
+// NewMultiWriter wraps the provided writers without copying.
+// It also doesn't flatten nested MultiWriters.
 func NewMultiWriter(writers ...Writer) MultiWriter {
-	allWriters := make([]Writer, 0, len(writers))
-	for _, w := range writers {
-		if _, ok := w.(*MultiWriter); ok {
-			mw := w.(*MultiWriter)
-			allWriters = append(allWriters, mw.writers...)
-		} else {
-			allWriters = append(allWriters, w)
-		}
-	}
-	return MultiWriter{allWriters}
+	return MultiWriter{writers}
 }

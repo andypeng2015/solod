@@ -14,7 +14,7 @@ Everything is stack-allocated by default. There's no garbage collector or refere
 
 _Is it safe?_
 
-So itself has few safeguards other than the default Go type checking. It will panic on out-of-bounds array access, but it won't stop you from returning a dangling pointer or forgetting to free allocated memory.
+So itself has few safeguards other than the default Go type checking. It will panic on out-of-bounds array access and won't let you return stack-allocated memory. However, it won't catch memory leaks or use-after-free errors.
 
 Most memory-related problems can be caught with AddressSanitizer in modern compilers, so I recommend enabling it during development by adding `-fsanitize=address` to your `CFLAGS`.
 

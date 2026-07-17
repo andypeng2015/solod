@@ -90,14 +90,6 @@ func (g *Generator) returnType(node ast.Node, sig *types.Signature) string {
 			}
 			return g.mapTypeName(node, arr) + "*"
 		}
-		if _, ok := ret.Underlying().(*types.Map); ok {
-			g.fail(node, "returning maps is not supported")
-		}
-		if ptr, ok := ret.Underlying().(*types.Pointer); ok {
-			if _, ok := ptr.Elem().Underlying().(*types.Array); ok {
-				g.fail(node, "returning pointer-to-array is not supported")
-			}
-		}
 		return g.mapTypeName(node, ret)
 	}
 	return "void"

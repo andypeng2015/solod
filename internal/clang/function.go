@@ -215,6 +215,7 @@ func (g *Generator) emitMacroFuncDecl(w io.Writer, decl *ast.FuncDecl) {
 // emitFuncBody emits a function or method body. Shared by [Generator.emitFuncDecl]
 // and [Generator.emitInlineFuncDecl].
 func (g *Generator) emitFuncBody(w io.Writer, decl *ast.FuncDecl) {
+	g.rejectEscapes(decl)
 	if decl.Recv != nil {
 		g.emitMethodDecl(w, decl)
 		return

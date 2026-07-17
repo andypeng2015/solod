@@ -160,35 +160,6 @@ func (f writerFunc) Write(p []byte) (int, error) {
 	return f(p)
 }
 
-// Test that MultiWriter properly flattens chained multiWriters.
-func TestMultiWriterSingleChainFlatten(t *testing.T) {
-	pc := make([]uintptr, 1000) // 1000 should fit the full stack
-	n := runtime.Callers(0, pc)
-	var myDepth = callDepth(pc[:n])
-	var writeDepth int // will contain the depth from which writerFunc.Writer was called
-	m := NewMultiWriter(writerFunc(func(p []byte) (int, error) {
-		n := runtime.Callers(1, pc)
-		writeDepth += callDepth(pc[:n])
-		return 0, nil
-	}))
-	var w Writer = &m
-	mw := w
-	// chain a bunch of multiWriters
-	for i := 0; i < 100; i++ {
-		nmw := NewMultiWriter(w)
-		mw = &nmw
-	}
-
-	nmw := NewMultiWriter(w, mw, w, mw)
-	mw = &nmw
-	mw.Write(nil) // don't care about errors, just want to check the call-depth for Write
-
-	if writeDepth != 4*(myDepth+2) { // 2 should be multiWriter.Write and writerFunc.Write
-		t.Errorf("multiWriter did not flatten chained multiWriters: expected writeDepth %d, got %d",
-			4*(myDepth+2), writeDepth)
-	}
-}
-
 func TestMultiWriterError(t *testing.T) {
 	f1 := writerFunc(func(p []byte) (int, error) {
 		return len(p) / 2, ErrShortWrite
@@ -201,33 +172,6 @@ func TestMultiWriterError(t *testing.T) {
 	n, err := w.Write(make([]byte, 100))
 	if n != 50 || err != ErrShortWrite {
 		t.Errorf("Write = %d, %v, want 50, ErrShortWrite", n, err)
-	}
-}
-
-// Test that MultiReader copies the input slice and is insulated from future modification.
-func TestMultiReaderCopy(t *testing.T) {
-	sr := strings.NewReader("hello world")
-	slice := []Reader{&sr}
-	r := NewMultiReader(slice...)
-	slice[0] = nil
-	data, err := ReadAll(nil, &r)
-	if err != nil || string(data) != "hello world" {
-		t.Errorf("ReadAll() = %q, %v, want %q, nil", data, err, "hello world")
-	}
-}
-
-// Test that MultiWriter copies the input slice and is insulated from future modification.
-func TestMultiWriterCopy(t *testing.T) {
-	var buf strings.Builder
-	slice := []Writer{&buf}
-	w := NewMultiWriter(slice...)
-	slice[0] = nil
-	n, err := w.Write([]byte("hello world"))
-	if err != nil || n != 11 {
-		t.Errorf("Write(`hello world`) = %d, %v, want 11, nil", n, err)
-	}
-	if buf.String() != "hello world" {
-		t.Errorf("buf.String() = %q, want %q", buf.String(), "hello world")
 	}
 }
 
