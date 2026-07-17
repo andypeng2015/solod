@@ -169,13 +169,13 @@ typedef struct {
 })
 
 // string_slice creates a substring [from, to).
-#define so_string_slice(s, from, to) ({       \
-    so_String _s = (s);                       \
-    so_int _from = (so_int)(from);            \
-    so_int _to = (so_int)(to);                \
-    assert((_to <= _s.len && _from <= _to) && \
-           "slice bounds out of range");      \
-    (so_String){_s.ptr + _from, _to - _from}; \
+#define so_string_slice(s, from, to) ({                     \
+    so_String _s = (s);                                     \
+    so_int _from = (so_int)(from);                          \
+    so_int _to = (so_int)(to);                              \
+    assert((0 <= _from && _from <= _to && _to <= _s.len) && \
+           "slice bounds out of range");                    \
+    (so_String){_s.ptr + _from, _to - _from};               \
 })
 
 // string_add concatenates two strings.
@@ -305,14 +305,14 @@ typedef struct {
 
 // slice creates a slice from another slice
 // from index 'from' (inclusive) to index 'to' (exclusive).
-#define so_slice(T, s, from, to) ({                       \
-    so_Slice _s = (s);                                    \
-    so_int _from = (so_int)(from);                        \
-    so_int _to = (so_int)(to);                            \
-    assert((_to <= _s.cap && _from <= _to) &&             \
-           "slice bounds out of range");                  \
-    T* _ptr = _s.ptr == NULL ? NULL : (T*)_s.ptr + _from; \
-    (so_Slice){_ptr, _to - _from, _s.cap - _from};        \
+#define so_slice(T, s, from, to) ({                         \
+    so_Slice _s = (s);                                      \
+    so_int _from = (so_int)(from);                          \
+    so_int _to = (so_int)(to);                              \
+    assert((0 <= _from && _from <= _to && _to <= _s.cap) && \
+           "slice bounds out of range");                    \
+    T* _ptr = _s.ptr == NULL ? NULL : (T*)_s.ptr + _from;   \
+    (so_Slice){_ptr, _to - _from, _s.cap - _from};          \
 })
 
 // slice3 creates a slice from another slice with an explicit capacity.
@@ -321,7 +321,8 @@ typedef struct {
     so_int _from = (so_int)(from);                             \
     so_int _to = (so_int)(to);                                 \
     so_int _max = (so_int)(max);                               \
-    assert((_max <= _s.cap && _to <= _max && _from <= _to) &&  \
+    assert((0 <= _from && _from <= _to &&                      \
+            _to <= _max && _max <= _s.cap) &&                  \
            "slice bounds out of range");                       \
     (so_Slice){(T*)_s.ptr + _from, _to - _from, _max - _from}; \
 })
@@ -379,11 +380,12 @@ static inline so_int so_copy_impl(so_Slice dst, so_Slice src, size_t elem_size) 
 
 // at returns a reference to the element at index i in a slice or string.
 #define so_at(T, s, i) (*so_at_ptr(T, s, i))
-#define so_at_ptr(T, s, i) ({                        \
-    so_auto _s_at = (s);                             \
-    so_int _i = (so_int)(i);                         \
-    assert(_i < _s_at.len && "index out of bounds"); \
-    (T*)_s_at.ptr + _i;                              \
+#define so_at_ptr(T, s, i) ({                  \
+    so_auto _s_at = (s);                       \
+    so_int _i = (so_int)(i);                   \
+    assert((so_uint)_i < (so_uint)_s_at.len && \
+           "index out of bounds");             \
+    (T*)_s_at.ptr + _i;                        \
 })
 
 // len returns the length of a slice or string.
