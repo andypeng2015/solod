@@ -31,29 +31,41 @@ This Go code in a file `main.go`:
 ```go
 package main
 
-import "solod.dev/so/time"
+import (
+    "solod.dev/so/conc"
+    "solod.dev/so/mem"
+    "solod.dev/so/sync/atomic"
+)
 
-type Person struct {
-    Name string
-    Age  int
-    Nums [3]int
+// Account is a thread-safe money account.
+type Account struct {
+    Balance atomic.Int64
 }
 
-func (p *Person) Sleep() int {
-    p.Age += 1
-    return p.Age
+// Deposit adds an amount to the balance.
+func (a *Account) Deposit(amount int64) {
+    a.Balance.Add(amount)
+}
+
+// pay deposits $10 into the shared account.
+func pay(arg any) {
+    acc := arg.(*Account)
+    acc.Deposit(10)
 }
 
 func main() {
-    p := Person{Name: "Alice", Age: 30}
-    p.Sleep()
-    println(p.Name, "is now", p.Age, "years old.")
+    var acc Account
 
-    p.Nums[0] = 42
-    println("1st lucky number is", p.Nums[0])
+    // Run 100 payments across 4 worker threads.
+    opts := conc.PoolOptions{NumThreads: 4}
+    pool := conc.NewPool(mem.System, opts)
+    defer pool.Free()
+    for range 100 {
+        pool.Go(pay, &acc)
+    }
+    pool.Wait()
 
-    year := time.Now().Year()
-    println("The year is", year)
+    println("balance is", acc.Balance.Load())
 }
 ```
 
@@ -62,15 +74,17 @@ Translates to a header file `main.h`:
 ```c
 #pragma once
 #include "so/builtin/builtin.h"
-#include "so/time/time.h"
+#include "so/conc/conc.h"
+#include "so/mem/mem.h"
+#include "so/sync/atomic/atomic.h"
 
-typedef struct main_Person {
-    so_String Name;
-    so_int Age;
-    so_int Nums[3];
-} main_Person;
+// Account is a thread-safe money account.
+typedef struct main_Account {
+    atomic_Int64 Balance;
+} main_Account;
 
-so_int main_Person_Sleep(void* self);
+// Deposit adds an amount to the balance.
+void main_Account_Deposit(void* self, int64_t amount);
 ```
 
 Plus an implementation file `main.c`:
@@ -78,22 +92,30 @@ Plus an implementation file `main.c`:
 ```c
 #include "main.h"
 
-so_int main_Person_Sleep(void* self) {
-    main_Person* p = self;
-    p->Age += 1;
-    return p->Age;
+// Deposit adds an amount to the balance.
+void main_Account_Deposit(void* self, int64_t amount) {
+    main_Account* a = self;
+    atomic_Int64_Add(&a->Balance, amount);
+}
+
+// pay deposits $10 into the shared account.
+static void pay(void* arg) {
+    main_Account* acc = (main_Account*)arg;
+    main_Account_Deposit(acc, 10);
 }
 
 int main(void) {
-    main_Person p = (main_Person){.Name = so_str("Alice"), .Age = 30};
-    main_Person_Sleep(&p);
-    so_println("%.*s %s %" PRId64 " %s", p.Name.len, p.Name.ptr, "is now", p.Age, "years old.");
-
-    p.Nums[0] = 42;
-    so_println("%s %" PRId64, "1st lucky number is", p.Nums[0]);
-
-    so_int year = time_Time_Year(time_Now());
-    so_println("%s %" PRId64, "The year is", year);
+    main_Account acc = {0};
+    // Run 100 payments across 4 worker threads.
+    conc_PoolOptions opts = (conc_PoolOptions){.NumThreads = 4};
+    conc_Pool* pool = conc_NewPool(mem_System, opts);
+    for (so_int _i = 0; _i < 100; _i++) {
+        conc_Pool_Go(pool, pay, &acc);
+    }
+    conc_Pool_Wait(pool);
+    so_println("%s %" PRId64, "balance is", atomic_Int64_Load(&acc.Balance));
+    conc_Pool_Free(pool);
+    return 0;
 }
 ```
 
